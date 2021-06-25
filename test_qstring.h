@@ -16,7 +16,9 @@
 #include <singleton.h>
 #include <named.h>
 BEGIN_NAMESPACE
-class A: public Named<A> {
+class O: public Named<O> {};
+
+class A: public Named<A>, public O {
  public:
   A();
   virtual ~A();
@@ -27,7 +29,7 @@ class A: public Named<A> {
   void say_hello_with_std(const std::string greetings);
 };
 
-class B: public Named<A> {
+class B: public Named<A>, public O {
  public:
   B();
   virtual ~B();

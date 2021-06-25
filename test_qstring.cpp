@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 BEGIN_NAMESPACE
-
+NAMED_INIT(O, "O");
 NAMED_INIT(A, "A");
 SINGLETON_INIT(A);
 A::A() { std::cerr << "ctor<A>\n"; }
