@@ -29,7 +29,7 @@ class A: public Named<A>, public O {
   void say_hello_with_std(const std::string greetings);
 };
 
-class B: public Named<A>, public O {
+class B: public Named<B>, public O {
  public:
   B();
   virtual ~B();
