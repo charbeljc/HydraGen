@@ -1,4 +1,4 @@
-import logging
+from __future__ import annotations
 from typing import no_type_check_decorator
 
 from clang.cindex import (
@@ -207,8 +207,8 @@ class TxUnit(NamedContainer):
 
 class Walker:
     deep: int = 0
-    ns: Namespace = None
-    current = None
+    ns: Namespace
+    current: NodeProxy | None
     ctx = {}
 
     def __init__(self):

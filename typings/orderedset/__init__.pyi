@@ -1,0 +1,2 @@
+class OrderedSet(set):
+    pass

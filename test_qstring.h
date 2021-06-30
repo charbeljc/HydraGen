@@ -25,7 +25,7 @@ class A: public Named<A>, public O {
   QString hello_message_from_qt();
   std::string hello_message_from_std();
 
-  void say_hello_with_qt(const QString greetings);
+  void say_hello_with_qt(const QString greetings = nullptr);
   void say_hello_with_std(const std::string greetings);
 };
 
@@ -42,9 +42,10 @@ class B: public Named<B>, public O {
   QString hello_message_from_qt();
   std::string hello_message_from_std();
 
-  void say_hello_with_qt(const QString greetings);
+  void say_hello_with_qt(const QString greetings = nullptr);
   void say_hello_with_std(const std::string greetings);
 
+  int foobar(int a=1, int b=123);
   std::shared_ptr<A> get_a();
   void set_a(std::shared_ptr<A> a);
 };
