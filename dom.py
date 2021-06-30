@@ -1,8 +1,10 @@
 from __future__ import annotations
+
 import sys
 import typing
-from binder import NamedContainer
-from clang.cindex import Index, CursorKind, Cursor, AccessSpecifier, TranslationUnit
+from typing_extensions import TypeAlias
+
+from clang.cindex import AccessSpecifier, Cursor, CursorKind, FileInclusion, Index, TranslationUnit, Type, TypeKind
 from logzero import logger
 from orderedset import OrderedSet
 
@@ -18,10 +20,11 @@ class Config:
 
 
 class Context:
-    def __init__(self, factory: dict[CursorKind,type], config: Config):
+    def __init__(self, factory: dict[CursorKind, type], config: Config):
         self.factory = factory
         self.config = config
         self.elements = {}
+        self.builtins = {}
         self.stack = []
         self.flags = []
         self.index = Index.create()
@@ -31,12 +34,14 @@ class Context:
             self.flags = flags.strip().split()
         else:
             self.flags = flags[:]
+        return self
 
     def add_flag(self, flag: str):
         flag = flag.strip()
         self.flags.append(flag)
+        return self
 
-    def parse(self, path) -> TxUnit:
+    def parse(self, path) -> tuple[TxUnit, list[Include]]:
         tu = self.index.parse(
             path,
             self.flags,
@@ -45,14 +50,17 @@ class Context:
         )
         for diag in tu.diagnostics:
             print(diag, file=sys.stderr)
-        return typing.cast(TxUnit, self.make(tu.cursor))
+        includes = [Include(inc) for inc in tu.get_includes()]
+        return typing.cast(TxUnit, self.make(tu.cursor)), includes
 
     def push(self, node: NodeProxy):
         self.stack.append(node)
+        return self
 
     def pop(self, node: NodeProxy):
         check = self.stack.pop()
         assert node is check
+        return self
 
     def indent(self) -> str:
         return " " * len(self.stack)
@@ -77,6 +85,29 @@ class Context:
                 obj = self.factory[node.kind](self, node)
         return obj
 
+    def make_builtin(self, type_: Type) -> NodeProxy:
+        node = self.builtins.get(type_.spelling)
+        if not node:
+            node = Builtin(self, type_)
+            self.builtins[type_.spelling] = node
+        return node
+
+class Include:
+    _clang: FileInclusion
+
+    def __init__(self, fi: FileInclusion):
+        self._clang = fi
+
+    def __repr__(self):
+        return f"<include {self.depth} {self.path!r}>"
+
+    @property
+    def depth(self):
+        return self._clang.depth
+
+    @property
+    def path(self):
+        return self._clang.include.name
 
 class NodeProxy:
     name: str
@@ -120,7 +151,7 @@ class NodeProxy:
             # and item.node.semantic_parent.kind != CursorKind.TRANSLATION_UNIT
             and item.node.semantic_parent.get_usr() != self.node.get_usr()
         ):
-            logger.warning(
+            logger.debug(
                 "reject (not parent) %s, item: %s, parent: %s",
                 self,
                 item,
@@ -160,7 +191,7 @@ class NodeProxy:
             node = self.node
         else:
             if self.node.kind != node.kind:
-                logger.warning(
+                logger.debug(
                     "walk on different child type: self :%s, node:%s\n"
                     "self: %s: %s\nother: %s: %s",
                     self.node.kind,
@@ -179,6 +210,8 @@ class NodeProxy:
         self.context.pop(self)
         return self
 
+    def is_builtin(self):
+        return False
     @property
     def namespaces(self):
         return list(self._filter(Namespace))
@@ -249,6 +282,24 @@ class NodeProxy:
                     yield obj
 
 
+    @property
+    def dependencies(self) -> set[NodeProxy]:
+        return OrderedSet()
+
+
+class Builtin(NodeProxy):
+    def __init__(self, context: Context, type_: Type, parent: NodeProxy | None=None):
+        super().__init__(context, type_.get_declaration(), parent)
+        self.type_ = type_
+        self.name = type_.spelling
+
+    @property
+    def displayname(self):
+        return self.name
+
+    def is_builtin(self):
+        return True
+
 class Namespace(NodeProxy):
     def allowed(self, item):
         if item.kind in (
@@ -265,8 +316,68 @@ class Namespace(NodeProxy):
             return self.check_parent(item)
         return super().allowed(item)
 
+class TypeHolder(NodeProxy):
+    def __init__(self, context, node, parent=None):
+        super().__init__(context, node, parent)
+        self.type_ = None
 
-class Callable(NodeProxy):
+    def _get_clang_type(self) -> Type:
+        check = self.node.type
+        if check.kind == TypeKind.INVALID:
+            raise ValueError
+        return check
+
+    def _compute_type(self) -> NodeProxy:
+        node = None
+        t = self._get_clang_type()
+        assert t.kind != TypeKind.INVALID
+        type_ref = list(self._filter(TypeRef))
+        if type_ref:
+            if  len(type_ref) != 1:
+                logger.warn("mutiple typerefs, assuming first is return type: %s", type_ref)
+            type_ref, *_ = type_ref
+            decl = type_ref.node.get_definition()
+            node = self.context.elements[decl.get_usr()]
+        else:
+            pointee = t.get_pointee()
+            if pointee.kind != TypeKind.INVALID:
+               decl = pointee.get_declaration()
+            else: 
+                decl = t.get_declaration()
+            if decl.kind == CursorKind.NO_DECL_FOUND:
+                return self.context.make_builtin(t)
+            if decl:
+                defi = decl.get_definition()
+                if defi:
+                    node = self.context.elements[defi.get_usr()]
+                else:
+                    node = None
+                    breakpoint()
+            if node:
+                return node
+        assert node
+        return node
+
+    @property
+    def type(self) -> NodeProxy:
+        if self.type_ is None:
+            self.type_ = self._compute_type()
+        return self.type_
+
+    @property
+    def dependencies(self) ->set[NodeProxy]:
+        deps = OrderedSet()
+        type_ = self.type
+        if not type_.is_builtin():
+            if isinstance(type_, (TemplateRef, TypeRef)):
+               deps.add(type_.type)
+            elif isinstance(type_, TypeAliasDecl):
+                deps |= type_.dependencies
+            else:
+                deps.add(type_)
+        return deps
+
+class Callable(TypeHolder):
     def __init__(self, context, node, parent=None):
         super().__init__(context, node, parent)
         self.inline = False
@@ -274,6 +385,12 @@ class Callable(NodeProxy):
         self._return_type = None
         self._cpp_signature = None
         self._parameters = None
+
+    def _get_clang_type(self):
+        return self.node.result_type
+
+    def _get_clang_signature(self):
+        return self.node.type
 
     def allowed(self, item) -> bool:
         if item.kind in (
@@ -295,10 +412,13 @@ class Callable(NodeProxy):
             self._parameters = list(self._filter(Param))
         return self._parameters
 
-    @property
-    def return_type(self) -> NodeProxy | None:
-        return None
 
+    @property
+    def dependencies(self) -> set[NodeProxy]:
+        deps = super().dependencies
+        for param in self.parameters:
+            deps |= param.dependencies
+        return deps
 
 class Function(Callable):
     pass
@@ -318,7 +438,43 @@ class Method(Callable):
     pass
 
 
-class Param(NodeProxy):
+class TypeRef(TypeHolder):
+    pass
+
+class TemplateRef(TypeHolder):
+
+    def _compute_type(self) -> NodeProxy:
+        type_ref = self.node.get_definition()
+        return self.context.elements[type_ref.get_usr()]
+
+
+    def allowed(self, item):
+        if item.kind in (
+            CursorKind.TYPE_REF,
+            CursorKind.TEMPLATE_REF,
+            CursorKind.TYPE_ALIAS_DECL,
+        ):
+            return self.check_parent(item)
+        return super().allowed(item)
+
+
+
+class TypeAliasDecl(TypeHolder):
+    def allowed(self, item):
+        if item.kind in (CursorKind.TYPE_REF, CursorKind.TEMPLATE_REF):
+            return self.check_parent(item)
+        return super().allowed(item)
+
+    @property
+    def dependencies(self) -> set[NodeProxy]:
+        deps = OrderedSet()
+        for type_ in self._filter((TemplateRef, TypeRef)):
+               deps.add(type_)
+        return deps
+
+
+class Param(TypeHolder):
+
     def allowed(self, item):
         if item.kind in (CursorKind.TYPE_REF, CursorKind.TEMPLATE_REF):
             return self.check_parent(item)
@@ -349,7 +505,15 @@ class TxUnit(NodeProxy):
         return super().allowed(item)
 
 
-class BaseSpecifier(NodeProxy):
+
+
+class BaseSpecifier(TypeHolder):
+    def _get_clang_type(self):
+        type_ref, *tail = self._filter(TypeRef)
+        if tail:
+            logger.debug("BaseSpecifier: template? %s %s", type_ref, tail)
+        return type_ref.node.type
+
     def allowed(self, item):
         if item.kind in (
             CursorKind.TYPE_REF,
@@ -384,9 +548,14 @@ class Record(NodeProxy):
         return super().allowed(item)
 
     @property
-    def bases(self) -> list[BaseSpecifier]:
+    def bases(self) -> list[Record]:
         if self._bases is None:
-            self._bases = list(self._filter(BaseSpecifier))
+            bases = []
+            for spec in self._filter(BaseSpecifier):
+                node = spec.type
+                assert node
+                bases.append(node)
+            self._bases = bases
         return self._bases
 
     @property
@@ -412,6 +581,10 @@ class Record(NodeProxy):
         if self._fields is None:
             self._fields = list(self._filter(Field))
         return self._fields
+
+    @property
+    def dependencies(self) ->set[Record]:
+        return OrderedSet(self.bases)
 
 
 class Class(Record):
@@ -478,28 +651,6 @@ class TypeDef(NodeProxy):
         return super().allowed(item)
 
 
-class TypeAliasDecl(NodeProxy):
-    def allowed(self, item):
-        if item.kind in (CursorKind.TYPE_REF, CursorKind.TEMPLATE_REF):
-            return self.check_parent(item)
-        return super().allowed(item)
-
-    pass
-
-
-class TypeAliasTemplateDecl(NodeProxy):
-    def allowed(self, item):
-        if item.kind in (
-            CursorKind.TYPE_REF,
-            CursorKind.TEMPLATE_REF,
-            CursorKind.TEMPLATE_TYPE_PARAMETER,
-            CursorKind.TEMPLATE_NON_TYPE_PARAMETER,
-        ):
-            return self.check_parent(item)
-        return super().allowed(item)
-
-    pass
-
 
 class Enum(NodeProxy):
     def __init__(self, name, node, parent=None):
@@ -519,21 +670,18 @@ class Variable(NodeProxy):
         ):
             return self.check_parent(item)
         return super().allowed(item)
-
-
-class TypeRef(NodeProxy):
-    pass
-
-
-class TemplateRef(NodeProxy):
+class TypeAliasTemplateDecl(NodeProxy):
     def allowed(self, item):
         if item.kind in (
             CursorKind.TYPE_REF,
             CursorKind.TEMPLATE_REF,
-            CursorKind.TYPE_ALIAS_DECL,
+            CursorKind.TEMPLATE_TYPE_PARAMETER,
+            CursorKind.TEMPLATE_NON_TYPE_PARAMETER,
         ):
             return self.check_parent(item)
         return super().allowed(item)
+
+    pass
 
 
 class TemplateTypeParam(NodeProxy):
