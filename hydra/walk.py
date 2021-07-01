@@ -2,7 +2,7 @@ from ctypes import CFUNCTYPE
 from clang.cindex import Cursor, CursorKind, TranslationUnit, TranslationUnitLoadError
 from logzero import logger
 
-from dom import (
+from .dom import (
     FACTORY,
     Class,
     ClassTemplate,
@@ -124,9 +124,7 @@ def walk2(tu: TranslationUnit):
 
 def kind(node):
     return (
-        ("%s:%r" % (node.kind, node.spelling))[len("CursorKind.") :]
-        if node
-        else None
+        ("%s:%r" % (node.kind, node.spelling))[len("CursorKind.") :] if node else None
     )
 
 
@@ -192,13 +190,20 @@ def walk4(root: Cursor):
             stack.append(current)
             current = node
         elif (
-            current.semantic_parent and node.semantic_parent and current.semantic_parent == node.semantic_parent
+            current.semantic_parent
+            and node.semantic_parent
+            and current.semantic_parent == node.semantic_parent
         ):
             logger.debug("current %s is sibbling of node %s", kind(current), kind(node))
             current = node
         else:
-            logger.debug("??? current: %s, node: %s, parent: %s", kind(current), kind(node), kind(node.semantic_parent))
-            if node.spelling == '_Tp':
+            logger.debug(
+                "??? current: %s, node: %s, parent: %s",
+                kind(current),
+                kind(node),
+                kind(node.semantic_parent),
+            )
+            if node.spelling == "_Tp":
                 breakpoint()
             if node.semantic_parent is None:
                 logger.debug("Skip: %s", kind(node))
@@ -213,6 +218,7 @@ def walk4(root: Cursor):
 
     return stack, current
 
+
 def make_object(node, elements):
     usr = node.get_usr()
     obj = None
@@ -224,7 +230,7 @@ def make_object(node, elements):
             if not obj:
                 elements[usr] = obj = FACTORY[node.kind](node.spelling, node)
         else:
-            obj = FACTORY[node.kind](node.spelling, node) 
+            obj = FACTORY[node.kind](node.spelling, node)
         # yield node, obj
     return obj
 
@@ -232,12 +238,16 @@ def make_object(node, elements):
 def walk5(root: Cursor, elements):
     for i, node in enumerate(root.walk_preorder()):
         if node.kind in (CursorKind.INTEGER_LITERAL, CursorKind.UNEXPOSED_EXPR):
-            logger.debug('EXPR %s %s', kind(node), ''.join(t.spelling for t in node.get_tokens()))
+            logger.debug(
+                "EXPR %s %s", kind(node), "".join(t.spelling for t in node.get_tokens())
+            )
         else:
             obj = make_object(node, elements)
             if not obj:
                 usr = node.get_usr()
-                logger.warning("??? %s %s, parent: %s", kind(node), usr, kind(node.semantic_parent))
+                logger.warning(
+                    "??? %s %s, parent: %s", kind(node), usr, kind(node.semantic_parent)
+                )
             yield node, obj
 
 
@@ -249,14 +259,17 @@ def walk6(root: Cursor, elements):
             if not current:
                 current = obj
             else:
-                if isinstance(obj, ClassTemplate) and obj.name == 'is_array':
+                if isinstance(obj, ClassTemplate) and obj.name == "is_array":
                     breakpoint()
-                if isinstance(current, ClassTemplate) and current.name == 'is_array':
+                if isinstance(current, ClassTemplate) and current.name == "is_array":
                     breakpoint()
                 while not current.accept(obj, elements):
                     logger.debug("pop: %s", current)
                     current = stack.pop()
-                    if isinstance(current, ClassTemplate) and current.name == 'is_array':
+                    if (
+                        isinstance(current, ClassTemplate)
+                        and current.name == "is_array"
+                    ):
                         breakpoint()
                 stack.append(current)
                 current = obj

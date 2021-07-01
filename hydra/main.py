@@ -3,15 +3,14 @@ import logging
 from typing import get_args
 from logzero import logger
 from orderedset import OrderedSet
-import dom, walk, binder, gen
+from . import dom, gen, walk
 import os
 import graphlib
+
 reload(dom)
-reload(walk)
-reload(binder)
 reload(gen)
 
-from dom import Record, Bindable, TypeRef
+from .dom import Record, Bindable, TypeRef
 
 dom.logger.setLevel(logging.INFO)
 
@@ -26,16 +25,19 @@ FLAGS = """-x c++ -fPIC -std=c++14 -fexceptions -DUSE_NAMESPACE=1
         -I/home/rebelcat/Hack/bindingtest
         """.split()
 
-ctx=(dom.Context(walk.FACTORY, dom.Config())
-   .set_flags(FLAGS)
-   .add_flag('-I/usr/include/python3.9')
-   .add_flag('-I/home/rebelcat/Hack/hydrogen/src/pybind11_bindings')
-   .add_pybind11_plugin('pybind11/stl.h')
-   .add_pybind11_plugin('custom_qt_casters.h')
+ctx = (
+    dom.Context(dom.FACTORY, dom.Config())
+    .set_flags(FLAGS)
+    .add_flag("-I/usr/include/python3.9")
+    .add_flag("-I/home/rebelcat/Hack/hydrogen/src/pybind11_bindings")
+    .add_pybind11_plugin("pybind11/stl.h")
+    .add_pybind11_plugin("custom_qt_casters.h")
 )
+
 
 def fp(path):
     return os.path.join("/home/rebelcat/Hack/hydrogen/src/", path)
+
 
 BINDINGS = [
     ("H2Core::XMLNode", "core/Helpers/Xml.h"),
@@ -52,7 +54,6 @@ BINDINGS = [
     ("H2Core::AutomationPath", "core/Basics/AutomationPath.h"),
     ("H2Core::Song", "core/Basics/Song.h"),
     ("H2Core::Hydrogen", "core/Hydrogen.h"),
-
 ]
 header = []
 gen.generate_includes([item[1] for item in BINDINGS], header)
@@ -62,12 +63,12 @@ gen.generate_includes([item[1] for item in BINDINGS], header)
 # ], header)
 
 gen.generate_includes(["qtreset.h", "pybind11/pybind11.h"] + ctx.plugins, header)
-header = ''.join(header)
+header = "".join(header)
 
-with open('module.hpp', 'w') as src:
+with open("module.hpp", "w") as src:
     src.write(header)
 
-tx, inc = ctx.parse('module.hpp')
+tx, inc = ctx.parse("module.hpp")
 tx.walk()
 records = []
 for name, path in BINDINGS:
@@ -76,11 +77,14 @@ for name, path in BINDINGS:
 
 casters = ctx.casters()
 
+
 def veto(bindable):
-    if bindable.name in ('QDomNodePrivate', 'QStringList'):
+    if bindable.name in ("QDomNodePrivate", "QStringList"):
         return True
     return False
-qstring = tx['QString']
+
+
+qstring = tx["QString"]
 logger.warning("QString: %s", qstring)
 deps = OrderedSet(records)
 star = OrderedSet()
@@ -124,8 +128,14 @@ while deps:
 
 topo = graphlib.TopologicalSorter()
 
+
 def filtered_deps(neutron):
-    return [d for d in neutron.dependencies if d not in casters and not veto(dep) and isinstance(dep, Bindable)]
+    return [
+        d
+        for d in neutron.dependencies
+        if d not in casters and not veto(dep) and isinstance(dep, Bindable)
+    ]
+
 
 for neutron in star:
     topo.add(neutron, *filtered_deps(neutron))
@@ -171,7 +181,7 @@ with open("module.cpp", "w") as src:
 # #out = process.stderr.read().decode()
 # #print(out)
 
-# cmd = ["c++", "-fPIC", "--shared", "-o", "h2core.so", "module.o", 
+# cmd = ["c++", "-fPIC", "--shared", "-o", "h2core.so", "module.o",
 # "/home/rebelcat/Hack/hydrogen/build/src/core/libhydrogen-core-1.1.0.so",
 # "/lib/x86_64-linux-gnu/libQt5Xml.so.5"
 # ]
