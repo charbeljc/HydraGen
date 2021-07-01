@@ -1,8 +1,9 @@
 from __future__ import annotations
+from functools import singledispatch
 import textwrap
 from typing import OrderedDict
 from logzero import logger
-from .dom import Context, EnumConstant, NodeProxy, Record, Enum, Bindable
+from .dom import Context, EnumConstant, NodeProxy, Record, Enum, Namespace
 from orderedset import OrderedSet
 import json
 
@@ -24,7 +25,10 @@ def generate_enum(context: Context, enum: Enum, bindings, code):
     emit(code, f"""\t// enum {enum.name}\n""")
     if enum.parent:
         qname = enum.fullname
-        parent = f"_{enum.parent.name}"
+        if isinstance(enum.parent, Namespace):
+            parent = "m"
+        else:
+            parent = f"_{enum.parent.name}"
     else:
         qname = enum.name
         parent = "m"

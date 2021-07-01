@@ -79,25 +79,19 @@ class Context:
         self._tx = typing.cast(TxUnit, self.make(tu.cursor))
         return self._tx, includes
 
-    def parse_plugins(self):
-        from .gen import generate_includes
-
-        code = []
-        generate_includes(["pybind11/pybind11.h"] + self.plugins, code)
-        with open("_plugins.hpp", "w") as src:
-            src.write("".join(code))
-        tx, incl = self.parse("_plugins.hpp")
-        return tx, incl
-
     def casters(self):
-        _casters = {}
-        if not self._tx:
-            return {}
-        for casting in self._tx["pybind11::detail::type_caster"]:
-            tref = list(casting._filter(TypeRef))
-            if tref:
-                _casters[tref[0].type] = casting
-        return _casters
+        if self._casters is None:
+            _casters = {}
+            if not self._tx:
+                return {}
+            #casting = self._tx["pybind11::detail::type_caster"]
+            #breakpoint()
+            for casting in self._tx["pybind11::detail::type_caster"]:
+                tref = list(casting._filter(TypeRef))
+                if tref:
+                    _casters[tref[0].type] = casting
+            self._casters = _casters
+        return self._casters
 
     def push(self, node: NodeProxy):
         self.stack.append(node)
@@ -741,7 +735,10 @@ class Record(NodeProxy):
         if self.parent and isinstance(self.parent, Record):
             deps.add(self.parent)
         for base in self.bases:
-            deps.add(base)
+            if base is not self:
+                deps.add(base)
+            else:
+                logger.warning("Hu... %s", self)
         return deps
 
 

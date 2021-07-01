@@ -36,11 +36,47 @@ BINDINGS = [
     ("H2Core::InstrumentList", "core/Basics/InstrumentList.h"),
     ("H2Core::Sample", "core/Basics/Sample.h"),
     ("H2Core::Preferences", "core/Preferences.h"),
+    ("H2Core::Playlist", "core/Basics/Playlist.h"),
     ("H2Core::Pattern", "core/Basics/Pattern.h"),
     ("H2Core::PatternList", "core/Basics/PatternList.h"),
     ("H2Core::AutomationPath", "core/Basics/AutomationPath.h"),
     ("H2Core::Song", "core/Basics/Song.h"),
     ("H2Core::Hydrogen", "core/Hydrogen.h"),
+    ("H2Core::AudioEngine", "core/AudioEngine.h"),
+    # ("H2Core::CoreActionControler", "core/CoreActionControler.h"),
+    ("H2Core::EventQueue", "core/EventQueue.h"),
+    ("H2Core::H2Exception", "core/H2Exception.h"),
+    ("Action", "core/MidiAction.h"),
+    ("MidiActionManager::targeted_element", "core/MidiAction.h"),
+    ("MidiActionManager", "core/MidiAction.h"),
+    # (":MidiMap", "core/MidiMap.h"),
+    # ("OscServer", "core/OscServer.h"),
+    # ("H2Core::Timeline", "core/Timeline.h"),
+    ("H2Core::get_version", "core/Version.h"),
+    ("H2Core::version_older_than", "core/Version.h"),
+    ("H2Core::Effects", "core/FX/Effects.h"),
+    ("H2Core::LadspaFX", "core/FX/LadspaFX.h"),
+
+    ("H2Core::AlsaAudioDriver", "core/IO/AlsaAudioDriver.h"),
+    ("H2Core::AlsaMidiDriver", "core/IO/AlsaMidiDriver.h"),
+    ("H2Core::AudioOutput", "core/IO/AudioOutput.h"),
+    ("H2Core::CoreAudioDriver", "core/IO/CoreAudioDriver.h"),
+    ("H2Core::CoreMidiDriver", "core/IO/CoreMidiDriver.h"),
+    ("H2Core::DiskWriterDriver", "core/IO/DiskWriterDriver.h"),
+    ("H2Core::FakeDriver", "core/IO/FakeDriver.h"),
+    ("H2Core::JackAudioDriver", "core/IO/JackAudioDriver.h"),
+    ("H2Core::JackMidiDriver", "core/IO/JackMidiDriver.h"),
+    ("H2Core::MidiInput", "core/IO/MidiInput.h"),
+    ("H2Core::MidiMessage", "core/IO/MidiCommon.h"),
+    ("H2Core::MidiOutput", "core/IO/MidiOutput.h"),
+    ("H2Core::MidiPortInfo", "core/IO/MidiCommon.h"),
+    ("H2Core::NullDriver", "core/IO/NullDriver.h"),
+    #("H2Core::OssDriver", "core/IO/OssDriver.h"),
+    ("H2Core::PortAudioDriver", "core/IO/PortAudioDriver.h"),
+    ("H2Core::PortMidiDriver", "core/IO/PortMidiDriver.h"),
+    ("H2Core::PulseAudioDriver", "core/IO/PulseAudioDriver.h"),
+    # ("Song;IO/JackAudioDriver.h", ""),
+    ("H2Core::TransportInfo", "core/IO/TransportInfo.h"),
 ]
 
 
@@ -56,6 +92,31 @@ def main():
         .ban("QColor::operator=")
         .ban("H2Core::Note::match")
         .ban("H2Core::Pattern::find_note")
+        .ban("std::thread::thread(const std::thread &)")
+        .ban("std::thread::operator=(const std::thread &)")
+        .ban("std::thread::operator=(std::thread &&)")
+        .ban("std::thread::thread(std::thread &&)")
+        .ban("std::timed_mutex::timed_mutex(const std::timed_mutex &)")
+        .ban("std::timed_mutex::operator=")
+        .ban("std::exception::operator=(std::exception &&)")
+        .ban("std::exception::exception(std::exception &&)")
+        .ban("std::__cow_string")
+        .ban("std::__cow_string::operator=(std::__cow_string &&)")
+        .ban("std::__cow_string::__cow_string(std::__cow_string &&)")
+        .ban("std::runtime_error::operator=(std::runtime_error &&)")
+        .ban("std::runtime_error::runtime_error(std::runtime_error &&)")
+        .ban("targeted_element")
+        .ban("MidiActionManager::targeted_element")
+        .ban("_locker_struct")
+        .ban("QDomNodePrivate")
+        .ban("QStringList")
+        .ban("QFileInfoPrivate")
+        .ban("Entry")
+        .ban("QObject::disconnect")
+        .ban("QFileInfo::QFileInfo(QFileInfoPrivate *)")
+        .ban("QFileInfo::operator=(QFileInfo &&)")
+        .ban("QFileInfo::exists")
+        .ban("H2Core::AlsaAudioDriver::AlsaAudioDriver()")
     )
     ctx = (
         dom.Context(dom.FACTORY, config)
@@ -83,13 +144,16 @@ def main():
     tx.walk()
     records = []
     for name, path in BINDINGS:
-        class_def = tx[name]
-        records.append(class_def)
+        try:
+            class_def = tx[name]
+            records.append(class_def)
+        except KeyError:
+            logger.warning("%s not found", name)
 
     casters = ctx.casters()
 
     def veto(bindable):
-        if bindable.name in ("QDomNodePrivate", "QStringList"):
+        if ctx.is_banned(bindable):
             return True
         return False
 
@@ -147,7 +211,13 @@ def main():
     for neutron in star:
         topo.add(neutron, *filtered_deps(neutron))
 
-    records = list(topo.static_order())
+    try:
+        records = list(topo.static_order())
+    except graphlib.CycleError as err:
+        logger.error("could not sort: %s", err)
+        breakpoint()
+        print("foo")
+
     assert qstring not in records
 
     for rec in records:
