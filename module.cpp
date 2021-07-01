@@ -443,16 +443,16 @@ PYBIND11_MODULE(h2core, m) {
 	_QColor.def(py::init<QLatin1String>());
 	_QColor.def(py::init<QColor::Spec>());
 	_QColor.def(py::init<const QColor &>());
-	_QColor.def(py::init<QColor &&>());
+	// _QColor.def(py::init<QColor &&>());
 	_QColor.def(py::init<QColor::Spec, ushort, ushort, ushort, ushort, ushort>());
-	_QColor.def("operator=", py::overload_cast<QColor &&>(&QColor::operator=),
-		py::arg("other"));
+	// _QColor.def("operator=", py::overload_cast<QColor &&>(&QColor::operator=),
+	// 	py::arg("other"));
 	_QColor.def("operator=", py::overload_cast<const QColor &>(&QColor::operator=),
 		py::arg(""));
 	// [<Enum 'GlobalColor'>] _QColor.def("operator=", py::overload_cast<Qt::GlobalColor>(&QColor::operator=),
 		// [<Enum 'GlobalColor'>] py::arg("color"));
 	_QColor.def("isValid", &QColor::isValid);
-	_QColor.def("name", py::overload_cast<>(&QColor::name));
+	// _QColor.def("name", &QColor::name);
 	// [<Enum 'NameFormat'>] _QColor.def("name", py::overload_cast<QColor::NameFormat>(&QColor::name),
 		// [<Enum 'NameFormat'>] py::arg("format"));
 	_QColor.def("setNamedColor", py::overload_cast<const QString &>(&QColor::setNamedColor),
@@ -1402,14 +1402,14 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("msg"));
 	_Note.def("get_adsr", &H2Core::Note::get_adsr,
 		"get the ADSR of the note");
-	_Note.def("match", py::overload_cast<std::shared_ptr<Instrument>, H2Core::Note::Key, H2Core::Note::Octave>(&H2Core::Note::match),
-			"return true if instrument, key and octave matches with internal",
-		py::arg("instrument"),
-		py::arg("key"),
-		py::arg("octave"));
-	_Note.def("match", py::overload_cast<const H2Core::Note *>(&H2Core::Note::match),
-			"Return true if two notes match in instrument, key and octave.",
-		py::arg("pNote"));
+	// _Note.def("match", py::overload_cast<std::shared_ptr<Instrument>, H2Core::Note::Key, H2Core::Note::Octave>(&H2Core::Note::match),
+	// 		"return true if instrument, key and octave matches with internal",
+	// 	py::arg("instrument"),
+	// 	py::arg("key"),
+	// 	py::arg("octave"));
+	// _Note.def("match", py::overload_cast<const H2Core::Note *>(&H2Core::Note::match),
+	// 		"Return true if two notes match in instrument, key and octave.",
+	// 	py::arg("pNote"));
 	_Note.def("compute_lr_values", &H2Core::Note::compute_lr_values,
 		"compute left and right output based on filters",
 		py::arg("val_l"),
@@ -1927,20 +1927,20 @@ PYBIND11_MODULE(h2core, m) {
 	_Pattern.def("insert_note", &H2Core::Pattern::insert_note,
 		"insert a new note within __notes",
 		py::arg("note"));
-	_Pattern.def("find_note", py::overload_cast<int, int, std::shared_ptr<Instrument>, bool>(&H2Core::Pattern::find_note),
-			"search for a note at a given index within __notes which correspond to the given arguments",
-		py::arg("idx_a"),
-		py::arg("idx_b"),
-		py::arg("instrument"),
-		py::arg("strict"));
-	_Pattern.def("find_note", py::overload_cast<int, int, std::shared_ptr<Instrument>, Note::Key, Note::Octave, bool>(&H2Core::Pattern::find_note),
-			"search for a note at a given index within __notes which correspond to the given arguments",
-		py::arg("idx_a"),
-		py::arg("idx_b"),
-		py::arg("instrument"),
-		py::arg("key"),
-		py::arg("octave"),
-		py::arg("strict"));
+	// _Pattern.def("find_note", py::overload_cast<int, int, std::shared_ptr<Instrument>, bool>(&H2Core::Pattern::find_note),
+	// 		"search for a note at a given index within __notes which correspond to the given arguments",
+	// 	py::arg("idx_a"),
+	// 	py::arg("idx_b"),
+	// 	py::arg("instrument"),
+	// 	py::arg("strict"));
+	// _Pattern.def("find_note", py::overload_cast<int, int, std::shared_ptr<Instrument>, Note::Key, Note::Octave, bool>(&H2Core::Pattern::find_note),
+	// 		"search for a note at a given index within __notes which correspond to the given arguments",
+	// 	py::arg("idx_a"),
+	// 	py::arg("idx_b"),
+	// 	py::arg("instrument"),
+	// 	py::arg("key"),
+	// 	py::arg("octave"),
+	// 	py::arg("strict"));
 	_Pattern.def("remove_note", &H2Core::Pattern::remove_note,
 		"removes a given note from __notes, it's not deleted",
 		py::arg("note"));
