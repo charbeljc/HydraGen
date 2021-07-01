@@ -3,14 +3,15 @@ import logging
 from typing import get_args
 from logzero import logger
 from orderedset import OrderedSet
-from . import dom, gen, walk
+from . import conf, dom, gen
 import os
 import graphlib
 
+reload(conf)
 reload(dom)
 reload(gen)
 
-from .dom import Record, Bindable, TypeRef
+from .dom import Record, Bindable
 
 dom.logger.setLevel(logging.INFO)
 
@@ -48,8 +49,16 @@ def fp(path):
 
 
 def main():
+    config = (
+        conf.Config()
+        .ban("QColor::QColor(QColor &&)")  # ban this constructor
+        .ban("QColor::name")  # ban whole method, regardless of signature
+        .ban("QColor::operator=")
+        .ban("H2Core::Note::match")
+        .ban("H2Core::Pattern::find_note")
+    )
     ctx = (
-        dom.Context(dom.FACTORY, dom.Config())
+        dom.Context(dom.FACTORY, config)
         .set_flags(FLAGS)
         .add_flag("-I/usr/include/python3.9")
         .add_flag("-I/home/rebelcat/Hack/hydrogen/src/pybind11_bindings")
@@ -192,3 +201,7 @@ def main():
     # print(out)
 
     # import h2core
+
+
+if __name__ == "__main__":
+    main()

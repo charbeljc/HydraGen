@@ -35,9 +35,14 @@ def generate_enum(context: Context, enum: Enum, bindings, code):
 
 
 def generate_record(context: Context, rec: Record, bindings, code):
+    if context.is_banned(rec):
+        emit(code, f"\t// [banned] {rec.fullname}\n\n")
+        return
     emit(code, f"""\tpy::class_<{rec.fullname}> _{rec.name}(m, "{rec.name}");""")
     for ctor in rec.constructors:
         if not ctor.is_public():
+            continue
+        if context.is_banned(ctor):
             continue
         emit(code, f"""\n\t_{rec.name}.def(py::init<{ctor.cpp_signature}>());""")
     overloads = {}
@@ -55,6 +60,9 @@ def generate_record(context: Context, rec: Record, bindings, code):
                     break
             if not m.is_public():
                 continue
+            
+            if context.is_banned(m):
+                skip = "// [banned] "
             if m.node.is_static_method():
                 emit(
                     code,
@@ -71,7 +79,7 @@ def generate_record(context: Context, rec: Record, bindings, code):
                     f""",\n\t\t{skip}"{c_encode(m.node.brief_comment)}" """.strip(),
                 )
             for param in m.parameters:
-                emit(code, f""",\n\t\t{skip}py::arg("{param.name}")""".strip())
+                emit(code, f""",\n\t{skip}\tpy::arg("{param.name}")""".strip())
             emit(code, ");")
         else:
             for m in signatures:
@@ -82,6 +90,8 @@ def generate_record(context: Context, rec: Record, bindings, code):
                         break
                 if not m.is_public():
                     continue
+                if context.is_banned(m):
+                    skip = "// [banned] "
                 if m.node.is_static_method():
                     emit(
                         code,
@@ -95,10 +105,10 @@ def generate_record(context: Context, rec: Record, bindings, code):
                 if m.node.brief_comment:
                     emit(
                         code,
-                        f""",\n\t\t\t{skip}"{c_encode(m.node.brief_comment)}" """.strip(),
+                        f""",\n\t\t{skip}\t"{c_encode(m.node.brief_comment)}" """.strip(),
                     )
                 for param in m.parameters:
-                    emit(code, f""",\n\t\t{skip}py::arg("{param.name}")""".strip())
+                    emit(code, f""",\n\t{skip}\tpy::arg("{param.name}")""".strip())
                 emit(code, ");")
 
     emit(code, """\n\n""")

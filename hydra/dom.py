@@ -18,15 +18,13 @@ from clang.cindex import (
 from logzero import logger
 from orderedset import OrderedSet
 
+from .conf import Config
+
 
 def kind(node):
     return (
         ("%s:%r" % (node.kind, node.spelling))[len("CursorKind.") :] if node else None
     )
-
-
-class Config:
-    pass
 
 
 class Context:
@@ -38,7 +36,7 @@ class Context:
     flags: list[str]
     plugins: list[str]
     _casters: dict[NodeProxy, NodeProxy] | None
-    _tx : TxUnit | None
+    _tx: TxUnit | None
 
     def __init__(self, factory: dict[CursorKind, type], config: Config):
         self.factory = factory
@@ -82,7 +80,7 @@ class Context:
         return self._tx, includes
 
     def parse_plugins(self):
-        from gen import generate_includes
+        from .gen import generate_includes
 
         code = []
         generate_includes(["pybind11/pybind11.h"] + self.plugins, code)
@@ -95,7 +93,7 @@ class Context:
         _casters = {}
         if not self._tx:
             return {}
-        for casting in self._tx['pybind11::detail::type_caster']:
+        for casting in self._tx["pybind11::detail::type_caster"]:
             tref = list(casting._filter(TypeRef))
             if tref:
                 _casters[tref[0].type] = casting
@@ -113,6 +111,14 @@ class Context:
     def indent(self) -> str:
         return " " * len(self.stack)
 
+    def is_banned(self, item: Bindable | Callable) -> bool:
+        if self.config.is_banned(item.fullname):
+            return True
+        elif isinstance(item, Callable):
+            key = f"{item.fullname}({item.cpp_signature})"
+            return self.config.is_banned(key)
+        return False
+
     @property
     def top(self) -> NodeProxy | None:
         if self.stack:
@@ -128,7 +134,11 @@ class Context:
             if usr:
                 obj = self.elements.get(usr)
                 if not obj:
-                    self.elements[usr] = obj = self.factory[node.kind](self, node)
+                    obj = self.factory[node.kind](self, node)
+                    if obj:
+                        self.elements[usr] = obj
+                    else:
+                        logger.debug("skip: %s %s", node.kind, node.spelling)
                 else:
                     obj.accept_occurence(node)
             else:
@@ -164,14 +174,6 @@ class Include:
 class Binder:
     def bind(self, node):
         logger.info("TODO: binding: %s", node)
-
-
-class Bindable:
-    def bind(self, binder: Binder):
-        binder.bind(self)
-
-    def is_bindable(self):
-        return True
 
 
 class NodeProxy:
@@ -366,6 +368,14 @@ class NodeProxy:
         return OrderedSet()
 
 
+class Bindable(NodeProxy):
+    def bind(self, binder: Binder):
+        binder.bind(self)
+
+    def is_bindable(self):
+        return True
+
+
 class Builtin(NodeProxy):
     def __init__(self, context: Context, type_: Type, parent: NodeProxy | None = None):
         super().__init__(context, type_.get_declaration(), parent)
@@ -410,7 +420,7 @@ class TypeHolder(NodeProxy):
         return check
 
     def _compute_type(self) -> NodeProxy | None:
-        """ This sucks ... """
+        """This sucks ..."""
         node = None
         t = self._get_clang_type()
         assert t.kind != TypeKind.INVALID
@@ -440,12 +450,22 @@ class TypeHolder(NodeProxy):
                     try:
                         node = self.context.elements[defi.get_usr()]
                     except KeyError:
-                        logger.warning("lookup failed(def): %s %s %s", defi.kind, defi.spelling, defi.get_usr())
+                        logger.warning(
+                            "lookup failed(def): %s %s %s",
+                            defi.kind,
+                            defi.spelling,
+                            defi.get_usr(),
+                        )
                 else:
                     try:
                         node = self.context.elements[decl.get_usr()]
                     except KeyError:
-                        logger.warning("lookup failed(decl): %s %s %s", decl.kind, decl.spelling, decl.get_usr())
+                        logger.warning(
+                            "lookup failed(decl): %s %s %s",
+                            decl.kind,
+                            decl.spelling,
+                            decl.get_usr(),
+                        )
 
         if not node:
             logger.warning("_compute_type() failed for %s", self)
@@ -455,6 +475,7 @@ class TypeHolder(NodeProxy):
     def type(self) -> NodeProxy:
         if self.type_ is None:
             self.type_ = self._compute_type()
+        # assert self.type_ is not None
         return self.type_
 
     @property
@@ -541,8 +562,10 @@ class FunctionTemplate(Callable):
 class Method(Callable):
     def is_static(self):
         return self.node.is_static_method()
+
     def is_virtual(self):
         return self.node.is_virtual_method()
+
     def is_pure_virtual(self):
         return self.node.is_pure_virtual_method()
 
@@ -725,8 +748,10 @@ class Record(NodeProxy):
 class Class(Bindable, Record):
     pass
 
+
 class Struct(Bindable, Record):
     pass
+
 
 class ClassTemplate(Record):
     def __init__(self, context, node, parent=None):
@@ -766,7 +791,11 @@ class ClassTemplatePartialSpecialization(Record):
 
 class TypeDef(NodeProxy):
     def allowed(self, item):
-        if item.kind in (CursorKind.TYPE_REF, CursorKind.TEMPLATE_REF, CursorKind.ENUM_DECL):
+        if item.kind in (
+            CursorKind.TYPE_REF,
+            CursorKind.TEMPLATE_REF,
+            CursorKind.ENUM_DECL,
+        ):
             return self.check_parent(item)
         return super().allowed(item)
 
@@ -779,7 +808,7 @@ class Enum(Bindable, NodeProxy):
     def allowed(self, item):
         if item.kind in (CursorKind.ENUM_CONSTANT_DECL,):
             return True
-        return super().allowed(item) 
+        return super().allowed(item)
 
     @property
     def dependencies(self) -> set[Record]:
@@ -789,9 +818,9 @@ class Enum(Bindable, NodeProxy):
         return deps
 
 
-
 class EnumConstant(NodeProxy):
     pass
+
 
 class Variable(NodeProxy):
     def allowed(self, item):
