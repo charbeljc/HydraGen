@@ -17,8 +17,8 @@ PYBIND11_MODULE(h2core, m) {
 	_Object.def_static("objects_count", &H2Core::Object::objects_count);
 	// [<TypeDef 'ostream'>] _Object.def_static("write_objects_map_to", &H2Core::Object::write_objects_map_to,
 		// [<TypeDef 'ostream'>] "output the full objects map to a given ostream",
-		// [<TypeDef 'ostream'>] py::arg("out"),
-		// [<TypeDef 'ostream'>] py::arg("map"));
+	// [<TypeDef 'ostream'>] 	py::arg("out"),
+	// [<TypeDef 'ostream'>] 	py::arg("map"));
 	_Object.def_static("write_objects_map_to_cerr", &H2Core::Object::write_objects_map_to_cerr);
 	_Object.def_static("bootstrap", &H2Core::Object::bootstrap,
 		"must be called before any Object instantiation !",
@@ -31,7 +31,7 @@ PYBIND11_MODULE(h2core, m) {
 		// [<TypeDef 'object_map_t'>] "Returns Copy of the object map.");
 	// [<TypeDef 'object_map_t'>] _Object.def_static("printObjectMapDiff", &H2Core::Object::printObjectMapDiff,
 		// [<TypeDef 'object_map_t'>] "Creates the difference between a snapshot of the object map and its current state and prints it to std::cout.",
-		// [<TypeDef 'object_map_t'>] py::arg("map"));
+	// [<TypeDef 'object_map_t'>] 	py::arg("map"));
 	_Object.def("toQString", &H2Core::Object::toQString,
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
@@ -161,10 +161,10 @@ PYBIND11_MODULE(h2core, m) {
 	// [<Class 'QStringList'>] _Filesystem.def_static("pattern_drumkits", &H2Core::Filesystem::pattern_drumkits,
 		// [<Class 'QStringList'>] "returns a list of existing drumkit sub dir into the patterns directory");
 	// [<Class 'QStringList'>] _Filesystem.def_static("pattern_list_static", py::overload_cast<>(&H2Core::Filesystem::pattern_list),
-			// [<Class 'QStringList'>] "returns a list of existing patterns");
+		// [<Class 'QStringList'>] 	"returns a list of existing patterns");
 	// [<Class 'QStringList'>] _Filesystem.def_static("pattern_list_static", py::overload_cast<const QString &>(&H2Core::Filesystem::pattern_list),
-			// [<Class 'QStringList'>] "returns a list of existing patterns",
-		// [<Class 'QStringList'>] py::arg("path"));
+		// [<Class 'QStringList'>] 	"returns a list of existing patterns",
+	// [<Class 'QStringList'>] 	py::arg("path"));
 	// [<Class 'QStringList'>] _Filesystem.def_static("song_list", &H2Core::Filesystem::song_list,
 		// [<Class 'QStringList'>] "returns a list of existing songs");
 	// [<Class 'QStringList'>] _Filesystem.def_static("song_list_cleared", &H2Core::Filesystem::song_list_cleared,
@@ -247,7 +247,7 @@ PYBIND11_MODULE(h2core, m) {
 		"Returns Global variable #jackServerSampleRate.");
 	// [<TypeDef 'uint32_t'>] _JackAudioDriver.def("clearPerTrackAudioBuffers", &H2Core::JackAudioDriver::clearPerTrackAudioBuffers,
 		// [<TypeDef 'uint32_t'>] "Resets the buffers contained in #m_pTrackOutputPortsL and #m_pTrackOutputPortsR.",
-		// [<TypeDef 'uint32_t'>] py::arg("nFrames"));
+	// [<TypeDef 'uint32_t'>] 	py::arg("nFrames"));
 	_JackAudioDriver.def("makeTrackOutputs", &H2Core::JackAudioDriver::makeTrackOutputs,
 		"Creates per component output ports for each instrument.",
 		py::arg("pSong"));
@@ -299,12 +299,12 @@ PYBIND11_MODULE(h2core, m) {
 		"Returns #m_timebaseState");
 	// [<TypeDef 'jack_nframes_t'>] _JackAudioDriver.def_static("jackDriverSampleRate", &H2Core::JackAudioDriver::jackDriverSampleRate,
 		// [<TypeDef 'jack_nframes_t'>] "Callback function for the JACK audio server to set the sample rate #jackServerSampleRate and prints a message to the #__INFOLOG, which has to be included via a Logger instance in the provided param.",
-		// [<TypeDef 'jack_nframes_t'>] py::arg("nframes"),
-		// [<TypeDef 'jack_nframes_t'>] py::arg("param"));
+	// [<TypeDef 'jack_nframes_t'>] 	py::arg("nframes"),
+	// [<TypeDef 'jack_nframes_t'>] 	py::arg("param"));
 	// [<TypeDef 'jack_nframes_t'>] _JackAudioDriver.def_static("jackDriverBufferSize", &H2Core::JackAudioDriver::jackDriverBufferSize,
 		// [<TypeDef 'jack_nframes_t'>] "Callback function for the JACK audio server to set the buffer size #jackServerBufferSize.",
-		// [<TypeDef 'jack_nframes_t'>] py::arg("nframes"),
-		// [<TypeDef 'jack_nframes_t'>] py::arg("arg"));
+	// [<TypeDef 'jack_nframes_t'>] 	py::arg("nframes"),
+	// [<TypeDef 'jack_nframes_t'>] 	py::arg("arg"));
 
 	py::class_<H2Core::Logger> _Logger(m, "Logger");
 	_Logger.def_static("bootstrap", &H2Core::Logger::bootstrap,
@@ -417,17 +417,17 @@ PYBIND11_MODULE(h2core, m) {
 	// [<Class 'QDomCharacterData'>] _QDomNode.def("toCharacterData", &QDomNode::toCharacterData);
 	// [<Class 'QDomComment'>] _QDomNode.def("toComment", &QDomNode::toComment);
 	// [<Class 'QTextStream'>] _QDomNode.def("save", &QDomNode::save,
-		// [<Class 'QTextStream'>] py::arg(""),
-		// [<Class 'QTextStream'>] py::arg(""),
-		// [<Class 'QTextStream'>] py::arg(""));
+	// [<Class 'QTextStream'>] 	py::arg(""),
+	// [<Class 'QTextStream'>] 	py::arg(""),
+	// [<Class 'QTextStream'>] 	py::arg(""));
 	// [<Class 'QDomElement'>] _QDomNode.def("firstChildElement", &QDomNode::firstChildElement,
-		// [<Class 'QDomElement'>] py::arg("tagName"));
+	// [<Class 'QDomElement'>] 	py::arg("tagName"));
 	// [<Class 'QDomElement'>] _QDomNode.def("lastChildElement", &QDomNode::lastChildElement,
-		// [<Class 'QDomElement'>] py::arg("tagName"));
+	// [<Class 'QDomElement'>] 	py::arg("tagName"));
 	// [<Class 'QDomElement'>] _QDomNode.def("previousSiblingElement", &QDomNode::previousSiblingElement,
-		// [<Class 'QDomElement'>] py::arg("tagName"));
+	// [<Class 'QDomElement'>] 	py::arg("tagName"));
 	// [<Class 'QDomElement'>] _QDomNode.def("nextSiblingElement", &QDomNode::nextSiblingElement,
-		// [<Class 'QDomElement'>] py::arg("taName"));
+	// [<Class 'QDomElement'>] 	py::arg("taName"));
 	_QDomNode.def("lineNumber", &QDomNode::lineNumber);
 	_QDomNode.def("columnNumber", &QDomNode::columnNumber);
 
@@ -443,24 +443,23 @@ PYBIND11_MODULE(h2core, m) {
 	_QColor.def(py::init<QLatin1String>());
 	_QColor.def(py::init<QColor::Spec>());
 	_QColor.def(py::init<const QColor &>());
-	// _QColor.def(py::init<QColor &&>());
 	_QColor.def(py::init<QColor::Spec, ushort, ushort, ushort, ushort, ushort>());
-	// _QColor.def("operator=", py::overload_cast<QColor &&>(&QColor::operator=),
-	// 	py::arg("other"));
-	_QColor.def("operator=", py::overload_cast<const QColor &>(&QColor::operator=),
-		py::arg(""));
-	// [<Enum 'GlobalColor'>] _QColor.def("operator=", py::overload_cast<Qt::GlobalColor>(&QColor::operator=),
-		// [<Enum 'GlobalColor'>] py::arg("color"));
+	// [banned] _QColor.def("operator=", py::overload_cast<QColor &&>(&QColor::operator=),
+	// [banned] 	py::arg("other"));
+	// [banned] _QColor.def("operator=", py::overload_cast<const QColor &>(&QColor::operator=),
+	// [banned] 	py::arg(""));
+	// [banned] _QColor.def("operator=", py::overload_cast<Qt::GlobalColor>(&QColor::operator=),
+	// [banned] 	py::arg("color"));
 	_QColor.def("isValid", &QColor::isValid);
-	// _QColor.def("name", &QColor::name);
-	// [<Enum 'NameFormat'>] _QColor.def("name", py::overload_cast<QColor::NameFormat>(&QColor::name),
-		// [<Enum 'NameFormat'>] py::arg("format"));
+	// [banned] _QColor.def("name", py::overload_cast<>(&QColor::name));
+	// [banned] _QColor.def("name", py::overload_cast<QColor::NameFormat>(&QColor::name),
+	// [banned] 	py::arg("format"));
 	_QColor.def("setNamedColor", py::overload_cast<const QString &>(&QColor::setNamedColor),
 		py::arg("name"));
 	// [<Class 'QStringView'>] _QColor.def("setNamedColor", py::overload_cast<QStringView>(&QColor::setNamedColor),
-		// [<Class 'QStringView'>] py::arg("name"));
+	// [<Class 'QStringView'>] 	py::arg("name"));
 	// [<Class 'QLatin1String'>] _QColor.def("setNamedColor", py::overload_cast<QLatin1String>(&QColor::setNamedColor),
-		// [<Class 'QLatin1String'>] py::arg("name"));
+	// [<Class 'QLatin1String'>] 	py::arg("name"));
 	// [<Class 'QStringList'>] _QColor.def_static("colorNames", &QColor::colorNames);
 	// [<Enum 'Spec'>] _QColor.def("spec", &QColor::spec);
 	_QColor.def("alpha", &QColor::alpha);
@@ -468,7 +467,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("alpha"));
 	// [<TypeDef 'qreal'>] _QColor.def("alphaF", &QColor::alphaF);
 	// [<TypeDef 'qreal'>] _QColor.def("setAlphaF", &QColor::setAlphaF,
-		// [<TypeDef 'qreal'>] py::arg("alpha"));
+	// [<TypeDef 'qreal'>] 	py::arg("alpha"));
 	_QColor.def("red", &QColor::red);
 	_QColor.def("green", &QColor::green);
 	_QColor.def("blue", &QColor::blue);
@@ -482,11 +481,11 @@ PYBIND11_MODULE(h2core, m) {
 	// [<TypeDef 'qreal'>] _QColor.def("greenF", &QColor::greenF);
 	// [<TypeDef 'qreal'>] _QColor.def("blueF", &QColor::blueF);
 	// [<TypeDef 'qreal'>] _QColor.def("setRedF", &QColor::setRedF,
-		// [<TypeDef 'qreal'>] py::arg("red"));
+	// [<TypeDef 'qreal'>] 	py::arg("red"));
 	// [<TypeDef 'qreal'>] _QColor.def("setGreenF", &QColor::setGreenF,
-		// [<TypeDef 'qreal'>] py::arg("green"));
+	// [<TypeDef 'qreal'>] 	py::arg("green"));
 	// [<TypeDef 'qreal'>] _QColor.def("setBlueF", &QColor::setBlueF,
-		// [<TypeDef 'qreal'>] py::arg("blue"));
+	// [<TypeDef 'qreal'>] 	py::arg("blue"));
 	_QColor.def("getRgb", &QColor::getRgb,
 		py::arg("r"),
 		py::arg("g"),
@@ -498,23 +497,23 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("b"),
 		py::arg("a"));
 	// [<TypeDef 'QRgb'>] _QColor.def("setRgb", py::overload_cast<QRgb>(&QColor::setRgb),
-		// [<TypeDef 'QRgb'>] py::arg("rgb"));
+	// [<TypeDef 'QRgb'>] 	py::arg("rgb"));
 	// [<TypeDef 'qreal'>] _QColor.def("getRgbF", &QColor::getRgbF,
-		// [<TypeDef 'qreal'>] py::arg("r"),
-		// [<TypeDef 'qreal'>] py::arg("g"),
-		// [<TypeDef 'qreal'>] py::arg("b"),
-		// [<TypeDef 'qreal'>] py::arg("a"));
+	// [<TypeDef 'qreal'>] 	py::arg("r"),
+	// [<TypeDef 'qreal'>] 	py::arg("g"),
+	// [<TypeDef 'qreal'>] 	py::arg("b"),
+	// [<TypeDef 'qreal'>] 	py::arg("a"));
 	// [<TypeDef 'qreal'>] _QColor.def("setRgbF", &QColor::setRgbF,
-		// [<TypeDef 'qreal'>] py::arg("r"),
-		// [<TypeDef 'qreal'>] py::arg("g"),
-		// [<TypeDef 'qreal'>] py::arg("b"),
-		// [<TypeDef 'qreal'>] py::arg("a"));
+	// [<TypeDef 'qreal'>] 	py::arg("r"),
+	// [<TypeDef 'qreal'>] 	py::arg("g"),
+	// [<TypeDef 'qreal'>] 	py::arg("b"),
+	// [<TypeDef 'qreal'>] 	py::arg("a"));
 	// [<Class 'QRgba64'>] _QColor.def("rgba64", &QColor::rgba64);
 	// [<Class 'QRgba64'>] _QColor.def("setRgba64", &QColor::setRgba64,
-		// [<Class 'QRgba64'>] py::arg("rgba"));
+	// [<Class 'QRgba64'>] 	py::arg("rgba"));
 	// [<TypeDef 'QRgb'>] _QColor.def("rgba", &QColor::rgba);
 	// [<TypeDef 'QRgb'>] _QColor.def("setRgba", &QColor::setRgba,
-		// [<TypeDef 'QRgb'>] py::arg("rgba"));
+	// [<TypeDef 'QRgb'>] 	py::arg("rgba"));
 	// [<TypeDef 'QRgb'>] _QColor.def("rgb", &QColor::rgb);
 	_QColor.def("hue", &QColor::hue);
 	_QColor.def("saturation", &QColor::saturation);
@@ -537,15 +536,15 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("v"),
 		py::arg("a"));
 	// [<TypeDef 'qreal'>] _QColor.def("getHsvF", &QColor::getHsvF,
-		// [<TypeDef 'qreal'>] py::arg("h"),
-		// [<TypeDef 'qreal'>] py::arg("s"),
-		// [<TypeDef 'qreal'>] py::arg("v"),
-		// [<TypeDef 'qreal'>] py::arg("a"));
+	// [<TypeDef 'qreal'>] 	py::arg("h"),
+	// [<TypeDef 'qreal'>] 	py::arg("s"),
+	// [<TypeDef 'qreal'>] 	py::arg("v"),
+	// [<TypeDef 'qreal'>] 	py::arg("a"));
 	// [<TypeDef 'qreal'>] _QColor.def("setHsvF", &QColor::setHsvF,
-		// [<TypeDef 'qreal'>] py::arg("h"),
-		// [<TypeDef 'qreal'>] py::arg("s"),
-		// [<TypeDef 'qreal'>] py::arg("v"),
-		// [<TypeDef 'qreal'>] py::arg("a"));
+	// [<TypeDef 'qreal'>] 	py::arg("h"),
+	// [<TypeDef 'qreal'>] 	py::arg("s"),
+	// [<TypeDef 'qreal'>] 	py::arg("v"),
+	// [<TypeDef 'qreal'>] 	py::arg("a"));
 	_QColor.def("cyan", &QColor::cyan);
 	_QColor.def("magenta", &QColor::magenta);
 	_QColor.def("yellow", &QColor::yellow);
@@ -573,23 +572,23 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("k"),
 		py::arg("a"));
 	// [<TypeDef 'qreal'>] _QColor.def("getCmykF", py::overload_cast<qreal *, qreal *, qreal *, qreal *, qreal *>(&QColor::getCmykF),
-		// [<TypeDef 'qreal'>] py::arg("c"),
-		// [<TypeDef 'qreal'>] py::arg("m"),
-		// [<TypeDef 'qreal'>] py::arg("y"),
-		// [<TypeDef 'qreal'>] py::arg("k"),
-		// [<TypeDef 'qreal'>] py::arg("a"));
+	// [<TypeDef 'qreal'>] 	py::arg("c"),
+	// [<TypeDef 'qreal'>] 	py::arg("m"),
+	// [<TypeDef 'qreal'>] 	py::arg("y"),
+	// [<TypeDef 'qreal'>] 	py::arg("k"),
+	// [<TypeDef 'qreal'>] 	py::arg("a"));
 	// [<TypeDef 'qreal'>] _QColor.def("getCmykF", py::overload_cast<qreal *, qreal *, qreal *, qreal *, qreal *>(&QColor::getCmykF),
-		// [<TypeDef 'qreal'>] py::arg("c"),
-		// [<TypeDef 'qreal'>] py::arg("m"),
-		// [<TypeDef 'qreal'>] py::arg("y"),
-		// [<TypeDef 'qreal'>] py::arg("k"),
-		// [<TypeDef 'qreal'>] py::arg("a"));
+	// [<TypeDef 'qreal'>] 	py::arg("c"),
+	// [<TypeDef 'qreal'>] 	py::arg("m"),
+	// [<TypeDef 'qreal'>] 	py::arg("y"),
+	// [<TypeDef 'qreal'>] 	py::arg("k"),
+	// [<TypeDef 'qreal'>] 	py::arg("a"));
 	// [<TypeDef 'qreal'>] _QColor.def("setCmykF", &QColor::setCmykF,
-		// [<TypeDef 'qreal'>] py::arg("c"),
-		// [<TypeDef 'qreal'>] py::arg("m"),
-		// [<TypeDef 'qreal'>] py::arg("y"),
-		// [<TypeDef 'qreal'>] py::arg("k"),
-		// [<TypeDef 'qreal'>] py::arg("a"));
+	// [<TypeDef 'qreal'>] 	py::arg("c"),
+	// [<TypeDef 'qreal'>] 	py::arg("m"),
+	// [<TypeDef 'qreal'>] 	py::arg("y"),
+	// [<TypeDef 'qreal'>] 	py::arg("k"),
+	// [<TypeDef 'qreal'>] 	py::arg("a"));
 	_QColor.def("hslHue", &QColor::hslHue);
 	_QColor.def("hslSaturation", &QColor::hslSaturation);
 	_QColor.def("lightness", &QColor::lightness);
@@ -607,53 +606,53 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("l"),
 		py::arg("a"));
 	// [<TypeDef 'qreal'>] _QColor.def("getHslF", &QColor::getHslF,
-		// [<TypeDef 'qreal'>] py::arg("h"),
-		// [<TypeDef 'qreal'>] py::arg("s"),
-		// [<TypeDef 'qreal'>] py::arg("l"),
-		// [<TypeDef 'qreal'>] py::arg("a"));
+	// [<TypeDef 'qreal'>] 	py::arg("h"),
+	// [<TypeDef 'qreal'>] 	py::arg("s"),
+	// [<TypeDef 'qreal'>] 	py::arg("l"),
+	// [<TypeDef 'qreal'>] 	py::arg("a"));
 	// [<TypeDef 'qreal'>] _QColor.def("setHslF", &QColor::setHslF,
-		// [<TypeDef 'qreal'>] py::arg("h"),
-		// [<TypeDef 'qreal'>] py::arg("s"),
-		// [<TypeDef 'qreal'>] py::arg("l"),
-		// [<TypeDef 'qreal'>] py::arg("a"));
+	// [<TypeDef 'qreal'>] 	py::arg("h"),
+	// [<TypeDef 'qreal'>] 	py::arg("s"),
+	// [<TypeDef 'qreal'>] 	py::arg("l"),
+	// [<TypeDef 'qreal'>] 	py::arg("a"));
 	_QColor.def("toRgb", &QColor::toRgb);
 	_QColor.def("toHsv", &QColor::toHsv);
 	_QColor.def("toCmyk", &QColor::toCmyk);
 	_QColor.def("toHsl", &QColor::toHsl);
 	_QColor.def("toExtendedRgb", &QColor::toExtendedRgb);
 	// [<Enum 'Spec'>] _QColor.def("convertTo", &QColor::convertTo,
-		// [<Enum 'Spec'>] py::arg("colorSpec"));
+	// [<Enum 'Spec'>] 	py::arg("colorSpec"));
 	// [<TypeDef 'QRgb'>] _QColor.def_static("fromRgb_static", py::overload_cast<QRgb>(&QColor::fromRgb),
-		// [<TypeDef 'QRgb'>] py::arg("rgb"));
+	// [<TypeDef 'QRgb'>] 	py::arg("rgb"));
 	_QColor.def_static("fromRgb_static", py::overload_cast<int, int, int, int>(&QColor::fromRgb),
 		py::arg("r"),
 		py::arg("g"),
 		py::arg("b"),
 		py::arg("a"));
 	// [<TypeDef 'QRgb'>] _QColor.def_static("fromRgba", &QColor::fromRgba,
-		// [<TypeDef 'QRgb'>] py::arg("rgba"));
+	// [<TypeDef 'QRgb'>] 	py::arg("rgba"));
 	// [<TypeDef 'qreal'>] _QColor.def_static("fromRgbF", &QColor::fromRgbF,
-		// [<TypeDef 'qreal'>] py::arg("r"),
-		// [<TypeDef 'qreal'>] py::arg("g"),
-		// [<TypeDef 'qreal'>] py::arg("b"),
-		// [<TypeDef 'qreal'>] py::arg("a"));
+	// [<TypeDef 'qreal'>] 	py::arg("r"),
+	// [<TypeDef 'qreal'>] 	py::arg("g"),
+	// [<TypeDef 'qreal'>] 	py::arg("b"),
+	// [<TypeDef 'qreal'>] 	py::arg("a"));
 	// [<TypeDef 'ushort'>] _QColor.def_static("fromRgba64_static", py::overload_cast<ushort, ushort, ushort, ushort>(&QColor::fromRgba64),
-		// [<TypeDef 'ushort'>] py::arg("r"),
-		// [<TypeDef 'ushort'>] py::arg("g"),
-		// [<TypeDef 'ushort'>] py::arg("b"),
-		// [<TypeDef 'ushort'>] py::arg("a"));
+	// [<TypeDef 'ushort'>] 	py::arg("r"),
+	// [<TypeDef 'ushort'>] 	py::arg("g"),
+	// [<TypeDef 'ushort'>] 	py::arg("b"),
+	// [<TypeDef 'ushort'>] 	py::arg("a"));
 	// [<Class 'QRgba64'>] _QColor.def_static("fromRgba64_static", py::overload_cast<QRgba64>(&QColor::fromRgba64),
-		// [<Class 'QRgba64'>] py::arg("rgba"));
+	// [<Class 'QRgba64'>] 	py::arg("rgba"));
 	_QColor.def_static("fromHsv", &QColor::fromHsv,
 		py::arg("h"),
 		py::arg("s"),
 		py::arg("v"),
 		py::arg("a"));
 	// [<TypeDef 'qreal'>] _QColor.def_static("fromHsvF", &QColor::fromHsvF,
-		// [<TypeDef 'qreal'>] py::arg("h"),
-		// [<TypeDef 'qreal'>] py::arg("s"),
-		// [<TypeDef 'qreal'>] py::arg("v"),
-		// [<TypeDef 'qreal'>] py::arg("a"));
+	// [<TypeDef 'qreal'>] 	py::arg("h"),
+	// [<TypeDef 'qreal'>] 	py::arg("s"),
+	// [<TypeDef 'qreal'>] 	py::arg("v"),
+	// [<TypeDef 'qreal'>] 	py::arg("a"));
 	_QColor.def_static("fromCmyk", &QColor::fromCmyk,
 		py::arg("c"),
 		py::arg("m"),
@@ -661,21 +660,21 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("k"),
 		py::arg("a"));
 	// [<TypeDef 'qreal'>] _QColor.def_static("fromCmykF", &QColor::fromCmykF,
-		// [<TypeDef 'qreal'>] py::arg("c"),
-		// [<TypeDef 'qreal'>] py::arg("m"),
-		// [<TypeDef 'qreal'>] py::arg("y"),
-		// [<TypeDef 'qreal'>] py::arg("k"),
-		// [<TypeDef 'qreal'>] py::arg("a"));
+	// [<TypeDef 'qreal'>] 	py::arg("c"),
+	// [<TypeDef 'qreal'>] 	py::arg("m"),
+	// [<TypeDef 'qreal'>] 	py::arg("y"),
+	// [<TypeDef 'qreal'>] 	py::arg("k"),
+	// [<TypeDef 'qreal'>] 	py::arg("a"));
 	_QColor.def_static("fromHsl", &QColor::fromHsl,
 		py::arg("h"),
 		py::arg("s"),
 		py::arg("l"),
 		py::arg("a"));
 	// [<TypeDef 'qreal'>] _QColor.def_static("fromHslF", &QColor::fromHslF,
-		// [<TypeDef 'qreal'>] py::arg("h"),
-		// [<TypeDef 'qreal'>] py::arg("s"),
-		// [<TypeDef 'qreal'>] py::arg("l"),
-		// [<TypeDef 'qreal'>] py::arg("a"));
+	// [<TypeDef 'qreal'>] 	py::arg("h"),
+	// [<TypeDef 'qreal'>] 	py::arg("s"),
+	// [<TypeDef 'qreal'>] 	py::arg("l"),
+	// [<TypeDef 'qreal'>] 	py::arg("a"));
 	_QColor.def("light", &QColor::light,
 		py::arg("f"));
 	_QColor.def("dark", &QColor::dark,
@@ -691,9 +690,9 @@ PYBIND11_MODULE(h2core, m) {
 	_QColor.def_static("isValidColor_static", py::overload_cast<const QString &>(&QColor::isValidColor),
 		py::arg("name"));
 	// [<Class 'QStringView'>] _QColor.def_static("isValidColor_static", py::overload_cast<QStringView>(&QColor::isValidColor),
-		// [<Class 'QStringView'>] py::arg(""));
+	// [<Class 'QStringView'>] 	py::arg(""));
 	// [<Class 'QLatin1String'>] _QColor.def_static("isValidColor_static", py::overload_cast<QLatin1String>(&QColor::isValidColor),
-		// [<Class 'QLatin1String'>] py::arg(""));
+	// [<Class 'QLatin1String'>] 	py::arg(""));
 
 	py::class_<H2Core::Hydrogen> _Hydrogen(m, "Hydrogen");
 	_Hydrogen.def_static("class_name", &H2Core::Hydrogen::class_name);
@@ -1144,10 +1143,10 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("function"));
 	// [<TemplateRef 'duration'>] _AudioEngine.def("tryLockFor", &H2Core::AudioEngine::tryLockFor,
 		// [<TemplateRef 'duration'>] "Mutex locking of the AudioEngine.",
-		// [<TemplateRef 'duration'>] py::arg("duration"),
-		// [<TemplateRef 'duration'>] py::arg("file"),
-		// [<TemplateRef 'duration'>] py::arg("line"),
-		// [<TemplateRef 'duration'>] py::arg("function"));
+	// [<TemplateRef 'duration'>] 	py::arg("duration"),
+	// [<TemplateRef 'duration'>] 	py::arg("file"),
+	// [<TemplateRef 'duration'>] 	py::arg("line"),
+	// [<TemplateRef 'duration'>] 	py::arg("function"));
 	_AudioEngine.def("unlock", &H2Core::AudioEngine::unlock,
 		"Mutex unlocking of the AudioEngine.");
 	_AudioEngine.def("assertLocked", &H2Core::AudioEngine::assertLocked,
@@ -1169,8 +1168,8 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("note"));
 	// [<TypeDef 'uint32_t'>] _AudioEngine.def_static("audioEngine_process", &H2Core::AudioEngine::audioEngine_process,
 		// [<TypeDef 'uint32_t'>] "Main audio processing function called by the audio drivers whenever there is work to do.",
-		// [<TypeDef 'uint32_t'>] py::arg("nframes"),
-		// [<TypeDef 'uint32_t'>] py::arg("arg"));
+	// [<TypeDef 'uint32_t'>] 	py::arg("nframes"),
+	// [<TypeDef 'uint32_t'>] 	py::arg("arg"));
 	_AudioEngine.def("clearNoteQueue", &H2Core::AudioEngine::clearNoteQueue);
 	_AudioEngine.def("processPlayNotes", &H2Core::AudioEngine::processPlayNotes,
 		py::arg("nframes"));
@@ -1214,7 +1213,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("nFrame"));
 	// [<TypeDef 'uint32_t'>] _AudioEngine.def("clearAudioBuffers", &H2Core::AudioEngine::clearAudioBuffers,
 		// [<TypeDef 'uint32_t'>] "Clear all audio buffers.",
-		// [<TypeDef 'uint32_t'>] py::arg("nFrames"));
+	// [<TypeDef 'uint32_t'>] 	py::arg("nFrames"));
 	_AudioEngine.def("createDriver", &H2Core::AudioEngine::createDriver,
 		"Create an audio driver using audioEngine_process() as its argument based on the provided choice and calling their _init()_ function to trigger their initialization.",
 		py::arg("sDriver"));
@@ -1402,14 +1401,14 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("msg"));
 	_Note.def("get_adsr", &H2Core::Note::get_adsr,
 		"get the ADSR of the note");
-	// _Note.def("match", py::overload_cast<std::shared_ptr<Instrument>, H2Core::Note::Key, H2Core::Note::Octave>(&H2Core::Note::match),
-	// 		"return true if instrument, key and octave matches with internal",
-	// 	py::arg("instrument"),
-	// 	py::arg("key"),
-	// 	py::arg("octave"));
-	// _Note.def("match", py::overload_cast<const H2Core::Note *>(&H2Core::Note::match),
-	// 		"Return true if two notes match in instrument, key and octave.",
-	// 	py::arg("pNote"));
+	// [banned] _Note.def("match", py::overload_cast<std::shared_ptr<Instrument>, H2Core::Note::Key, H2Core::Note::Octave>(&H2Core::Note::match),
+		// [banned] 	"return true if instrument, key and octave matches with internal",
+	// [banned] 	py::arg("instrument"),
+	// [banned] 	py::arg("key"),
+	// [banned] 	py::arg("octave"));
+	// [banned] _Note.def("match", py::overload_cast<const H2Core::Note *>(&H2Core::Note::match),
+		// [banned] 	"Return true if two notes match in instrument, key and octave.",
+	// [banned] 	py::arg("pNote"));
 	_Note.def("compute_lr_values", &H2Core::Note::compute_lr_values,
 		"compute left and right output based on filters",
 		py::arg("val_l"),
@@ -1831,11 +1830,11 @@ PYBIND11_MODULE(h2core, m) {
 	// [<TypeDef 'iterator'>] _AutomationPath.def("end", py::overload_cast<>(&H2Core::AutomationPath::end));
 	// [<TypeDef 'const_iterator'>] _AutomationPath.def("end", py::overload_cast<>(&H2Core::AutomationPath::end));
 	// [<TypeDef 'iterator'>] _AutomationPath.def("find", &H2Core::AutomationPath::find,
-		// [<TypeDef 'iterator'>] py::arg("x"));
+	// [<TypeDef 'iterator'>] 	py::arg("x"));
 	// [<TypeDef 'iterator'>] _AutomationPath.def("move", &H2Core::AutomationPath::move,
-		// [<TypeDef 'iterator'>] py::arg("in"),
-		// [<TypeDef 'iterator'>] py::arg("x"),
-		// [<TypeDef 'iterator'>] py::arg("y"));
+	// [<TypeDef 'iterator'>] 	py::arg("in"),
+	// [<TypeDef 'iterator'>] 	py::arg("x"),
+	// [<TypeDef 'iterator'>] 	py::arg("y"));
 	_AutomationPath.def("toQString", &H2Core::AutomationPath::toQString,
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
@@ -1877,7 +1876,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("val"));
 	_DrumkitComponent.def("get_peak_r", &H2Core::DrumkitComponent::get_peak_r);
 	// [<TypeDef 'uint32_t'>] _DrumkitComponent.def("reset_outs", &H2Core::DrumkitComponent::reset_outs,
-		// [<TypeDef 'uint32_t'>] py::arg("nFrames"));
+	// [<TypeDef 'uint32_t'>] 	py::arg("nFrames"));
 	_DrumkitComponent.def("set_outs", &H2Core::DrumkitComponent::set_outs,
 		py::arg("nBufferPos"),
 		py::arg("valL"),
@@ -1927,20 +1926,20 @@ PYBIND11_MODULE(h2core, m) {
 	_Pattern.def("insert_note", &H2Core::Pattern::insert_note,
 		"insert a new note within __notes",
 		py::arg("note"));
-	// _Pattern.def("find_note", py::overload_cast<int, int, std::shared_ptr<Instrument>, bool>(&H2Core::Pattern::find_note),
-	// 		"search for a note at a given index within __notes which correspond to the given arguments",
-	// 	py::arg("idx_a"),
-	// 	py::arg("idx_b"),
-	// 	py::arg("instrument"),
-	// 	py::arg("strict"));
-	// _Pattern.def("find_note", py::overload_cast<int, int, std::shared_ptr<Instrument>, Note::Key, Note::Octave, bool>(&H2Core::Pattern::find_note),
-	// 		"search for a note at a given index within __notes which correspond to the given arguments",
-	// 	py::arg("idx_a"),
-	// 	py::arg("idx_b"),
-	// 	py::arg("instrument"),
-	// 	py::arg("key"),
-	// 	py::arg("octave"),
-	// 	py::arg("strict"));
+	// [banned] _Pattern.def("find_note", py::overload_cast<int, int, std::shared_ptr<Instrument>, bool>(&H2Core::Pattern::find_note),
+		// [banned] 	"search for a note at a given index within __notes which correspond to the given arguments",
+	// [banned] 	py::arg("idx_a"),
+	// [banned] 	py::arg("idx_b"),
+	// [banned] 	py::arg("instrument"),
+	// [banned] 	py::arg("strict"));
+	// [banned] _Pattern.def("find_note", py::overload_cast<int, int, std::shared_ptr<Instrument>, Note::Key, Note::Octave, bool>(&H2Core::Pattern::find_note),
+		// [banned] 	"search for a note at a given index within __notes which correspond to the given arguments",
+	// [banned] 	py::arg("idx_a"),
+	// [banned] 	py::arg("idx_b"),
+	// [banned] 	py::arg("instrument"),
+	// [banned] 	py::arg("key"),
+	// [banned] 	py::arg("octave"),
+	// [banned] 	py::arg("strict"));
 	_Pattern.def("remove_note", &H2Core::Pattern::remove_note,
 		"removes a given note from __notes, it's not deleted",
 		py::arg("note"));
@@ -2234,31 +2233,31 @@ PYBIND11_MODULE(h2core, m) {
 			"Load a sample from a file.",
 		py::arg("filepath"));
 	// [<TemplateRef 'vector'>] _Sample.def_static("load_static", py::overload_cast<const QString &, const H2Core::Sample::Loops &, const H2Core::Sample::Rubberband &, const H2Core::Sample::VelocityEnvelope &, const H2Core::Sample::PanEnvelope &>(&H2Core::Sample::load),
-			// [<TemplateRef 'vector'>] "Load a sample from a file and apply the transformations to the sample data.",
-		// [<TemplateRef 'vector'>] py::arg("filepath"),
-		// [<TemplateRef 'vector'>] py::arg("loops"),
-		// [<TemplateRef 'vector'>] py::arg("rubber"),
-		// [<TemplateRef 'vector'>] py::arg("velocity"),
-		// [<TemplateRef 'vector'>] py::arg("pan"));
+		// [<TemplateRef 'vector'>] 	"Load a sample from a file and apply the transformations to the sample data.",
+	// [<TemplateRef 'vector'>] 	py::arg("filepath"),
+	// [<TemplateRef 'vector'>] 	py::arg("loops"),
+	// [<TemplateRef 'vector'>] 	py::arg("rubber"),
+	// [<TemplateRef 'vector'>] 	py::arg("velocity"),
+	// [<TemplateRef 'vector'>] 	py::arg("pan"));
 	_Sample.def("load", py::overload_cast<>(&H2Core::Sample::load),
 			"Load the sample stored in #__filepath into #__data_l and #__data_r.");
 	_Sample.def("unload", &H2Core::Sample::unload,
 		"Flush the current content of the left and right channel and the current metadata.");
 	// [<TemplateRef 'vector'>] _Sample.def("apply", &H2Core::Sample::apply,
 		// [<TemplateRef 'vector'>] "Apply transformations to the sample data.",
-		// [<TemplateRef 'vector'>] py::arg("loops"),
-		// [<TemplateRef 'vector'>] py::arg("rubber"),
-		// [<TemplateRef 'vector'>] py::arg("velocity"),
-		// [<TemplateRef 'vector'>] py::arg("pan"));
+	// [<TemplateRef 'vector'>] 	py::arg("loops"),
+	// [<TemplateRef 'vector'>] 	py::arg("rubber"),
+	// [<TemplateRef 'vector'>] 	py::arg("velocity"),
+	// [<TemplateRef 'vector'>] 	py::arg("pan"));
 	_Sample.def("apply_loops", &H2Core::Sample::apply_loops,
 		"apply loop transformation to the sample",
 		py::arg("lo"));
 	// [<TemplateRef 'vector'>] _Sample.def("apply_velocity", &H2Core::Sample::apply_velocity,
 		// [<TemplateRef 'vector'>] "apply velocity transformation to the sample",
-		// [<TemplateRef 'vector'>] py::arg("v"));
+	// [<TemplateRef 'vector'>] 	py::arg("v"));
 	// [<TemplateRef 'vector'>] _Sample.def("apply_pan", &H2Core::Sample::apply_pan,
 		// [<TemplateRef 'vector'>] "apply velocity transformation to the sample",
-		// [<TemplateRef 'vector'>] py::arg("p"));
+	// [<TemplateRef 'vector'>] 	py::arg("p"));
 	_Sample.def("apply_rubberband", &H2Core::Sample::apply_rubberband,
 		"apply rubberband transformation to the sample",
 		py::arg("rb"));
