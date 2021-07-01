@@ -2,7 +2,7 @@ from __future__ import annotations
 import textwrap
 from typing import OrderedDict
 from logzero import logger
-from dom import NodeProxy, Record
+from dom import Context, EnumConstant, NodeProxy, Record, Enum, Bindable
 from orderedset import OrderedSet
 import json
 def c_decode(in_str:str) -> str:
@@ -17,74 +17,106 @@ def c_encode(in_str:str) -> str:
 def emit(code, fragment):
     code.append(fragment)
 
-def generate_record(rec: Record, code):
-    emit(code, f"""\tpy::class_<{rec.fullname}>(m, "{rec.name}")"""
+def generate_enum(context: Context, enum: Enum, bindings, code):
+    emit(code, f"""\t// enum {enum.name}\n""")
+    if enum.parent:
+        qname = enum.fullname
+        parent = f'_{enum.parent.name}'
+    else:
+        qname = enum.name
+        parent = 'm'
+    emit(code, f"""\tpy::enum_<{qname}>({parent}, "{enum.name}")""")
+    for ec in enum._filter(EnumConstant):
+        emit(code, f"""\n\t\t.value("{ec.name}", {ec.fullname})""")
+    emit(code, ";\n\n")
+
+
+def generate_record(context: Context, rec: Record, bindings, code):
+    emit(code, f"""\tpy::class_<{rec.fullname}> _{rec.name}(m, "{rec.name}");"""
     )
     for ctor in rec.constructors:
         if not ctor.is_public():
             continue
-        emit(code, f"""\n\t\t.def(py::init<{ctor.cpp_signature}>())"""
+        emit(code, f"""\n\t_{rec.name}.def(py::init<{ctor.cpp_signature}>());"""
         )
     overloads = {}
     for m in rec.methods:
         overloads.setdefault(m.name, []).append(m)
+
     for name in overloads:
         signatures = overloads[name]
         if len(signatures) == 1:
             m = signatures[0]
+            skip = "" 
+            for dep in m.dependencies:
+                if dep not in bindings and dep not in context.casters():
+                    skip = f"// [{dep}] "
+                    break
             if not m.is_public():
                 continue
             if m.node.is_static_method():
                 emit(code,
-                    f"""\n\t\t.def_static("{m.name}", &{rec.fullname}::{m.name}""")
+                    f"""\n\t{skip}_{rec.name}.def_static("{m.name}", &{rec.fullname}::{m.name}""")
             else:
                 emit(code,
-                    f"""\n\t\t.def("{m.name}", &{rec.fullname}::{m.name}""")
+                    f"""\n\t{skip}_{rec.name}.def("{m.name}", &{rec.fullname}::{m.name}""")
             if m.node.brief_comment:
-                emit(code, f""",\n\t\t\t"{c_encode(m.node.brief_comment)}" """.strip()
+                emit(code, f""",\n\t\t{skip}"{c_encode(m.node.brief_comment)}" """.strip()
             )
             for param in m.parameters:
                 emit(code,
-                f""",\n\t\t\tpy::arg("{param.name}")""".strip())
+                f""",\n\t\t{skip}py::arg("{param.name}")""".strip())
             emit(code,
-                ")")
+                ");")
         else:
             for m in signatures:
+                skip = "" 
+                for dep in m.dependencies:
+                    if dep not in bindings and dep not in context.casters():
+                        skip = f"// [{dep}] "
+                        break
                 if not m.is_public():
                     continue
                 if m.node.is_static_method():
                     emit(code,
-                        f"""\n\t\t.def_static("{m.name}_static", py::overload_cast<{m.cpp_signature}>(&{rec.fullname}::{m.name})""")
+                        f"""\n\t{skip}_{rec.name}.def_static("{m.name}_static", py::overload_cast<{m.cpp_signature}>(&{rec.fullname}::{m.name})""")
                 else:
                     emit(code,
-                        f"""\n\t\t.def("{m.name}", py::overload_cast<{m.cpp_signature}>(&{rec.fullname}::{m.name})"""
+                        f"""\n\t{skip}_{rec.name}.def("{m.name}", py::overload_cast<{m.cpp_signature}>(&{rec.fullname}::{m.name})"""
                     )
                 if m.node.brief_comment:
-                    emit(code, f""",\n\t\t\t"{c_encode(m.node.brief_comment)}" """.strip()
+                    emit(code, f""",\n\t\t\t{skip}"{c_encode(m.node.brief_comment)}" """.strip()
                 )
                 for param in m.parameters:
                     emit(code,
-                    f""",\n\t\t\tpy::arg("{param.name}")""".strip())
+                    f""",\n\t\t{skip}py::arg("{param.name}")""".strip())
                 emit(code,
-                    ")")
+                    ");")
     
-    emit(code, """;\n\n"""
+    emit(code, """\n\n"""
     )
 
-def generate_module(context, name, records, include_paths, code):
+def generate_module(context: Context, name, bindings, include_paths, code):
 
-    generate_imports(records, code, include_paths)
+    # generate_imports(records, code, include_paths)
     
-    emit(code, "#include <pybind11_bindings/qtreset.h>\n")
-    emit(code, "#include <pybind11/pybind11.h>\n")
+    # emit(code, "#include <pybind11_bindings/qtreset.h>\n")
+    # emit(code, "#include <pybind11/pybind11.h>\n")
 
-    generate_includes(context.plugins, code)
+    # generate_includes(context.plugins, code)
+    generate_includes(["module.hpp"], code)
 
     emit(code, "namespace py = pybind11;\n\n")
     emit(code, "using namespace H2Core;\n\n")
     emit(code, f"PYBIND11_MODULE({name}, m) {{\n\n")
-    for rec in records:
-        generate_record(rec, code)
+    for binding in bindings:
+        if isinstance(binding, Record):
+            generate_record(context, binding, bindings, code)
+        elif isinstance(binding, Enum):
+            generate_enum(context, binding, bindings, code)
+        else:
+            logger.warning("don't know howto generate %s", binding)
+
 
     emit(code, """}""")
 

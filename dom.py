@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from collections import abc
 import typing
 from typing_extensions import TypeAlias
 
@@ -29,6 +30,16 @@ class Config:
 
 
 class Context:
+
+    factory: dict[CursorKind, abc.Callable[[Context, Cursor], NodeProxy | None]]
+    config: Config
+    elements: dict[str, NodeProxy]  # key is clang node's usr
+    builtins: dict[str, NodeProxy]
+    flags: list[str]
+    plugins: list[str]
+    _casters: dict[NodeProxy, NodeProxy] | None
+    _tx : TxUnit | None
+
     def __init__(self, factory: dict[CursorKind, type], config: Config):
         self.factory = factory
         self.config = config
@@ -39,6 +50,7 @@ class Context:
         self.plugins = []
         self.index = Index.create()
         self._casters = None
+
     def set_flags(self, flags: str | list[str]):
         if isinstance(flags, str):
             self.flags = flags.strip().split()
@@ -66,25 +78,28 @@ class Context:
         for diag in tu.diagnostics:
             print(diag, file=sys.stderr)
         includes = [Include(inc) for inc in tu.get_includes()]
-        return typing.cast(TxUnit, self.make(tu.cursor)), includes
-
+        self._tx = typing.cast(TxUnit, self.make(tu.cursor))
+        return self._tx, includes
 
     def parse_plugins(self):
         from gen import generate_includes
-        code = [] 
-        generate_includes(['pybind11/pybind11.h'] + self.plugins, code)
-        with open('_plugins.hpp', 'w') as src:
-            src.write(''.join(code))
-        tx, incl = self.parse('_plugins.hpp')
+
+        code = []
+        generate_includes(["pybind11/pybind11.h"] + self.plugins, code)
+        with open("_plugins.hpp", "w") as src:
+            src.write("".join(code))
+        tx, incl = self.parse("_plugins.hpp")
         return tx, incl
 
     def casters(self):
-        if self._casters is None:
-            tx, incl = self.parse_plugins()
-            tx.walk()
-            casters = tx['pybind11::detail::type_caster']
-            self._casters = casters
-        return self._casters
+        _casters = {}
+        if not self._tx:
+            return {}
+        for casting in self._tx['pybind11::detail::type_caster']:
+            tref = list(casting._filter(TypeRef))
+            if tref:
+                _casters[tref[0].type] = casting
+        return _casters
 
     def push(self, node: NodeProxy):
         self.stack.append(node)
@@ -144,6 +159,19 @@ class Include:
     @property
     def path(self):
         return self._clang.include.name
+
+
+class Binder:
+    def bind(self, node):
+        logger.info("TODO: binding: %s", node)
+
+
+class Bindable:
+    def bind(self, binder: Binder):
+        binder.bind(self)
+
+    def is_bindable(self):
+        return True
 
 
 class NodeProxy:
@@ -210,10 +238,13 @@ class NodeProxy:
         if not self.content:
             self.node = node
 
+    def is_bindable(self):
+        return False
+
     def allowed(self, item):
         return False
 
-    def check_parent(self, item):
+    def check_parent(self, item: NodeProxy):
         item_parent = item.node.semantic_parent
         if (
             item_parent
@@ -225,7 +256,7 @@ class NodeProxy:
                 CursorKind.TEMPLATE_TYPE_PARAMETER,
             ):
                 return True
-            logger.debug("%s not parent of %s", self, item)
+            logger.warn("%s not parent of %s (%s)", self, item, item_parent.kind)
             return False
         return True
 
@@ -249,7 +280,12 @@ class NodeProxy:
             obj = self.context.make(child)
             if obj:
                 ok = self.accept(obj)
+                if not ok and (isinstance(obj, Enum) or isinstance(self, Enum)):
+                    logger.warning("Enum! %s, self: %s", obj, self)
                 obj.walk(child)
+            else:
+                if isinstance(self, Enum):
+                    logger.warning("Enum!! %s %r", child.kind, child.spelling)
         self.context.pop(self)
         return self
 
@@ -350,6 +386,7 @@ class Namespace(NodeProxy):
             CursorKind.FUNCTION_DECL,
             CursorKind.FUNCTION_TEMPLATE,
             CursorKind.STRUCT_DECL,
+            CursorKind.ENUM_DECL,
             CursorKind.CLASS_DECL,
             CursorKind.CLASS_TEMPLATE,
             CursorKind.NAMESPACE,
@@ -372,7 +409,8 @@ class TypeHolder(NodeProxy):
             raise ValueError
         return check
 
-    def _compute_type(self) -> NodeProxy:
+    def _compute_type(self) -> NodeProxy | None:
+        """ This sucks ... """
         node = None
         t = self._get_clang_type()
         assert t.kind != TypeKind.INVALID
@@ -380,11 +418,14 @@ class TypeHolder(NodeProxy):
         if type_ref:
             if len(type_ref) != 1:
                 logger.warn(
-                    "mutiple typerefs, assuming first is return type: %s", type_ref
+                    "mutiple typerefs: %s: assuming last is return type: %s",
+                    self,
+                    type_ref,
                 )
-            type_ref, *_ = type_ref
+            type_ref = type_ref[-1]
             decl = type_ref.node.get_definition()
-            node = self.context.elements[decl.get_usr()]
+            if decl:
+                node = self.context.elements[decl.get_usr()]
         else:
             pointee = t.get_pointee()
             if pointee.kind != TypeKind.INVALID:
@@ -396,13 +437,18 @@ class TypeHolder(NodeProxy):
             if decl:
                 defi = decl.get_definition()
                 if defi:
-                    node = self.context.elements[defi.get_usr()]
+                    try:
+                        node = self.context.elements[defi.get_usr()]
+                    except KeyError:
+                        logger.warning("lookup failed(def): %s %s %s", defi.kind, defi.spelling, defi.get_usr())
                 else:
-                    node = None
-                    breakpoint()
-            if node:
-                return node
-        assert node
+                    try:
+                        node = self.context.elements[decl.get_usr()]
+                    except KeyError:
+                        logger.warning("lookup failed(decl): %s %s %s", decl.kind, decl.spelling, decl.get_usr())
+
+        if not node:
+            logger.warning("_compute_type() failed for %s", self)
         return node
 
     @property
@@ -415,7 +461,9 @@ class TypeHolder(NodeProxy):
     def dependencies(self) -> set[NodeProxy]:
         deps = OrderedSet()
         type_ = self.type
-        if not type_.is_builtin():
+        if not type_:
+            logger.warning("no type for %s", self)
+        if type_ and not type_.is_builtin():
             if isinstance(type_, (TemplateRef, TypeRef)):
                 deps.add(type_.type)
             elif isinstance(type_, TypeAliasDecl):
@@ -476,7 +524,7 @@ class Callable(TypeHolder):
         return deps
 
 
-class Function(Callable):
+class Function(Callable, Bindable):
     pass
 
 
@@ -491,7 +539,12 @@ class FunctionTemplate(Callable):
 
 
 class Method(Callable):
-    pass
+    def is_static(self):
+        return self.node.is_static_method()
+    def is_virtual(self):
+        return self.node.is_virtual_method()
+    def is_pure_virtual(self):
+        return self.node.is_pure_virtual_method()
 
 
 class TypeRef(TypeHolder):
@@ -528,13 +581,29 @@ class TypeAliasDecl(TypeHolder):
 
 
 class Param(TypeHolder):
+    def _get_clang_type(self) -> Type:
+        type_ = self.node.type
+        while type_.kind == TypeKind.POINTER:
+            type_ = type_.get_pointee()
+        if type_.kind == TypeKind.INVALID:
+            raise ValueError("could not get type for %s" % self)
+        return type_
+
+    def _compute_type(self) -> NodeProxy | None:
+        st = super()._compute_type()
+        if not st:
+            logger.warning("hu... %s", self)
+            type_ = self._get_clang_type()
+            st = self.context.elements.get(type_.get_declaration().get_usr())
+        return st
+
     def allowed(self, item):
         if item.kind in (CursorKind.TYPE_REF, CursorKind.TEMPLATE_REF):
             return self.check_parent(item)
         return super().allowed(item)
 
 
-class Field(NodeProxy):
+class Field(TypeHolder):
     pass
 
 
@@ -552,6 +621,7 @@ class TxUnit(NodeProxy):
             CursorKind.CLASS_TEMPLATE,
             CursorKind.NAMESPACE,
             CursorKind.UNEXPOSED_DECL,
+            CursorKind.ENUM_DECL,
             CursorKind.TYPEDEF_DECL,
         ):
             return self.check_parent(item)
@@ -594,6 +664,12 @@ class Record(NodeProxy):
             CursorKind.TYPE_ALIAS_DECL,
             CursorKind.CXX_BASE_SPECIFIER,
             CursorKind.CLASS_TEMPLATE,
+            CursorKind.CLASS_DECL,
+            CursorKind.ENUM_DECL,
+            CursorKind.CLASS_TEMPLATE_PARTIAL_SPECIALIZATION,
+            CursorKind.TYPE_REF,
+            CursorKind.TYPEDEF_DECL,
+            CursorKind.FUNCTION_TEMPLATE,
         ):
             return self.check_parent(item)
         return super().allowed(item)
@@ -635,29 +711,19 @@ class Record(NodeProxy):
 
     @property
     def dependencies(self) -> set[Record]:
-        return OrderedSet(self.bases)
+        deps = OrderedSet()
+        if self.parent and isinstance(self.parent, Record):
+            deps.add(self.parent)
+        for base in self.bases:
+            deps.add(base)
+        return deps
 
 
-class Class(Record):
-    def allowed(self, item):
-        if item.kind in (
-            CursorKind.CLASS_DECL,
-            CursorKind.CLASS_TEMPLATE_PARTIAL_SPECIALIZATION,
-        ):
-            return self.check_parent(item)
-        return super().allowed(item)
+class Class(Bindable, Record):
+    pass
 
-
-class Struct(Record):
-    def allowed(self, item):
-        if item.kind in (
-            CursorKind.TYPE_REF,
-            CursorKind.TYPEDEF_DECL,
-            CursorKind.FUNCTION_TEMPLATE,
-        ):
-            return self.check_parent(item)
-        return super().allowed(item)
-
+class Struct(Bindable, Record):
+    pass
 
 class ClassTemplate(Record):
     def __init__(self, context, node, parent=None):
@@ -697,18 +763,32 @@ class ClassTemplatePartialSpecialization(Record):
 
 class TypeDef(NodeProxy):
     def allowed(self, item):
-        if item.kind in (CursorKind.TYPE_REF, CursorKind.TEMPLATE_REF):
+        if item.kind in (CursorKind.TYPE_REF, CursorKind.TEMPLATE_REF, CursorKind.ENUM_DECL):
             return self.check_parent(item)
         return super().allowed(item)
 
 
-class Enum(NodeProxy):
+class Enum(Bindable, NodeProxy):
     def __init__(self, name, node, parent=None):
         super().__init__(name, node, parent)
         self.__members__ = []
 
-    pass
+    def allowed(self, item):
+        if item.kind in (CursorKind.ENUM_CONSTANT_DECL,):
+            return True
+        return super().allowed(item) 
 
+    @property
+    def dependencies(self) -> set[Record]:
+        deps = OrderedSet()
+        if self.parent and isinstance(self.parent, Record):
+            deps.add(self.parent)
+        return deps
+
+
+
+class EnumConstant(NodeProxy):
+    pass
 
 class Variable(NodeProxy):
     def allowed(self, item):
@@ -834,7 +914,7 @@ FACTORY = {
     # CursorKind.DLLEXPORT_ATTR,
     # CursorKind.DLLIMPORT_ATTR,
     # CursorKind.DO_STMT,
-    # CursorKind.ENUM_CONSTANT_DECL,
+    CursorKind.ENUM_CONSTANT_DECL: EnumConstant,
     CursorKind.ENUM_DECL: Enum,
     CursorKind.FIELD_DECL: Field,
     # CursorKind.FLOATING_LITERAL,
