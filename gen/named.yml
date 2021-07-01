@@ -1,0 +1,16 @@
+---
+
+classes:
+  Named:
+    shared_ptr: true
+    methods:
+      class_name:
+      Named:
+    template_params:
+      - T
+templates:
+  NamedO:
+    qualname: Named
+    params:
+      - ::O
+

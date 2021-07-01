@@ -1,0 +1,17 @@
+---
+
+classes:
+  SingletonException:
+    shared_ptr: true
+    template_params:
+      - T
+  Singleton:
+    shared_ptr: true
+    methods:
+      Singleton:
+      ensure:
+      shutdown:
+      instance:
+    template_params:
+      - T
+
