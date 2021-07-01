@@ -111,7 +111,10 @@ def generate_module(context: Context, name, bindings, include_paths, code):
     emit(code, f"PYBIND11_MODULE({name}, m) {{\n\n")
     for binding in bindings:
         if isinstance(binding, Record):
-            generate_record(context, binding, bindings, code)
+            if binding.is_abstract():
+                emit(code, f"// abstract class {binding.name}\n\n")
+            else:
+                generate_record(context, binding, bindings, code)
         elif isinstance(binding, Enum):
             generate_enum(context, binding, bindings, code)
         else:

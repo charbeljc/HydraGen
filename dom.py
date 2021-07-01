@@ -674,6 +674,9 @@ class Record(NodeProxy):
             return self.check_parent(item)
         return super().allowed(item)
 
+    def is_abstract(self):
+        return self.node.is_abstract_record()
+
     @property
     def bases(self) -> list[Record]:
         if self._bases is None:
