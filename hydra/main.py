@@ -77,50 +77,54 @@ BINDINGS = [
     ("H2Core::PulseAudioDriver", "core/IO/PulseAudioDriver.h"),
     # ("Song;IO/JackAudioDriver.h", ""),
     ("H2Core::TransportInfo", "core/IO/TransportInfo.h"),
+    ("LashClient", "core/Lash/LashClient.h"),
+    ("H2Core::LilyPond", "core/Lilipond/Lilypond.h"),
+    ("H2Core::Sampler", "core/Sampler/Sampler.h"),
+    ("H2Core::Synth", "core/Synth/Synth.h"),
 ]
 
+CONFIG = (
+    conf.Config()
+    .ban("QColor::QColor(QColor &&)")  # ban this constructor
+    .ban("QColor::name")  # ban whole method, regardless of signature
+    .ban("QColor::operator=")
+    .ban("H2Core::Note::match")
+    .ban("H2Core::Pattern::find_note")
+    .ban("std::thread::thread(const std::thread &)")
+    .ban("std::thread::operator=(const std::thread &)")
+    .ban("std::thread::operator=(std::thread &&)")
+    .ban("std::thread::thread(std::thread &&)")
+    .ban("std::timed_mutex::timed_mutex(const std::timed_mutex &)")
+    .ban("std::timed_mutex::operator=")
+    .ban("std::exception::operator=(std::exception &&)")
+    .ban("std::exception::exception(std::exception &&)")
+    .ban("std::__cow_string")
+    .ban("std::__cow_string::operator=(std::__cow_string &&)")
+    .ban("std::__cow_string::__cow_string(std::__cow_string &&)")
+    .ban("std::runtime_error::operator=(std::runtime_error &&)")
+    .ban("std::runtime_error::runtime_error(std::runtime_error &&)")
+    .ban("targeted_element")
+    .ban("MidiActionManager::targeted_element")
+    .ban("_locker_struct")
+    .ban("QDomNodePrivate")
+    .ban("QStringList")
+    .ban("QFileInfoPrivate")
+    .ban("Entry")
+    .ban("QObject::disconnect")
+    .ban("QFileInfo::QFileInfo(QFileInfoPrivate *)")
+    .ban("QFileInfo::operator=(QFileInfo &&)")
+    .ban("QFileInfo::exists")
+    .ban("H2Core::AlsaAudioDriver::AlsaAudioDriver()")
+)
 
 def fp(path):
     return os.path.join("/home/rebelcat/Hack/hydrogen/src/", path)
 
 
-def main():
-    config = (
-        conf.Config()
-        .ban("QColor::QColor(QColor &&)")  # ban this constructor
-        .ban("QColor::name")  # ban whole method, regardless of signature
-        .ban("QColor::operator=")
-        .ban("H2Core::Note::match")
-        .ban("H2Core::Pattern::find_note")
-        .ban("std::thread::thread(const std::thread &)")
-        .ban("std::thread::operator=(const std::thread &)")
-        .ban("std::thread::operator=(std::thread &&)")
-        .ban("std::thread::thread(std::thread &&)")
-        .ban("std::timed_mutex::timed_mutex(const std::timed_mutex &)")
-        .ban("std::timed_mutex::operator=")
-        .ban("std::exception::operator=(std::exception &&)")
-        .ban("std::exception::exception(std::exception &&)")
-        .ban("std::__cow_string")
-        .ban("std::__cow_string::operator=(std::__cow_string &&)")
-        .ban("std::__cow_string::__cow_string(std::__cow_string &&)")
-        .ban("std::runtime_error::operator=(std::runtime_error &&)")
-        .ban("std::runtime_error::runtime_error(std::runtime_error &&)")
-        .ban("targeted_element")
-        .ban("MidiActionManager::targeted_element")
-        .ban("_locker_struct")
-        .ban("QDomNodePrivate")
-        .ban("QStringList")
-        .ban("QFileInfoPrivate")
-        .ban("Entry")
-        .ban("QObject::disconnect")
-        .ban("QFileInfo::QFileInfo(QFileInfoPrivate *)")
-        .ban("QFileInfo::operator=(QFileInfo &&)")
-        .ban("QFileInfo::exists")
-        .ban("H2Core::AlsaAudioDriver::AlsaAudioDriver()")
-    )
+def main(modname, flags, bindings, config):
     ctx = (
         dom.Context(dom.FACTORY, config)
-        .set_flags(FLAGS)
+        .set_flags(flags)
         .add_flag("-I/usr/include/python3.9")
         .add_flag("-I/home/rebelcat/Hack/hydrogen/src/pybind11_bindings")
         .add_pybind11_plugin("pybind11/stl.h")
@@ -128,7 +132,7 @@ def main():
     )
 
     header = []
-    gen.generate_includes([item[1] for item in BINDINGS], header)
+    gen.generate_includes([item[1] for item in bindings], header)
 
     # gen.generate_includes([
     #     "QtXml/private/qdom_p.h"
@@ -137,13 +141,13 @@ def main():
     gen.generate_includes(["qtreset.h", "pybind11/pybind11.h"] + ctx.plugins, header)
     header = "".join(header)
 
-    with open("module.hpp", "w") as src:
+    with open(f"{modname}_module.hpp", "w") as src:
         src.write(header)
 
-    tx, inc = ctx.parse("module.hpp")
+    tx, inc = ctx.parse(f"{modname}_module.hpp")
     tx.walk()
     records = []
-    for name, path in BINDINGS:
+    for name, path in bindings:
         try:
             class_def = tx[name]
             records.append(class_def)
@@ -244,11 +248,11 @@ def main():
     code = []
 
     gen.generate_module(
-        ctx, "h2core", records, ["/home/rebelcat/Hack/hydrogen/src/"], code
+        ctx, modname, records, ["/home/rebelcat/Hack/hydrogen/src/"], code
     )
     code = "".join(code)
 
-    with open("module.cpp", "w") as src:
+    with open(f"{modname}_module.cpp", "w") as src:
         src.write(code)
     return tx, inc, header, code
 
@@ -274,4 +278,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main("h2core", FLAGS, BINDINGS, CONFIG)
