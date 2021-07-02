@@ -144,12 +144,39 @@ CONFIG = (
     # cleaners and plugins
     .add_cleaner("qtreset.h")
     .add_plugin("pybind11/stl.h")
+    .add_plugin("pybind11/numpy.h")
     .add_plugin("qtcasters.h")
 
     .bind_with_lambda("QColor", "name()",
     """[](const QColor &color) {
         return color.name();
     }""")
+    .bind_with_lambda("H2Core::Sample", "get_data_l()",
+    """[](const H2Core::Sample & sample) {
+        size_t nframes = sample.get_frames();
+        auto result = py::array_t<float>(nframes);
+        py::buffer_info buf = result.request();
+        float *ptr = static_cast<float *>(buf.ptr);
+        float *src = sample.get_data_l();
+        for (size_t idx = 0; idx < nframes; idx++) {
+            ptr[idx] = src[idx];
+        }
+        return result;
+    }
+    """)
+    .bind_with_lambda("H2Core::Sample", "get_data_r()",
+    """[](const H2Core::Sample & sample) {
+        size_t nframes = sample.get_frames();
+        auto result = py::array_t<float>(nframes);
+        py::buffer_info buf = result.request();
+        float *ptr = static_cast<float *>(buf.ptr);
+        float *src = sample.get_data_r();
+        for (size_t idx = 0; idx < nframes; idx++) {
+            ptr[idx] = src[idx];
+        }
+        return result;
+    }
+    """)
     .add_method("QColor", "__repr__",
     """[](const QColor &color) {
         return "QColor(\\"" + color.name() + "\\")";
@@ -180,6 +207,8 @@ CONFIG = (
         return "<Sample \\"" + sample.get_filename() + "\\">";
     }
     """)
+    .add_policy("H2Core::Drumkit::get_instruments", "py::return_value_policy::reference_internal")
+    .add_policy("H2Core::Hydrogen::get_instance", "py::return_value_policy::reference")
     
 )
 

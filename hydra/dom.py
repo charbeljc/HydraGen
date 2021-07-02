@@ -42,27 +42,8 @@ class Context:
         self.elements = {}
         self.builtins = {}
         self.stack = []
-        self.flags = []
-        self.plugins = []
         self.index = Index.create()
         self._casters = None
-
-    def set_flags(self, flags: str | list[str]):
-        if isinstance(flags, str):
-            self.flags = flags.strip().split()
-        else:
-            self.flags = flags[:]
-        return self
-
-    def add_flag(self, flag: str):
-        flag = flag.strip()
-        self.flags.append(flag)
-        return self
-
-    def add_pybind11_plugin(self, plugin):
-        """TODO: doc"""
-        self.plugins.append(plugin)
-        return self
 
     def parse(self, path) -> tuple[TxUnit, list[Include]]:
         tu = self.index.parse(
@@ -130,6 +111,13 @@ class Context:
     def lambda_code(self, item: NodeProxy) -> str:
         breakpoint()
         return ''
+
+    def return_policy(self, item: Callable) -> str | None:
+        candidate = self.config._policies.get(item.fullname)
+        if not candidate:
+            key = item.fullname + '(' + item.cpp_signature + ')'
+            candidate = self.config._policies.get(key)
+        return candidate
 
     @property
     def top(self) -> NodeProxy | None:

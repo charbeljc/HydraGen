@@ -17,6 +17,7 @@ class Config:
     _clags: set[str]
     _lambdas: dict[str, dict[str, str]]
     _addon_methods: dict[str, dict[str, str]]
+    _policies: dict[str, str]
 
     def __init__(self):
         self._banned = OrderedSet()
@@ -27,6 +28,7 @@ class Config:
         self._include_path = OrderedSet()
         self._lambdas = dict()
         self._addon_methods = dict()
+        self._policies = dict()
 
     def ban(self, cppname: str) -> Config:
         """
@@ -96,6 +98,10 @@ class Config:
 
     def add_method(self, fqr: str, name: str, code: str) -> Config:
         self._addon_methods.setdefault(fqr, dict())[name] = code
+        return self
+
+    def add_policy(self, signature: str, policy: str) -> Config:
+        self._policies[signature] = policy
         return self
 
     def _check_include(self, include):

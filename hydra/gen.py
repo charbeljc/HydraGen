@@ -86,6 +86,15 @@ def generate_record(context: Context, rec: Record, bindings, code):
         if context.is_banned(ctor):
             continue
         emit(code, f"""\n\t_{rec.name}.def(py::init<{ctor.cpp_signature}>());""")
+
+
+    for fld in rec.fields:
+        if not fld.is_public():
+            continue
+        if context.is_banned(fld):
+            continue
+        emit(code, f"""\n\t_{rec.name}.def_readwrite("{fld.name}", &{rec.fullname}::{fld.name});""")
+
     overloads = {}
     for m in rec.methods:
         overloads.setdefault(m.name, []).append(m)
@@ -113,6 +122,7 @@ def generate_method(context: Context, rec: Record, m: Method, overloaded: bool, 
             break
     if not m.is_public():
         return
+    rb = context.return_policy(m)
 
     if context.is_banned(m):
         skip = "// [banned] "
@@ -143,8 +153,13 @@ def generate_method(context: Context, rec: Record, m: Method, overloaded: bool, 
         )
     for param in m.parameters:
         emit(code, f""",\n\t{skip}\tpy::arg("{param.name}")""".strip())
+    if rb:
+        emit(code, f",\n\t{rb}")
     emit(code, ");")
     
+def generate_field(context: Context, fld: Field, bindings: list, code):
+    breakpoint()
+
 def generate_function(context: Context, fun: Function, ovrloaded: bool, bindings: list, code):
     skip = ""
     for dep in fun.dependencies:
