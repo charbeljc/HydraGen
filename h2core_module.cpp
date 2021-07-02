@@ -72,6 +72,8 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("msg"));
 
 	py::class_<H2Core::SelectedLayerInfo, std::shared_ptr<H2Core::SelectedLayerInfo>> _SelectedLayerInfo(m, "SelectedLayerInfo");
+	_SelectedLayerInfo.def_readwrite("SelectedLayer", &H2Core::SelectedLayerInfo::SelectedLayer);
+	_SelectedLayerInfo.def_readwrite("SamplePosition", &H2Core::SelectedLayerInfo::SamplePosition);
 
 	py::class_<H2Core::LilyPond, std::shared_ptr<H2Core::LilyPond>> _LilyPond(m, "LilyPond");
 	_LilyPond.def(py::init<>());
@@ -81,9 +83,17 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("sFilename"));
 
 	py::class_<H2Core::MidiPortInfo, std::shared_ptr<H2Core::MidiPortInfo>> _MidiPortInfo(m, "MidiPortInfo");
+	_MidiPortInfo.def_readwrite("m_sName", &H2Core::MidiPortInfo::m_sName);
+	_MidiPortInfo.def_readwrite("m_nClient", &H2Core::MidiPortInfo::m_nClient);
+	_MidiPortInfo.def_readwrite("m_nPort", &H2Core::MidiPortInfo::m_nPort);
 
 	py::class_<H2Core::MidiMessage, std::shared_ptr<H2Core::MidiMessage>> _MidiMessage(m, "MidiMessage");
 	_MidiMessage.def(py::init<>());
+	_MidiMessage.def_readwrite("m_type", &H2Core::MidiMessage::m_type);
+	_MidiMessage.def_readwrite("m_nData1", &H2Core::MidiMessage::m_nData1);
+	_MidiMessage.def_readwrite("m_nData2", &H2Core::MidiMessage::m_nData2);
+	_MidiMessage.def_readwrite("m_nChannel", &H2Core::MidiMessage::m_nChannel);
+	_MidiMessage.def_readwrite("m_sysexData", &H2Core::MidiMessage::m_sysexData);
 
 	py::class_<std::runtime_error, std::shared_ptr<std::runtime_error>> _runtime_error(m, "runtime_error");
 	_runtime_error.def(py::init<const std::string &>());
@@ -96,8 +106,12 @@ PYBIND11_MODULE(h2core, m) {
 	_runtime_error.def("what", &std::runtime_error::what);
 
 	py::class_<H2Core::Event, std::shared_ptr<H2Core::Event>> _Event(m, "Event");
+	_Event.def_readwrite("type", &H2Core::Event::type);
+	_Event.def_readwrite("value", &H2Core::Event::value);
 
 	py::class_<timeval, std::shared_ptr<timeval>> _timeval(m, "timeval");
+	_timeval.def_readwrite("tv_sec", &timeval::tv_sec);
+	_timeval.def_readwrite("tv_usec", &timeval::tv_usec);
 
 	py::class_<H2Core::AudioEngineLocking, std::shared_ptr<H2Core::AudioEngineLocking>> _AudioEngineLocking(m, "AudioEngineLocking");
 	_AudioEngineLocking.def(py::init<>());
@@ -418,6 +432,8 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::Synth, H2Core::Object, std::shared_ptr<H2Core::Synth>> _Synth(m, "Synth");
 	_Synth.def(py::init<>());
+	_Synth.def_readwrite("m_pOut_L", &H2Core::Synth::m_pOut_L);
+	_Synth.def_readwrite("m_pOut_R", &H2Core::Synth::m_pOut_R);
 	_Synth.def_static("class_name", &H2Core::Synth::class_name);
 	_Synth.def("noteOn", &H2Core::Synth::noteOn,
 		"Start playing a note",
@@ -581,6 +597,8 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::Sampler, H2Core::Object, std::shared_ptr<H2Core::Sampler>> _Sampler(m, "Sampler");
 	_Sampler.def(py::init<>());
+	_Sampler.def_readwrite("m_pMainOut_L", &H2Core::Sampler::m_pMainOut_L);
+	_Sampler.def_readwrite("m_pMainOut_R", &H2Core::Sampler::m_pMainOut_R);
 	_Sampler.def_static("class_name", &H2Core::Sampler::class_name);
 	_Sampler.def_static("ratioStraightPolygonalPanLaw", &H2Core::Sampler::ratioStraightPolygonalPanLaw,
 		py::arg("fPan"));
@@ -657,6 +675,10 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::TransportInfo, H2Core::Object, std::shared_ptr<H2Core::TransportInfo>> _TransportInfo(m, "TransportInfo");
 	_TransportInfo.def(py::init<>());
+	_TransportInfo.def_readwrite("m_status", &H2Core::TransportInfo::m_status);
+	_TransportInfo.def_readwrite("m_nFrames", &H2Core::TransportInfo::m_nFrames);
+	_TransportInfo.def_readwrite("m_fTickSize", &H2Core::TransportInfo::m_fTickSize);
+	_TransportInfo.def_readwrite("m_fBPM", &H2Core::TransportInfo::m_fBPM);
 	_TransportInfo.def_static("class_name", &H2Core::TransportInfo::class_name);
 	_TransportInfo.def("printInfo", &H2Core::TransportInfo::printInfo,
 		"Displays general information about the transport state in the #INFOLOG");
@@ -668,6 +690,10 @@ PYBIND11_MODULE(h2core, m) {
 // abstract class AudioOutput
 
 	py::class_<H2Core::LadspaFX, H2Core::Object, std::shared_ptr<H2Core::LadspaFX>> _LadspaFX(m, "LadspaFX");
+	_LadspaFX.def_readwrite("m_pBuffer_L", &H2Core::LadspaFX::m_pBuffer_L);
+	_LadspaFX.def_readwrite("m_pBuffer_R", &H2Core::LadspaFX::m_pBuffer_R);
+	_LadspaFX.def_readwrite("inputControlPorts", &H2Core::LadspaFX::inputControlPorts);
+	_LadspaFX.def_readwrite("outputControlPorts", &H2Core::LadspaFX::outputControlPorts);
 	_LadspaFX.def_static("class_name", &H2Core::LadspaFX::class_name);
 	_LadspaFX.def("connectAudioPorts", &H2Core::LadspaFX::connectAudioPorts,
 		py::arg("pIn_L"),
@@ -711,6 +737,16 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::LadspaFXInfo, H2Core::Object, std::shared_ptr<H2Core::LadspaFXInfo>> _LadspaFXInfo(m, "LadspaFXInfo");
 	_LadspaFXInfo.def(py::init<const QString &>());
+	_LadspaFXInfo.def_readwrite("m_sFilename", &H2Core::LadspaFXInfo::m_sFilename);
+	_LadspaFXInfo.def_readwrite("m_sID", &H2Core::LadspaFXInfo::m_sID);
+	_LadspaFXInfo.def_readwrite("m_sLabel", &H2Core::LadspaFXInfo::m_sLabel);
+	_LadspaFXInfo.def_readwrite("m_sName", &H2Core::LadspaFXInfo::m_sName);
+	_LadspaFXInfo.def_readwrite("m_sMaker", &H2Core::LadspaFXInfo::m_sMaker);
+	_LadspaFXInfo.def_readwrite("m_sCopyright", &H2Core::LadspaFXInfo::m_sCopyright);
+	_LadspaFXInfo.def_readwrite("m_nICPorts", &H2Core::LadspaFXInfo::m_nICPorts);
+	_LadspaFXInfo.def_readwrite("m_nOCPorts", &H2Core::LadspaFXInfo::m_nOCPorts);
+	_LadspaFXInfo.def_readwrite("m_nIAPorts", &H2Core::LadspaFXInfo::m_nIAPorts);
+	_LadspaFXInfo.def_readwrite("m_nOAPorts", &H2Core::LadspaFXInfo::m_nOAPorts);
 	_LadspaFXInfo.def_static("class_name", &H2Core::LadspaFXInfo::class_name);
 	_LadspaFXInfo.def_static("alphabeticOrder", &H2Core::LadspaFXInfo::alphabeticOrder,
 		py::arg("a"),
@@ -789,6 +825,7 @@ PYBIND11_MODULE(h2core, m) {
 	_Action.def("getType", &Action::getType);
 
 	py::class_<H2Core::EventQueue, H2Core::Object, std::shared_ptr<H2Core::EventQueue>> _EventQueue(m, "EventQueue");
+	_EventQueue.def_readwrite("m_addMidiNoteVector", &H2Core::EventQueue::m_addMidiNoteVector);
 	_EventQueue.def_static("class_name", &H2Core::EventQueue::class_name);
 	_EventQueue.def_static("create_instance", &H2Core::EventQueue::create_instance,
 		"If #__instance equals 0, a new EventQueue singleton will be created and stored in it.");
@@ -944,13 +981,18 @@ PYBIND11_MODULE(h2core, m) {
 	_AudioEngine.def("getCurrentTickTime", &H2Core::AudioEngine::getCurrentTickTime);
 
 	py::class_<H2Core::Hydrogen, H2Core::Object, std::shared_ptr<H2Core::Hydrogen>> _Hydrogen(m, "Hydrogen");
+	_Hydrogen.def_readwrite("lastMidiEvent", &H2Core::Hydrogen::lastMidiEvent);
+	_Hydrogen.def_readwrite("lastMidiEventParameter", &H2Core::Hydrogen::lastMidiEventParameter);
+	_Hydrogen.def_readwrite("m_nInstrumentLookupTable", &H2Core::Hydrogen::m_nInstrumentLookupTable);
+	_Hydrogen.def_readwrite("m_nMaxTimeHumanize", &H2Core::Hydrogen::m_nMaxTimeHumanize);
 	_Hydrogen.def_static("class_name", &H2Core::Hydrogen::class_name);
 	_Hydrogen.def_static("create_instance", &H2Core::Hydrogen::create_instance,
 		"Creates all the instances used within Hydrogen in the right order.");
 	_Hydrogen.def_static("get_instance", &H2Core::Hydrogen::get_instance,
 		"Returns the current Hydrogen instance #__instance.",
 		py::arg("nullok"),
-		py::arg("create"));
+		py::arg("create"),
+	py::return_value_policy::reference);
 	_Hydrogen.def("getAudioEngine", &H2Core::Hydrogen::getAudioEngine);
 	_Hydrogen.def("sequencer_play", &H2Core::Hydrogen::sequencer_play,
 		"Start the internal sequencer");
@@ -1695,6 +1737,52 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("bShort"));
 
 	py::class_<H2Core::Preferences, H2Core::Object, std::shared_ptr<H2Core::Preferences>> _Preferences(m, "Preferences");
+	_Preferences.def_readwrite("__lastspatternDirectory", &H2Core::Preferences::__lastspatternDirectory);
+	_Preferences.def_readwrite("__lastsampleDirectory", &H2Core::Preferences::__lastsampleDirectory);
+	_Preferences.def_readwrite("__playsamplesonclicking", &H2Core::Preferences::__playsamplesonclicking);
+	_Preferences.def_readwrite("__playselectedinstrument", &H2Core::Preferences::__playselectedinstrument);
+	_Preferences.def_readwrite("m_bFollowPlayhead", &H2Core::Preferences::m_bFollowPlayhead);
+	_Preferences.def_readwrite("m_brestartLash", &H2Core::Preferences::m_brestartLash);
+	_Preferences.def_readwrite("m_bsetLash", &H2Core::Preferences::m_bsetLash);
+	_Preferences.def_readwrite("__expandSongItem", &H2Core::Preferences::__expandSongItem);
+	_Preferences.def_readwrite("__expandPatternItem", &H2Core::Preferences::__expandPatternItem);
+	_Preferences.def_readwrite("m_bbc", &H2Core::Preferences::m_bbc);
+	_Preferences.def_readwrite("m_mmcsetplay", &H2Core::Preferences::m_mmcsetplay);
+	_Preferences.def_readwrite("m_countOffset", &H2Core::Preferences::m_countOffset);
+	_Preferences.def_readwrite("m_startOffset", &H2Core::Preferences::m_startOffset);
+	_Preferences.def_readwrite("sServerList", &H2Core::Preferences::sServerList);
+	_Preferences.def_readwrite("m_patternCategories", &H2Core::Preferences::m_patternCategories);
+	_Preferences.def_readwrite("m_sAudioDriver", &H2Core::Preferences::m_sAudioDriver);
+	_Preferences.def_readwrite("m_bUseMetronome", &H2Core::Preferences::m_bUseMetronome);
+	_Preferences.def_readwrite("m_fMetronomeVolume", &H2Core::Preferences::m_fMetronomeVolume);
+	_Preferences.def_readwrite("m_nMaxNotes", &H2Core::Preferences::m_nMaxNotes);
+	_Preferences.def_readwrite("m_nBufferSize", &H2Core::Preferences::m_nBufferSize);
+	_Preferences.def_readwrite("m_nSampleRate", &H2Core::Preferences::m_nSampleRate);
+	_Preferences.def_readwrite("m_sOSSDevice", &H2Core::Preferences::m_sOSSDevice);
+	_Preferences.def_readwrite("m_sMidiDriver", &H2Core::Preferences::m_sMidiDriver);
+	_Preferences.def_readwrite("m_sMidiPortName", &H2Core::Preferences::m_sMidiPortName);
+	_Preferences.def_readwrite("m_sMidiOutputPortName", &H2Core::Preferences::m_sMidiOutputPortName);
+	_Preferences.def_readwrite("m_nMidiChannelFilter", &H2Core::Preferences::m_nMidiChannelFilter);
+	_Preferences.def_readwrite("m_bMidiNoteOffIgnore", &H2Core::Preferences::m_bMidiNoteOffIgnore);
+	_Preferences.def_readwrite("m_bMidiFixedMapping", &H2Core::Preferences::m_bMidiFixedMapping);
+	_Preferences.def_readwrite("m_bMidiDiscardNoteAfterAction", &H2Core::Preferences::m_bMidiDiscardNoteAfterAction);
+	_Preferences.def_readwrite("m_bEnableMidiFeedback", &H2Core::Preferences::m_bEnableMidiFeedback);
+	_Preferences.def_readwrite("m_bOscServerEnabled", &H2Core::Preferences::m_bOscServerEnabled);
+	_Preferences.def_readwrite("m_bOscFeedbackEnabled", &H2Core::Preferences::m_bOscFeedbackEnabled);
+	_Preferences.def_readwrite("m_nOscTemporaryPort", &H2Core::Preferences::m_nOscTemporaryPort);
+	_Preferences.def_readwrite("m_nOscServerPort", &H2Core::Preferences::m_nOscServerPort);
+	_Preferences.def_readwrite("m_sAlsaAudioDevice", &H2Core::Preferences::m_sAlsaAudioDevice);
+	_Preferences.def_readwrite("m_sJackPortName1", &H2Core::Preferences::m_sJackPortName1);
+	_Preferences.def_readwrite("m_sJackPortName2", &H2Core::Preferences::m_sJackPortName2);
+	_Preferences.def_readwrite("m_bJackTransportMode", &H2Core::Preferences::m_bJackTransportMode);
+	_Preferences.def_readwrite("m_bJackConnectDefaults", &H2Core::Preferences::m_bJackConnectDefaults);
+	_Preferences.def_readwrite("m_bJackTrackOuts", &H2Core::Preferences::m_bJackTrackOuts);
+	_Preferences.def_readwrite("m_JackTrackOutputMode", &H2Core::Preferences::m_JackTrackOutputMode);
+	_Preferences.def_readwrite("m_bJackTimebaseEnabled", &H2Core::Preferences::m_bJackTimebaseEnabled);
+	_Preferences.def_readwrite("m_JackBBTSync", &H2Core::Preferences::m_JackBBTSync);
+	_Preferences.def_readwrite("m_bJackMasterMode", &H2Core::Preferences::m_bJackMasterMode);
+	_Preferences.def_readwrite("m_sDefaultEditor", &H2Core::Preferences::m_sDefaultEditor);
+	_Preferences.def_readwrite("m_rubberBandCLIexecutable", &H2Core::Preferences::m_rubberBandCLIexecutable);
 	_Preferences.def_static("class_name", &H2Core::Preferences::class_name);
 	_Preferences.def_static("create_instance", &H2Core::Preferences::create_instance,
 		"If #__instance equals 0, a new Preferences singleton will be created and stored in it.");
@@ -1928,10 +2016,35 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::UIStyle, H2Core::Object, std::shared_ptr<H2Core::UIStyle>> _UIStyle(m, "UIStyle");
 	_UIStyle.def(py::init<>());
+	_UIStyle.def_readwrite("m_songEditor_backgroundColor", &H2Core::UIStyle::m_songEditor_backgroundColor);
+	_UIStyle.def_readwrite("m_songEditor_alternateRowColor", &H2Core::UIStyle::m_songEditor_alternateRowColor);
+	_UIStyle.def_readwrite("m_songEditor_selectedRowColor", &H2Core::UIStyle::m_songEditor_selectedRowColor);
+	_UIStyle.def_readwrite("m_songEditor_lineColor", &H2Core::UIStyle::m_songEditor_lineColor);
+	_UIStyle.def_readwrite("m_songEditor_textColor", &H2Core::UIStyle::m_songEditor_textColor);
+	_UIStyle.def_readwrite("m_songEditor_pattern1Color", &H2Core::UIStyle::m_songEditor_pattern1Color);
+	_UIStyle.def_readwrite("m_patternEditor_backgroundColor", &H2Core::UIStyle::m_patternEditor_backgroundColor);
+	_UIStyle.def_readwrite("m_patternEditor_alternateRowColor", &H2Core::UIStyle::m_patternEditor_alternateRowColor);
+	_UIStyle.def_readwrite("m_patternEditor_selectedRowColor", &H2Core::UIStyle::m_patternEditor_selectedRowColor);
+	_UIStyle.def_readwrite("m_patternEditor_textColor", &H2Core::UIStyle::m_patternEditor_textColor);
+	_UIStyle.def_readwrite("m_patternEditor_noteColor", &H2Core::UIStyle::m_patternEditor_noteColor);
+	_UIStyle.def_readwrite("m_patternEditor_noteoffColor", &H2Core::UIStyle::m_patternEditor_noteoffColor);
+	_UIStyle.def_readwrite("m_patternEditor_lineColor", &H2Core::UIStyle::m_patternEditor_lineColor);
+	_UIStyle.def_readwrite("m_patternEditor_line1Color", &H2Core::UIStyle::m_patternEditor_line1Color);
+	_UIStyle.def_readwrite("m_patternEditor_line2Color", &H2Core::UIStyle::m_patternEditor_line2Color);
+	_UIStyle.def_readwrite("m_patternEditor_line3Color", &H2Core::UIStyle::m_patternEditor_line3Color);
+	_UIStyle.def_readwrite("m_patternEditor_line4Color", &H2Core::UIStyle::m_patternEditor_line4Color);
+	_UIStyle.def_readwrite("m_patternEditor_line5Color", &H2Core::UIStyle::m_patternEditor_line5Color);
+	_UIStyle.def_readwrite("m_selectionHighlightColor", &H2Core::UIStyle::m_selectionHighlightColor);
+	_UIStyle.def_readwrite("m_selectionInactiveColor", &H2Core::UIStyle::m_selectionInactiveColor);
 	_UIStyle.def_static("class_name", &H2Core::UIStyle::class_name);
 
 	py::class_<H2Core::WindowProperties, H2Core::Object, std::shared_ptr<H2Core::WindowProperties>> _WindowProperties(m, "WindowProperties");
 	_WindowProperties.def(py::init<>());
+	_WindowProperties.def_readwrite("x", &H2Core::WindowProperties::x);
+	_WindowProperties.def_readwrite("y", &H2Core::WindowProperties::y);
+	_WindowProperties.def_readwrite("width", &H2Core::WindowProperties::width);
+	_WindowProperties.def_readwrite("height", &H2Core::WindowProperties::height);
+	_WindowProperties.def_readwrite("visible", &H2Core::WindowProperties::visible);
 	_WindowProperties.def_static("class_name", &H2Core::WindowProperties::class_name);
 	_WindowProperties.def("set", &H2Core::WindowProperties::set,
 		py::arg("_x"),
@@ -2007,9 +2120,33 @@ PYBIND11_MODULE(h2core, m) {
 		"Returns sample duration in seconds");
 	_Sample.def("get_size", &H2Core::Sample::get_size,
 		"Returns data size, which is calculated by #__frames time sizeof( float ) * 2");
-	_Sample.def("get_data_l", &H2Core::Sample::get_data_l,
+	_Sample.def("get_data_l",
+	[](const H2Core::Sample & sample) {
+        size_t nframes = sample.get_frames();
+        auto result = py::array_t<float>(nframes);
+        py::buffer_info buf = result.request();
+        float *ptr = static_cast<float *>(buf.ptr);
+        float *src = sample.get_data_l();
+        for (size_t idx = 0; idx < nframes; idx++) {
+            ptr[idx] = src[idx];
+        }
+        return result;
+    }
+    ,
 		"Returns #__data_l");
-	_Sample.def("get_data_r", &H2Core::Sample::get_data_r,
+	_Sample.def("get_data_r",
+	[](const H2Core::Sample & sample) {
+        size_t nframes = sample.get_frames();
+        auto result = py::array_t<float>(nframes);
+        py::buffer_info buf = result.request();
+        float *ptr = static_cast<float *>(buf.ptr);
+        float *src = sample.get_data_r();
+        for (size_t idx = 0; idx < nframes; idx++) {
+            ptr[idx] = src[idx];
+        }
+        return result;
+    }
+    ,
 		"Returns #__data_r");
 	_Sample.def("set_is_modified", &H2Core::Sample::set_is_modified,
 		"#__is_modified setter",
@@ -2552,7 +2689,8 @@ PYBIND11_MODULE(h2core, m) {
 		"set __instruments, delete existing one",
 		py::arg("instruments"));
 	_Drumkit.def("get_instruments", &H2Core::Drumkit::get_instruments,
-		"returns #__instruments", py::return_value_policy::reference_internal);
+		"returns #__instruments",
+	py::return_value_policy::reference_internal);
 	_Drumkit.def("set_path", &H2Core::Drumkit::set_path,
 		"#__path setter",
 		py::arg("path"));
@@ -2802,6 +2940,9 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::PortMidiDriver, std::shared_ptr<H2Core::PortMidiDriver>> _PortMidiDriver(m, "PortMidiDriver");
 	_PortMidiDriver.def(py::init<>());
+	_PortMidiDriver.def_readwrite("m_pMidiIn", &H2Core::PortMidiDriver::m_pMidiIn);
+	_PortMidiDriver.def_readwrite("m_pMidiOut", &H2Core::PortMidiDriver::m_pMidiOut);
+	_PortMidiDriver.def_readwrite("m_bRunning", &H2Core::PortMidiDriver::m_bRunning);
 	_PortMidiDriver.def_static("class_name", &H2Core::PortMidiDriver::class_name);
 	_PortMidiDriver.def("open", &H2Core::PortMidiDriver::open);
 	_PortMidiDriver.def("close", &H2Core::PortMidiDriver::close);
@@ -2892,6 +3033,10 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::PortAudioDriver, std::shared_ptr<H2Core::PortAudioDriver>> _PortAudioDriver(m, "PortAudioDriver");
 	_PortAudioDriver.def(py::init<H2Core::audioProcessCallback>());
+	_PortAudioDriver.def_readwrite("m_processCallback", &H2Core::PortAudioDriver::m_processCallback);
+	_PortAudioDriver.def_readwrite("m_pOut_L", &H2Core::PortAudioDriver::m_pOut_L);
+	_PortAudioDriver.def_readwrite("m_pOut_R", &H2Core::PortAudioDriver::m_pOut_R);
+	_PortAudioDriver.def_readwrite("m_nBufferSize", &H2Core::PortAudioDriver::m_nBufferSize);
 	_PortAudioDriver.def_static("class_name", &H2Core::PortAudioDriver::class_name);
 	_PortAudioDriver.def("init", &H2Core::PortAudioDriver::init,
 		py::arg("nBufferSize"));
@@ -2930,6 +3075,8 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::JackAudioDriver, std::shared_ptr<H2Core::JackAudioDriver>> _JackAudioDriver(m, "JackAudioDriver");
 	_JackAudioDriver.def(py::init<JackProcessCallback>());
+	_JackAudioDriver.def_readwrite("m_pClient", &H2Core::JackAudioDriver::m_pClient);
+	_JackAudioDriver.def_readwrite("m_currentPos", &H2Core::JackAudioDriver::m_currentPos);
 	_JackAudioDriver.def_static("class_name", &H2Core::JackAudioDriver::class_name);
 	_JackAudioDriver.def("connect", &H2Core::JackAudioDriver::connect,
 		"Connects to output ports via the JACK server.");
@@ -3023,6 +3170,13 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::DiskWriterDriver, std::shared_ptr<H2Core::DiskWriterDriver>> _DiskWriterDriver(m, "DiskWriterDriver");
 	_DiskWriterDriver.def(py::init<H2Core::audioProcessCallback, unsigned int, int>());
+	_DiskWriterDriver.def_readwrite("m_nSampleRate", &H2Core::DiskWriterDriver::m_nSampleRate);
+	_DiskWriterDriver.def_readwrite("m_sFilename", &H2Core::DiskWriterDriver::m_sFilename);
+	_DiskWriterDriver.def_readwrite("m_nBufferSize", &H2Core::DiskWriterDriver::m_nBufferSize);
+	_DiskWriterDriver.def_readwrite("m_nSampleDepth", &H2Core::DiskWriterDriver::m_nSampleDepth);
+	_DiskWriterDriver.def_readwrite("m_processCallback", &H2Core::DiskWriterDriver::m_processCallback);
+	_DiskWriterDriver.def_readwrite("m_pOut_L", &H2Core::DiskWriterDriver::m_pOut_L);
+	_DiskWriterDriver.def_readwrite("m_pOut_R", &H2Core::DiskWriterDriver::m_pOut_R);
 	_DiskWriterDriver.def_static("class_name", &H2Core::DiskWriterDriver::class_name);
 	_DiskWriterDriver.def("init", &H2Core::DiskWriterDriver::init,
 		py::arg("nBufferSize"));
@@ -3045,6 +3199,14 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::AlsaAudioDriver, std::shared_ptr<H2Core::AlsaAudioDriver>> _AlsaAudioDriver(m, "AlsaAudioDriver");
 	_AlsaAudioDriver.def(py::init<H2Core::audioProcessCallback>());
+	_AlsaAudioDriver.def_readwrite("m_pPlayback_handle", &H2Core::AlsaAudioDriver::m_pPlayback_handle);
+	_AlsaAudioDriver.def_readwrite("m_bIsRunning", &H2Core::AlsaAudioDriver::m_bIsRunning);
+	_AlsaAudioDriver.def_readwrite("m_nBufferSize", &H2Core::AlsaAudioDriver::m_nBufferSize);
+	_AlsaAudioDriver.def_readwrite("m_pOut_L", &H2Core::AlsaAudioDriver::m_pOut_L);
+	_AlsaAudioDriver.def_readwrite("m_pOut_R", &H2Core::AlsaAudioDriver::m_pOut_R);
+	_AlsaAudioDriver.def_readwrite("m_nXRuns", &H2Core::AlsaAudioDriver::m_nXRuns);
+	_AlsaAudioDriver.def_readwrite("m_sAlsaAudioDevice", &H2Core::AlsaAudioDriver::m_sAlsaAudioDevice);
+	_AlsaAudioDriver.def_readwrite("m_processCallback", &H2Core::AlsaAudioDriver::m_processCallback);
 	_AlsaAudioDriver.def_static("class_name", &H2Core::AlsaAudioDriver::class_name);
 	_AlsaAudioDriver.def("init", &H2Core::AlsaAudioDriver::init,
 		py::arg("nBufferSize"));
@@ -3063,8 +3225,12 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("fBPM"));
 
 	py::class_<H2Core::Timeline::Tag, std::shared_ptr<H2Core::Timeline::Tag>> _Tag(m, "Tag");
+	_Tag.def_readwrite("nBar", &H2Core::Timeline::Tag::nBar);
+	_Tag.def_readwrite("sTag", &H2Core::Timeline::Tag::sTag);
 
 	py::class_<H2Core::Timeline::TempoMarker, std::shared_ptr<H2Core::Timeline::TempoMarker>> _TempoMarker(m, "TempoMarker");
+	_TempoMarker.def_readwrite("nBar", &H2Core::Timeline::TempoMarker::nBar);
+	_TempoMarker.def_readwrite("fBpm", &H2Core::Timeline::TempoMarker::fBpm);
 
 	// [private] H2Core::AudioEngine::_locker_struct
 
@@ -3091,6 +3257,10 @@ PYBIND11_MODULE(h2core, m) {
 		.value("drawMode", H2Core::Song::ActionMode::drawMode);
 
 	py::class_<H2Core::Playlist::Entry, std::shared_ptr<H2Core::Playlist::Entry>> _Entry(m, "Entry");
+	_Entry.def_readwrite("filePath", &H2Core::Playlist::Entry::filePath);
+	_Entry.def_readwrite("fileExists", &H2Core::Playlist::Entry::fileExists);
+	_Entry.def_readwrite("scriptPath", &H2Core::Playlist::Entry::scriptPath);
+	_Entry.def_readwrite("scriptEnabled", &H2Core::Playlist::Entry::scriptEnabled);
 
 	// enum FontSize
 	py::enum_<H2Core::Preferences::FontSize>(_Preferences, "FontSize")
@@ -3111,6 +3281,10 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::Sample::Rubberband, std::shared_ptr<H2Core::Sample::Rubberband>> _Rubberband(m, "Rubberband");
 	_Rubberband.def(py::init<>());
 	_Rubberband.def(py::init<const H2Core::Sample::Rubberband *>());
+	_Rubberband.def_readwrite("use", &H2Core::Sample::Rubberband::use);
+	_Rubberband.def_readwrite("divider", &H2Core::Sample::Rubberband::divider);
+	_Rubberband.def_readwrite("pitch", &H2Core::Sample::Rubberband::pitch);
+	_Rubberband.def_readwrite("c_settings", &H2Core::Sample::Rubberband::c_settings);
 	_Rubberband.def("operator==", &H2Core::Sample::Rubberband::operator==,
 		"equal to operator",
 		py::arg("b"));
@@ -3121,6 +3295,11 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::Sample::Loops, std::shared_ptr<H2Core::Sample::Loops>> _Loops(m, "Loops");
 	_Loops.def(py::init<>());
 	_Loops.def(py::init<const H2Core::Sample::Loops *>());
+	_Loops.def_readwrite("start_frame", &H2Core::Sample::Loops::start_frame);
+	_Loops.def_readwrite("loop_frame", &H2Core::Sample::Loops::loop_frame);
+	_Loops.def_readwrite("end_frame", &H2Core::Sample::Loops::end_frame);
+	_Loops.def_readwrite("count", &H2Core::Sample::Loops::count);
+	_Loops.def_readwrite("mode", &H2Core::Sample::Loops::mode);
 	_Loops.def("operator==", &H2Core::Sample::Loops::operator==,
 		"equal to operator",
 		py::arg("b"));
