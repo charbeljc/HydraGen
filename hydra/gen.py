@@ -70,7 +70,15 @@ def generate_record(context: Context, rec: Record, bindings, code):
     if rec.is_private():
         emit(code, f"\t// [private] {rec.fullname}\n\n")
         return
-    emit(code, f"""\tpy::class_<{rec.fullname}> _{rec.name}(m, "{rec.name}");""")
+    mro = rec.fullname
+    for base in rec.bases:
+        if base in bindings and not base.is_abstract():
+            mro +=  ', ' + base.fullname
+        else:
+            logger.warning("base class not in bindings or abstract: %s %s", rec, base)
+
+    emit(code, f"""\tpy::class_<{mro}> _{rec.name}(m, "{rec.name}");""")
+
     for ctor in rec.constructors:
         if not ctor.is_public():
             continue
