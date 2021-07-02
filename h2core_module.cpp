@@ -2552,7 +2552,7 @@ PYBIND11_MODULE(h2core, m) {
 		"set __instruments, delete existing one",
 		py::arg("instruments"));
 	_Drumkit.def("get_instruments", &H2Core::Drumkit::get_instruments,
-		"returns #__instruments");
+		"returns #__instruments", py::return_value_policy::reference_internal);
 	_Drumkit.def("set_path", &H2Core::Drumkit::set_path,
 		"#__path setter",
 		py::arg("path"));
