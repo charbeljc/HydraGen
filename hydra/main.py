@@ -11,7 +11,7 @@ reload(conf)
 reload(dom)
 reload(gen)
 
-from .dom import Record, Bindable
+from .dom import Namespace, Record, Bindable
 
 dom.logger.setLevel(logging.INFO)
 
@@ -56,7 +56,6 @@ BINDINGS = [
     ("H2Core::version_older_than", "core/Version.h"),
     ("H2Core::Effects", "core/FX/Effects.h"),
     ("H2Core::LadspaFX", "core/FX/LadspaFX.h"),
-
     ("H2Core::AlsaAudioDriver", "core/IO/AlsaAudioDriver.h"),
     ("H2Core::AlsaMidiDriver", "core/IO/AlsaMidiDriver.h"),
     ("H2Core::AudioOutput", "core/IO/AudioOutput.h"),
@@ -71,7 +70,7 @@ BINDINGS = [
     ("H2Core::MidiOutput", "core/IO/MidiOutput.h"),
     ("H2Core::MidiPortInfo", "core/IO/MidiCommon.h"),
     ("H2Core::NullDriver", "core/IO/NullDriver.h"),
-    #("H2Core::OssDriver", "core/IO/OssDriver.h"),
+    # ("H2Core::OssDriver", "core/IO/OssDriver.h"),
     ("H2Core::PortAudioDriver", "core/IO/PortAudioDriver.h"),
     ("H2Core::PortMidiDriver", "core/IO/PortMidiDriver.h"),
     ("H2Core::PulseAudioDriver", "core/IO/PulseAudioDriver.h"),
@@ -115,7 +114,9 @@ CONFIG = (
     .ban("QFileInfo::operator=(QFileInfo &&)")
     .ban("QFileInfo::exists")
     .ban("H2Core::AlsaAudioDriver::AlsaAudioDriver()")
+    .ban("H2Core::AlsaMidiDriver::midi_action")
 )
+
 
 def fp(path):
     return os.path.join("/home/rebelcat/Hack/hydrogen/src/", path)
@@ -132,7 +133,13 @@ def main(modname, flags, bindings, config):
     )
 
     header = []
-    gen.generate_includes([item[1] for item in bindings], header)
+    includes = []
+    for name, paths in bindings:
+        if isinstance(paths, str):
+            includes.append(paths)
+        elif isinstance(paths, list):
+            includes += paths
+    gen.generate_includes(includes, header)
 
     # gen.generate_includes([
     #     "QtXml/private/qdom_p.h"
@@ -149,8 +156,15 @@ def main(modname, flags, bindings, config):
     records = []
     for name, path in bindings:
         try:
-            class_def = tx[name]
-            records.append(class_def)
+            binding = tx[name]
+            if isinstance(binding, Namespace):
+                for b in binding._filter(Bindable):
+                    records.append(b)
+            elif isinstance(binding, Bindable):
+                records.append(binding)
+            else:
+                logger.warning("non bindable: %s", binding)
+
         except KeyError:
             logger.warning("%s not found", name)
 
@@ -161,12 +175,12 @@ def main(modname, flags, bindings, config):
             return True
         return False
 
-    qstring = tx["QString"]
-    logger.warning("QString: %s", qstring)
+    # qstring = tx["QString"]
+    # logger.warning("QString: %s", qstring)
     deps = OrderedSet(records)
     star = OrderedSet()
-    assert qstring not in deps
-    assert qstring in casters
+    # assert qstring not in deps
+    # assert qstring in casters
 
     while deps:
         ship = deps.pop()
@@ -222,7 +236,7 @@ def main(modname, flags, bindings, config):
         breakpoint()
         print("foo")
 
-    assert qstring not in records
+    # assert qstring not in records
 
     for rec in records:
         logger.info("binding %s", rec)

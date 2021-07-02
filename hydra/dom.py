@@ -252,8 +252,8 @@ class NodeProxy:
                 CursorKind.TEMPLATE_TYPE_PARAMETER,
             ):
                 return True
-            logger.warn("%s not parent of %s (%s)", self, item, item_parent.kind)
-            return False
+            # logger.warn("%s not parent of %s (%s)", self, item, item_parent.kind)
+            return True # False
         return True
 
     def walk(self, node=None):
@@ -429,7 +429,10 @@ class TypeHolder(NodeProxy):
             type_ref = type_ref[-1]
             decl = type_ref.node.get_definition()
             if decl:
-                node = self.context.elements[decl.get_usr()]
+                try:
+                    node = self.context.elements[decl.get_usr()]
+                except KeyError:
+                    logger.warn("lookup failed: decl: %s %s", decl.kind, decl.spelling)
         else:
             pointee = t.get_pointee()
             if pointee.kind != TypeKind.INVALID:
@@ -700,8 +703,10 @@ class Record(NodeProxy):
             bases = []
             for spec in self._filter(BaseSpecifier):
                 node = spec.type
-                assert node
-                bases.append(node)
+                if node:
+                    bases.append(node)
+                else:
+                    logger.warning("base-spec, missing type: %s", spec)
             self._bases = bases
         return self._bases
 
@@ -1082,7 +1087,7 @@ FACTORY = {
     CursorKind.TYPE_REF: TypeRef,
     # CursorKind.UNARY_OPERATOR,
     # CursorKind.UNEXPOSED_ATTR,
-    CursorKind.UNEXPOSED_DECL: Pop,
+    # CursorKind.UNEXPOSED_DECL: Pop,
     # CursorKind.UNEXPOSED_EXPR,
     # CursorKind.UNEXPOSED_STMT,
     # CursorKind.UNION_DECL,

@@ -20,9 +20,12 @@ def c_encode(in_str: str) -> str:
 def emit(code, fragment):
     code.append(fragment)
 
-
+anon_count = 0
 def generate_enum(context: Context, enum: Enum, bindings, code):
-    emit(code, f"""\t// enum {enum.name}\n""")
+    global anon_count
+    anon = False
+    name = enum.name
+    emit(code, f"""\t// enum {name}\n""")
     if enum.parent:
         qname = enum.fullname
         if isinstance(enum.parent, Namespace):
@@ -32,9 +35,20 @@ def generate_enum(context: Context, enum: Enum, bindings, code):
     else:
         qname = enum.name
         parent = "m"
-    emit(code, f"""\tpy::enum_<{qname}>({parent}, "{enum.name}")""")
+
+    if '@' in qname:
+        qname = "_anenum_%s" % anon_count
+        anon_count += 1
+        anon = True
+        name = qname
+    emit(code, f"""\tpy::enum_<{qname}>({parent}, "{name}")""")
     for ec in enum._filter(EnumConstant):
-        emit(code, f"""\n\t\t.value("{ec.name}", {ec.fullname})""")
+        if anon:
+            emit(code, f"""\n\t\t.value("{ec.name}", {enum.parent.fullname}::{ec.name})""")
+        else:
+            emit(code, f"""\n\t\t.value("{ec.name}", {ec.fullname})""")
+    if anon:
+        emit(code, f"""\n\t\t.export_values()""")
     emit(code, ";\n\n")
 
 
@@ -126,7 +140,7 @@ def generate_module(context: Context, name, bindings, include_paths, code):
     # emit(code, "#include <pybind11/pybind11.h>\n")
 
     # generate_includes(context.plugins, code)
-    generate_includes(["module.hpp"], code)
+    generate_includes([f"{name}_module.hpp"], code)
 
     emit(code, "namespace py = pybind11;\n\n")
     emit(code, "using namespace H2Core;\n\n")
