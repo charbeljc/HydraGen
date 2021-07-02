@@ -1,4 +1,4 @@
-#include <module.hpp>
+#include <h2core_module.hpp>
 namespace py = pybind11;
 
 using namespace H2Core;
@@ -209,14 +209,15 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("classname"));
 	_QObject.def("deleteLater", &QObject::deleteLater);
 
-	py::class_<std::exception> _exception(m, "exception");
-	_exception.def(py::init<>());
-	_exception.def(py::init<const std::exception &>());
-	_exception.def("operator=", py::overload_cast<const std::exception &>(&std::exception::operator=),
-		py::arg(""));
-	// [banned] _exception.def("operator=", py::overload_cast<std::exception &&>(&std::exception::operator=),
+	py::class_<std::runtime_error> _runtime_error(m, "runtime_error");
+	_runtime_error.def(py::init<const std::string &>());
+	_runtime_error.def(py::init<const char *>());
+	_runtime_error.def(py::init<const std::runtime_error &>());
+	// [banned] _runtime_error.def("operator=", py::overload_cast<std::runtime_error &&>(&std::runtime_error::operator=),
 	// [banned] 	py::arg(""));
-	_exception.def("what", &std::exception::what);
+	_runtime_error.def("operator=", py::overload_cast<const std::runtime_error &>(&std::runtime_error::operator=),
+		py::arg(""));
+	_runtime_error.def("what", &std::runtime_error::what);
 
 	// enum EventType
 	py::enum_<H2Core::EventType>(m, "EventType")
@@ -3022,15 +3023,8 @@ PYBIND11_MODULE(h2core, m) {
 	// [<TypeDef 'LoadHints'>] 	py::arg("hints"));
 	// [<TypeDef 'LoadHints'>] _QLibrary.def("loadHints", &QLibrary::loadHints);
 
-	py::class_<std::runtime_error> _runtime_error(m, "runtime_error");
-	_runtime_error.def(py::init<const std::string &>());
-	_runtime_error.def(py::init<const char *>());
-	_runtime_error.def(py::init<const std::runtime_error &>());
-	// [banned] _runtime_error.def("operator=", py::overload_cast<std::runtime_error &&>(&std::runtime_error::operator=),
-	// [banned] 	py::arg(""));
-	_runtime_error.def("operator=", py::overload_cast<const std::runtime_error &>(&std::runtime_error::operator=),
-		py::arg(""));
-	_runtime_error.def("what", &std::runtime_error::what);
+	py::class_<H2Core::H2Exception> _H2Exception(m, "H2Exception");
+	_H2Exception.def(py::init<const QString &>());
 
 	py::class_<std::timed_mutex> _timed_mutex(m, "timed_mutex");
 	_timed_mutex.def(py::init<>());
@@ -3250,14 +3244,14 @@ PYBIND11_MODULE(h2core, m) {
 		"Calls _jack_release_timebase()_ (jack/transport.h) to release Hydrogen from the JACK timebase master responsibilities. This causes the JackTimebaseCallback() callback function to not be called by the JACK server anymore.");
 	_JackAudioDriver.def("getTimebaseState", &H2Core::JackAudioDriver::getTimebaseState,
 		"Returns #m_timebaseState");
-	// [<TypeDef 'jack_nframes_t'>] _JackAudioDriver.def_static("jackDriverSampleRate", &H2Core::JackAudioDriver::jackDriverSampleRate,
-		// [<TypeDef 'jack_nframes_t'>] "Callback function for the JACK audio server to set the sample rate #jackServerSampleRate and prints a message to the #__INFOLOG, which has to be included via a Logger instance in the provided param.",
-	// [<TypeDef 'jack_nframes_t'>] 	py::arg("nframes"),
-	// [<TypeDef 'jack_nframes_t'>] 	py::arg("param"));
-	// [<TypeDef 'jack_nframes_t'>] _JackAudioDriver.def_static("jackDriverBufferSize", &H2Core::JackAudioDriver::jackDriverBufferSize,
-		// [<TypeDef 'jack_nframes_t'>] "Callback function for the JACK audio server to set the buffer size #jackServerBufferSize.",
-	// [<TypeDef 'jack_nframes_t'>] 	py::arg("nframes"),
-	// [<TypeDef 'jack_nframes_t'>] 	py::arg("arg"));
+	_JackAudioDriver.def_static("jackDriverSampleRate", &H2Core::JackAudioDriver::jackDriverSampleRate,
+		"Callback function for the JACK audio server to set the sample rate #jackServerSampleRate and prints a message to the #__INFOLOG, which has to be included via a Logger instance in the provided param.",
+		py::arg("nframes"),
+		py::arg("param"));
+	_JackAudioDriver.def_static("jackDriverBufferSize", &H2Core::JackAudioDriver::jackDriverBufferSize,
+		"Callback function for the JACK audio server to set the buffer size #jackServerBufferSize.",
+		py::arg("nframes"),
+		py::arg("arg"));
 
 	py::class_<H2Core::FakeDriver> _FakeDriver(m, "FakeDriver");
 	_FakeDriver.def(py::init<H2Core::audioProcessCallback>());
@@ -3410,10 +3404,10 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("sPortName"),
 		py::arg("nClient"),
 		py::arg("nPort"));
-	// [<TypeDef 'jack_nframes_t'>] _JackMidiDriver.def("JackMidiWrite", &H2Core::JackMidiDriver::JackMidiWrite,
-	// [<TypeDef 'jack_nframes_t'>] 	py::arg("nframes"));
-	// [<TypeDef 'jack_nframes_t'>] _JackMidiDriver.def("JackMidiRead", &H2Core::JackMidiDriver::JackMidiRead,
-	// [<TypeDef 'jack_nframes_t'>] 	py::arg("nframes"));
+	_JackMidiDriver.def("JackMidiWrite", &H2Core::JackMidiDriver::JackMidiWrite,
+		py::arg("nframes"));
+	_JackMidiDriver.def("JackMidiRead", &H2Core::JackMidiDriver::JackMidiRead,
+		py::arg("nframes"));
 	_JackMidiDriver.def("handleQueueNote", &H2Core::JackMidiDriver::handleQueueNote,
 		py::arg("pNote"));
 	_JackMidiDriver.def("handleQueueNoteOff", &H2Core::JackMidiDriver::handleQueueNoteOff,
@@ -3433,8 +3427,8 @@ PYBIND11_MODULE(h2core, m) {
 	_AlsaMidiDriver.def("close", &H2Core::AlsaMidiDriver::close);
 	_AlsaMidiDriver.def("getInputPortList", &H2Core::AlsaMidiDriver::getInputPortList);
 	_AlsaMidiDriver.def("getOutputPortList", &H2Core::AlsaMidiDriver::getOutputPortList);
-	// [<TypeDef 'snd_seq_t'>] _AlsaMidiDriver.def("midi_action", &H2Core::AlsaMidiDriver::midi_action,
-	// [<TypeDef 'snd_seq_t'>] 	py::arg("seq_handle"));
+	// [banned] _AlsaMidiDriver.def("midi_action", &H2Core::AlsaMidiDriver::midi_action,
+	// [banned] 	py::arg("seq_handle"));
 	_AlsaMidiDriver.def("getPortInfo", &H2Core::AlsaMidiDriver::getPortInfo,
 		py::arg("sPortName"),
 		py::arg("nClient"),
@@ -3472,9 +3466,6 @@ PYBIND11_MODULE(h2core, m) {
 		.value("Normal", H2Core::Preferences::FontSize::Normal)
 		.value("Small", H2Core::Preferences::FontSize::Small)
 		.value("Large", H2Core::Preferences::FontSize::Large);
-
-	py::class_<H2Core::H2Exception> _H2Exception(m, "H2Exception");
-	_H2Exception.def(py::init<const QString &>());
 
 	// enum Timebase
 	py::enum_<H2Core::JackAudioDriver::Timebase>(_JackAudioDriver, "Timebase")
