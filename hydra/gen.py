@@ -3,7 +3,7 @@ from functools import singledispatch
 import textwrap
 from typing import OrderedDict
 from logzero import logger
-from .dom import Context, EnumConstant, NodeProxy, Record, Enum, Namespace
+from .dom import Context, EnumConstant, Method, Record, Enum, Namespace
 from orderedset import OrderedSet
 import json
 
@@ -20,11 +20,19 @@ def c_encode(in_str: str) -> str:
 def emit(code, fragment):
     code.append(fragment)
 
+
 anon_count = 0
+
+
 def generate_enum(context: Context, enum: Enum, bindings, code):
     global anon_count
     anon = False
     name = enum.name
+    if context.is_banned(enum):
+        emit(code, f"\t// [banned] {enum.fullname}\n\n")
+        return
+    if not enum.is_public():
+        return
     emit(code, f"""\t// enum {name}\n""")
     if enum.parent:
         qname = enum.fullname
@@ -36,7 +44,7 @@ def generate_enum(context: Context, enum: Enum, bindings, code):
         qname = enum.name
         parent = "m"
 
-    if '@' in qname:
+    if "@" in qname:
         qname = "_anenum_%s" % anon_count
         anon_count += 1
         anon = True
@@ -44,7 +52,10 @@ def generate_enum(context: Context, enum: Enum, bindings, code):
     emit(code, f"""\tpy::enum_<{qname}>({parent}, "{name}")""")
     for ec in enum._filter(EnumConstant):
         if anon:
-            emit(code, f"""\n\t\t.value("{ec.name}", {enum.parent.fullname}::{ec.name})""")
+            emit(
+                code,
+                f"""\n\t\t.value("{ec.name}", {enum.parent.fullname}::{ec.name})""",
+            )
         else:
             emit(code, f"""\n\t\t.value("{ec.name}", {ec.fullname})""")
     if anon:
@@ -55,6 +66,9 @@ def generate_enum(context: Context, enum: Enum, bindings, code):
 def generate_record(context: Context, rec: Record, bindings, code):
     if context.is_banned(rec):
         emit(code, f"\t// [banned] {rec.fullname}\n\n")
+        return
+    if rec.is_private():
+        emit(code, f"\t// [private] {rec.fullname}\n\n")
         return
     emit(code, f"""\tpy::class_<{rec.fullname}> _{rec.name}(m, "{rec.name}");""")
     for ctor in rec.constructors:
@@ -69,68 +83,56 @@ def generate_record(context: Context, rec: Record, bindings, code):
 
     for name in overloads:
         signatures = overloads[name]
-        if len(signatures) == 1:
-            m = signatures[0]
-            skip = ""
-            for dep in m.dependencies:
-                if dep not in bindings and dep not in context.casters():
-                    skip = f"// [{dep}] "
-                    break
-            if not m.is_public():
-                continue
-            
-            if context.is_banned(m):
-                skip = "// [banned] "
-            if m.node.is_static_method():
-                emit(
-                    code,
-                    f"""\n\t{skip}_{rec.name}.def_static("{m.name}", &{rec.fullname}::{m.name}""",
-                )
-            else:
-                emit(
-                    code,
-                    f"""\n\t{skip}_{rec.name}.def("{m.name}", &{rec.fullname}::{m.name}""",
-                )
-            if m.node.brief_comment:
-                emit(
-                    code,
-                    f""",\n\t\t{skip}"{c_encode(m.node.brief_comment)}" """.strip(),
-                )
-            for param in m.parameters:
-                emit(code, f""",\n\t{skip}\tpy::arg("{param.name}")""".strip())
-            emit(code, ");")
-        else:
-            for m in signatures:
-                skip = ""
-                for dep in m.dependencies:
-                    if dep not in bindings and dep not in context.casters():
-                        skip = f"// [{dep}] "
-                        break
-                if not m.is_public():
-                    continue
-                if context.is_banned(m):
-                    skip = "// [banned] "
-                if m.node.is_static_method():
-                    emit(
-                        code,
-                        f"""\n\t{skip}_{rec.name}.def_static("{m.name}_static", py::overload_cast<{m.cpp_signature}>(&{rec.fullname}::{m.name})""",
-                    )
-                else:
-                    emit(
-                        code,
-                        f"""\n\t{skip}_{rec.name}.def("{m.name}", py::overload_cast<{m.cpp_signature}>(&{rec.fullname}::{m.name})""",
-                    )
-                if m.node.brief_comment:
-                    emit(
-                        code,
-                        f""",\n\t\t{skip}\t"{c_encode(m.node.brief_comment)}" """.strip(),
-                    )
-                for param in m.parameters:
-                    emit(code, f""",\n\t{skip}\tpy::arg("{param.name}")""".strip())
-                emit(code, ");")
+        overloaded = len(signatures) > 1
+        for m in signatures:
+            generate_method(context, rec, m, overloaded, bindings, code)
 
+    for name, mcode in context.get_addon_methods(rec):
+        emit(
+            code,
+                f"""\n\t_{rec.name}.def("{name}",\n\t{mcode});""",
+            )
     emit(code, """\n\n""")
 
+def generate_method(context: Context, rec: Record, m: Method, overloaded: bool, bindings, code):
+    skip = ""
+    for dep in m.dependencies:
+        if dep not in bindings and dep not in context.casters():
+            skip = f"// [{dep}] "
+            break
+    if not m.is_public():
+        return
+
+    if context.is_banned(m):
+        skip = "// [banned] "
+
+    if mcode := context.bind_with_lambda(m):
+        emit(
+            code,
+            f"""\n\t{skip}_{rec.name}.def("{m.name}",\n\t{mcode}""",
+        )
+    else:
+        fun = f"&{rec.fullname}::{m.name}"
+        name = m.name
+        defun = "def"
+        if overloaded:
+            fun = f"py::overload_cast<{m.cpp_signature}>({fun})"
+        if m.node.is_static_method():
+            defun = "def_static"
+            if overloaded:
+                name = name + "_static"
+        emit(
+            code,
+            f"""\n\t{skip}_{rec.name}.{defun}("{name}", {fun}""",
+        )
+    if m.node.brief_comment:
+        emit(
+            code,
+            f""",\n\t\t{skip}"{c_encode(m.node.brief_comment)}" """.strip(),
+        )
+    for param in m.parameters:
+        emit(code, f""",\n\t{skip}\tpy::arg("{param.name}")""".strip())
+    emit(code, ");")
 
 def generate_module(context: Context, name, bindings, include_paths, code):
 

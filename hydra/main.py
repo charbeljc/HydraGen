@@ -1,17 +1,14 @@
-from importlib import reload
+import graphlib
 import logging
+import os
 from typing import get_args
+
 from logzero import logger
 from orderedset import OrderedSet
+
 from . import conf, dom, gen
-import os
-import graphlib
-
-reload(conf)
-reload(dom)
-reload(gen)
-
-from .dom import Namespace, Record, Bindable
+from .conf import Config
+from .dom import Bindable, Namespace, NodeProxy, Record
 
 dom.logger.setLevel(logging.INFO)
 
@@ -23,8 +20,8 @@ FLAGS = """-x c++ -fPIC -std=c++14 -fexceptions -DUSE_NAMESPACE=1
         -I/usr/include/x86_64-linux-gnu/qt5/QtXml
         -I/home/rebelcat/Hack/hydrogen/src
         -I/home/rebelcat/Hack/hydrogen/build/src
-        -I/home/rebelcat/Hack/bindingtest
-        """.split()
+        -I/home/rebelcat/Hack/hydra
+        """
 
 BINDINGS = [
     ("H2Core::XMLNode", "core/Helpers/Xml.h"),
@@ -51,7 +48,7 @@ BINDINGS = [
     ("MidiActionManager", "core/MidiAction.h"),
     # (":MidiMap", "core/MidiMap.h"),
     # ("OscServer", "core/OscServer.h"),
-    # ("H2Core::Timeline", "core/Timeline.h"),
+    ("H2Core::Timeline", "core/Timeline.h"),
     ("H2Core::get_version", "core/Version.h"),
     ("H2Core::version_older_than", "core/Version.h"),
     ("H2Core::Effects", "core/FX/Effects.h"),
@@ -83,9 +80,10 @@ BINDINGS = [
 ]
 
 CONFIG = (
-    conf.Config()
+    Config()
     .ban("QColor::QColor(QColor &&)")  # ban this constructor
-    .ban("QColor::name")  # ban whole method, regardless of signature
+    #.ban("QColor::name()")  # ban whole method, regardless of overloaded signatures
+    .ban("QColor::name(QColor::NameFormat)")  # ban whole method, regardless of overloaded signatures
     .ban("QColor::operator=")
     .ban("H2Core::Note::match")
     .ban("H2Core::Pattern::find_note")
@@ -109,29 +107,74 @@ CONFIG = (
     .ban("QStringList")
     .ban("QFileInfoPrivate")
     .ban("Entry")
-    .ban("QObject::disconnect")
+    # .ban("QObject::disconnect")
+    .ban("QObject")
     .ban("QFileInfo::QFileInfo(QFileInfoPrivate *)")
     .ban("QFileInfo::operator=(QFileInfo &&)")
     .ban("QFileInfo::exists")
     .ban("H2Core::AlsaAudioDriver::AlsaAudioDriver()")
     .ban("H2Core::AlsaMidiDriver::midi_action")
+    #
+    # Qt Reduction, phase 2
+    #
+    .ban("H2Core::LadspaFX::m_pLibrary")
+    .ban("H2Core::AudioEngine::m_EngineMutex")
+    .ban("H2Core::AudioEngine::m_MutexOutputPointer")
+    .ban("H2Core::AudioEngine::m_LockingThread")
+    .ban("H2Core::AudioEngine::m_currentTickTime")
+    .ban("QMetaType")
+    .ban("QStringRef")
+    .ban("QStringView")
+    .ban("QByteArray")
+    .ban("QChar")
+    .ban("QDomNode")
+    .ban("QFileInfo")
+    .ban("QLatin1String")
+    .ban("*::metaObject()")
+    .ban("*::metaObject()")
+    .ban("*::qt_metacall(QMetaObject::Call, int, void **)")
+
+    .ban("*::qt_static_metacall(QObject *, QMetaObject::Call, int, void **)")
+    # cflags and include paths
+    .add_cflags(FLAGS)
+    .add_include_path("/usr/include/python3.9")
+    .add_include_path("/home/rebelcat/Hack/hydra/include")
+    .add_include_path("/usr/include")
+    # cleaners and plugins
+    .add_cleaner("qtreset.h")
+    .add_plugin("pybind11/stl.h")
+    .add_plugin("qtcasters.h")
+
+    .bind_with_lambda("QColor", "name()",
+    """[](const QColor &color) {
+        return color.name();
+    }""")
+    .add_method("QColor", "__repr__",
+    """[](const QColor &color) {
+        return "QColor(\\"" + color.name() + "\\")";
+    }""")
+
+    .add_method("H2Core::Song", "__repr__",
+    """[](const H2Core::Song & song) {
+        return "<Song \\"" + song.getName() + "\\">";
+    }
+    """)
+    .add_method("H2Core::Drumkit", "__repr__",
+    """[](const H2Core::Drumkit & drumkit) {
+        return "<Drumkit \\"" + drumkit.get_name() + "\\">";
+    }
+    """)
+    
 )
 
 
-def fp(path):
-    return os.path.join("/home/rebelcat/Hack/hydrogen/src/", path)
+def main(config: Config, modname: str, bindings):
+    # modname, bindings, config):
+    ctx = dom.Context(dom.FACTORY, config)
 
-
-def main(modname, flags, bindings, config):
-    ctx = (
-        dom.Context(dom.FACTORY, config)
-        .set_flags(flags)
-        .add_flag("-I/usr/include/python3.9")
-        .add_flag("-I/home/rebelcat/Hack/hydrogen/src/pybind11_bindings")
-        .add_pybind11_plugin("pybind11/stl.h")
-        .add_pybind11_plugin("custom_qt_casters.h")
-    )
-
+    # seeding
+    config.dump()
+    # generate initial includes
     header = []
     includes = []
     for name, paths in bindings:
@@ -139,13 +182,13 @@ def main(modname, flags, bindings, config):
             includes.append(paths)
         elif isinstance(paths, list):
             includes += paths
+
     gen.generate_includes(includes, header)
 
-    # gen.generate_includes([
-    #     "QtXml/private/qdom_p.h"
-    # ], header)
+    gen.generate_includes(
+        config.cleaners + ["pybind11/pybind11.h"] + config.plugins, header
+    )
 
-    gen.generate_includes(["qtreset.h", "pybind11/pybind11.h"] + ctx.plugins, header)
     header = "".join(header)
 
     with open(f"{modname}_module.hpp", "w") as src:
@@ -169,61 +212,59 @@ def main(modname, flags, bindings, config):
             logger.warning("%s not found", name)
 
     casters = ctx.casters()
+    for caster in casters:
+        logger.info("caster for: %s", caster)
 
     def veto(bindable):
+        if bindable in casters:
+            logger.debug("veto caster: %s", bindable)
+            return True
         if ctx.is_banned(bindable):
+            logger.warning("banned: %s", bindable)
             return True
         return False
 
-    # qstring = tx["QString"]
-    # logger.warning("QString: %s", qstring)
-    deps = OrderedSet(records)
+    deps: set[NodeProxy] = OrderedSet(records)
     star = OrderedSet()
-    # assert qstring not in deps
-    # assert qstring in casters
+
+    def seen(ship):
+        return ship in deps or ship in star
 
     while deps:
-        ship = deps.pop()
-        if ship in casters:
-            logger.warning("VETO-CAST: %s", ship)
-            continue
+        ship: NodeProxy = deps.pop()
         if veto(ship):
-            logger.warning("VETO: %s", ship)
             continue
+        logger.info("add %s", ship)
         star.add(ship)
-        logger.info("ADD(0) %s", ship)
         for dep in ship.dependencies:
-            if dep in casters:
-                logger.warning("VETO-CAST(1): %s", dep)
-                continue
             if veto(dep):
-                logger.warning("VETO: %s", dep)
                 continue
-            if dep not in deps and dep not in star and isinstance(dep, Bindable):
-                logger.info("ADD(1) %s", dep)
+            if isinstance(dep, Bindable) and not seen(dep):
+                logger.info("queue %s for %s", dep, ship.fullname)
                 deps.add(dep)
 
-        if isinstance(ship, Bindable) and isinstance(ship, Record):
+        if isinstance(ship, Record):
             for members in (ship.fields, ship.methods, ship.constructors):
                 for member in members:
+                    if veto(member):
+                        continue
                     for dep in member.dependencies:
-                        if dep in casters:
-                            logger.warning("VETO-CAST: %s", dep)
-                            continue
                         if veto(dep):
-                            logger.warning("VETO(2): %s", dep)
                             continue
-                        if dep not in star and isinstance(dep, Bindable):
-                            logger.info("ADD(2) %s", dep)
-                            star.add(dep)
+                        if isinstance(dep, Bindable) and not seen(dep):
+                            logger.info(
+                                "queue %s for member %s::%s",
+                                dep,
+                                ship.fullname,
+                                member.displayname,
+                            )
+                            deps.add(dep)
 
     topo = graphlib.TopologicalSorter()
 
     def filtered_deps(neutron):
         return [
-            d
-            for d in neutron.dependencies
-            if d not in casters and not veto(dep) and isinstance(dep, Bindable)
+            d for d in neutron.dependencies if isinstance(d, Bindable) and not veto(d)
         ]
 
     for neutron in star:
@@ -234,30 +275,10 @@ def main(modname, flags, bindings, config):
     except graphlib.CycleError as err:
         logger.error("could not sort: %s", err)
         breakpoint()
-        print("foo")
-
-    # assert qstring not in records
+        print("what' up?")
 
     for rec in records:
         logger.info("binding %s", rec)
-    # while unseen:
-    #     dep = unseen.pop()
-
-    #     if isinstance(dep, TypeRef):
-    #         dep = dep.type
-    #     if not isinstance(dep, Bindable):
-    #         logger.warning("skip non bindable: %s", dep)
-    #         continue
-    #     deps.add(dep)
-    #     logger.info("new dep: %s", dep)
-    #     for d2 in dep.dependencies:
-    #         if d2 not in deps:
-    #             unseen.add(d2)
-    #             if isinstance(dep, Record):
-    #                 for m in dep.methods:
-    #                     for dd in m.dependencies:
-    #                         if dd not in deps:
-    #                             unseen.add(dd)
 
     code = []
 
@@ -292,4 +313,4 @@ def main(modname, flags, bindings, config):
 
 
 if __name__ == "__main__":
-    main("h2core", FLAGS, BINDINGS, CONFIG)
+    main(CONFIG, "h2core", BINDINGS)

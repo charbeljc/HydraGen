@@ -33,8 +33,6 @@ class Context:
     config: Config
     elements: dict[str, NodeProxy]  # key is clang node's usr
     builtins: dict[str, NodeProxy]
-    flags: list[str]
-    plugins: list[str]
     _casters: dict[NodeProxy, NodeProxy] | None
     _tx: TxUnit | None
 
@@ -69,7 +67,7 @@ class Context:
     def parse(self, path) -> tuple[TxUnit, list[Include]]:
         tu = self.index.parse(
             path,
-            self.flags,
+            self.config.cflags + ["-I%s" % path for path in self.config.include_path],
             options=TranslationUnit.PARSE_INCOMPLETE
             | TranslationUnit.PARSE_SKIP_FUNCTION_BODIES,
         )
@@ -105,13 +103,37 @@ class Context:
     def indent(self) -> str:
         return " " * len(self.stack)
 
-    def is_banned(self, item: Bindable | Callable) -> bool:
+    def is_banned(self, item: NodeProxy) -> bool:
         if self.config.is_banned(item.fullname):
             return True
         elif isinstance(item, Callable):
             key = f"{item.fullname}({item.cpp_signature})"
             return self.config.is_banned(key)
         return False
+
+
+    def bind_with_lambda(self, item: Callable) -> str | None:
+        if not item.parent:
+            return None
+        candidate = self.config._lambdas.get(item.parent.fullname)
+        if candidate: 
+            logger.warning("candidate: %s, item: %s", candidate, item.displayname)
+            lbd = candidate.get(item.displayname)
+            if lbd:
+                logger.info("Bingo !! ldb: %s %s", lbd)
+            return lbd
+        return None
+
+    def get_addon_methods(self, item: Record) -> list[tuple[str,str]]:
+        candidate = self.config._addon_methods.get(item.fullname)
+        if not candidate:
+            return []
+        else:
+            return list(candidate.items())
+
+    def lambda_code(self, item: NodeProxy) -> str:
+        breakpoint()
+        return ''
 
     @property
     def top(self) -> NodeProxy | None:
@@ -276,12 +298,12 @@ class NodeProxy:
             obj = self.context.make(child)
             if obj:
                 ok = self.accept(obj)
-                if not ok and (isinstance(obj, Enum) or isinstance(self, Enum)):
-                    logger.warning("Enum! %s, self: %s", obj, self)
+                if not ok:
+                    logger.warning("reject! %s, self: %s", obj, self)
                 obj.walk(child)
             else:
-                if isinstance(self, Enum):
-                    logger.warning("Enum!! %s %r", child.kind, child.spelling)
+                #logger.warning("abort!! %s %r", child.kind, child.spelling)
+                pass
         self.context.pop(self)
         return self
 
@@ -350,6 +372,8 @@ class NodeProxy:
         return self.content.__iter__()
 
     def _filter(self, types, predicate=None):
+        if isinstance(types, list):
+            types = tuple(types)
         if not predicate:
             predicate = lambda _: True
         for objs in self.content.values():
@@ -417,11 +441,11 @@ class TypeHolder(NodeProxy):
         """This sucks ..."""
         node = None
         t = self._get_clang_type()
-        assert t.kind != TypeKind.INVALID
-        type_ref = list(self._filter(TypeRef))
+        assert not t or t.kind != TypeKind.INVALID
+        type_ref = list(self._filter([TypeRef, TemplateRef]))
         if type_ref:
             if len(type_ref) != 1:
-                logger.warn(
+                logger.debug(
                     "mutiple typerefs: %s: assuming last is return type: %s",
                     self,
                     type_ref,
@@ -434,6 +458,7 @@ class TypeHolder(NodeProxy):
                 except KeyError:
                     logger.warn("lookup failed: decl: %s %s", decl.kind, decl.spelling)
         else:
+            assert t
             pointee = t.get_pointee()
             if pointee.kind != TypeKind.INVALID:
                 decl = pointee.get_declaration()
@@ -447,7 +472,7 @@ class TypeHolder(NodeProxy):
                     try:
                         node = self.context.elements[defi.get_usr()]
                     except KeyError:
-                        logger.warning(
+                        logger.debug(
                             "lookup failed(def): %s %s %s",
                             defi.kind,
                             defi.spelling,
@@ -457,7 +482,7 @@ class TypeHolder(NodeProxy):
                     try:
                         node = self.context.elements[decl.get_usr()]
                     except KeyError:
-                        logger.warning(
+                        logger.debug(
                             "lookup failed(decl): %s %s %s",
                             decl.kind,
                             decl.spelling,
@@ -465,7 +490,7 @@ class TypeHolder(NodeProxy):
                         )
 
         if not node:
-            logger.warning("_compute_type() failed for %s", self)
+            logger.debug("_compute_type() failed for %s", self)
         return node
 
     @property
@@ -650,10 +675,17 @@ class TxUnit(NodeProxy):
 
 class BaseSpecifier(TypeHolder):
     def _get_clang_type(self):
-        type_ref, *tail = self._filter(TypeRef)
-        if tail:
-            logger.debug("BaseSpecifier: template? %s %s", type_ref, tail)
-        return type_ref.node.type
+        try:
+            type_ref, *tail = self._filter((TypeRef, TemplateRef))
+        except ValueError:
+            breakpoint()
+        else:
+            if tail:
+                logger.debug("BaseSpecifier: template? %s %s", type_ref, tail)
+            if type_ref.node.type.kind == TypeKind.INVALID:
+                logger.warning("BaseSpec: %s", self)
+                return None
+            return type_ref.node.type
 
     def allowed(self, item):
         if item.kind in (
@@ -684,6 +716,7 @@ class Record(NodeProxy):
             CursorKind.TYPE_ALIAS_DECL,
             CursorKind.CXX_BASE_SPECIFIER,
             CursorKind.CLASS_TEMPLATE,
+            CursorKind.STRUCT_DECL,
             CursorKind.CLASS_DECL,
             CursorKind.ENUM_DECL,
             CursorKind.CLASS_TEMPLATE_PARTIAL_SPECIALIZATION,
