@@ -76,6 +76,7 @@ def generate_record(context: Context, rec: Record, bindings, code):
             mro +=  ', ' + base.fullname
         else:
             logger.warning("base class not in bindings or abstract: %s %s", rec, base)
+    mro += f', std::shared_ptr<{rec.fullname}>'
 
     emit(code, f"""\tpy::class_<{mro}> _{rec.name}(m, "{rec.name}");""")
 
