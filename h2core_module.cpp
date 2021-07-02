@@ -71,14 +71,6 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("func_name"),
 		py::arg("msg"));
 
-	// enum InterpolateMode
-	py::enum_<H2Core::Interpolation::InterpolateMode>(m, "InterpolateMode")
-		.value("Linear", H2Core::Interpolation::InterpolateMode::Linear)
-		.value("Cosine", H2Core::Interpolation::InterpolateMode::Cosine)
-		.value("Third", H2Core::Interpolation::InterpolateMode::Third)
-		.value("Cubic", H2Core::Interpolation::InterpolateMode::Cubic)
-		.value("Hermite", H2Core::Interpolation::InterpolateMode::Hermite);
-
 	py::class_<H2Core::SelectedLayerInfo> _SelectedLayerInfo(m, "SelectedLayerInfo");
 
 	py::class_<H2Core::LilyPond> _LilyPond(m, "LilyPond");
@@ -88,126 +80,10 @@ PYBIND11_MODULE(h2core, m) {
 	_LilyPond.def("write", &H2Core::LilyPond::write,
 		py::arg("sFilename"));
 
-	py::class_<H2Core::AudioEngineLocking> _AudioEngineLocking(m, "AudioEngineLocking");
-	_AudioEngineLocking.def(py::init<>());
-	_AudioEngineLocking.def("setNeedsLock", &H2Core::AudioEngineLocking::setNeedsLock,
-		"The audio processing thread can modify some PatternLists. For these structures, the audio engine lock must be held for any thread to access them.",
-		py::arg("bNeedsLock"));
-
 	py::class_<H2Core::MidiPortInfo> _MidiPortInfo(m, "MidiPortInfo");
 
 	py::class_<H2Core::MidiMessage> _MidiMessage(m, "MidiMessage");
 	_MidiMessage.def(py::init<>());
-
-	py::class_<QObject> _QObject(m, "QObject");
-	_QObject.def(py::init<QObject *>());
-	// [<Struct 'QMetaObject'>] _QObject.def("metaObject", &QObject::metaObject);
-	_QObject.def("qt_metacast", &QObject::qt_metacast,
-		py::arg(""));
-	// [<Enum 'Call'>] _QObject.def("qt_metacall", &QObject::qt_metacall,
-	// [<Enum 'Call'>] 	py::arg(""),
-	// [<Enum 'Call'>] 	py::arg(""),
-	// [<Enum 'Call'>] 	py::arg(""));
-	_QObject.def_static("tr", &QObject::tr,
-		py::arg("s"),
-		py::arg("c"),
-		py::arg("n"));
-	_QObject.def_static("trUtf8", &QObject::trUtf8,
-		py::arg("s"),
-		py::arg("c"),
-		py::arg("n"));
-	// [<Class 'QEvent'>] _QObject.def("event", &QObject::event,
-	// [<Class 'QEvent'>] 	py::arg("event"));
-	// [<Class 'QEvent'>] _QObject.def("eventFilter", &QObject::eventFilter,
-	// [<Class 'QEvent'>] 	py::arg("watched"),
-	// [<Class 'QEvent'>] 	py::arg("event"));
-	_QObject.def("objectName", &QObject::objectName);
-	_QObject.def("setObjectName", &QObject::setObjectName,
-		py::arg("name"));
-	_QObject.def("isWidgetType", &QObject::isWidgetType);
-	_QObject.def("isWindowType", &QObject::isWindowType);
-	_QObject.def("signalsBlocked", &QObject::signalsBlocked);
-	_QObject.def("blockSignals", &QObject::blockSignals,
-		py::arg("b"));
-	// [<Class 'QThread'>] _QObject.def("thread", &QObject::thread);
-	// [<Class 'QThread'>] _QObject.def("moveToThread", &QObject::moveToThread,
-	// [<Class 'QThread'>] 	py::arg("thread"));
-	// [<Enum 'TimerType'>] _QObject.def("startTimer", py::overload_cast<int, Qt::TimerType>(&QObject::startTimer),
-	// [<Enum 'TimerType'>] 	py::arg("interval"),
-	// [<Enum 'TimerType'>] 	py::arg("timerType"));
-	// [<TemplateRef 'duration'>] _QObject.def("startTimer", py::overload_cast<std::chrono::milliseconds, Qt::TimerType>(&QObject::startTimer),
-	// [<TemplateRef 'duration'>] 	py::arg("time"),
-	// [<TemplateRef 'duration'>] 	py::arg("timerType"));
-	_QObject.def("killTimer", &QObject::killTimer,
-		py::arg("id"));
-	// [<TypeDef 'QObjectList'>] _QObject.def("children", &QObject::children);
-	_QObject.def("setParent", &QObject::setParent,
-		py::arg("parent"));
-	_QObject.def("installEventFilter", &QObject::installEventFilter,
-		py::arg("filterObj"));
-	_QObject.def("removeEventFilter", &QObject::removeEventFilter,
-		py::arg("obj"));
-	// [<Class 'Connection'>] _QObject.def_static("connect_static", py::overload_cast<const QObject *, const char *, const QObject *, const char *, Qt::ConnectionType>(&QObject::connect),
-	// [<Class 'Connection'>] 	py::arg("sender"),
-	// [<Class 'Connection'>] 	py::arg("signal"),
-	// [<Class 'Connection'>] 	py::arg("receiver"),
-	// [<Class 'Connection'>] 	py::arg("member"),
-	// [<Class 'Connection'>] 	py::arg(""));
-	// [<Class 'Connection'>] _QObject.def_static("connect_static", py::overload_cast<const QObject *, const QMetaMethod &, const QObject *, const QMetaMethod &, Qt::ConnectionType>(&QObject::connect),
-	// [<Class 'Connection'>] 	py::arg("sender"),
-	// [<Class 'Connection'>] 	py::arg("signal"),
-	// [<Class 'Connection'>] 	py::arg("receiver"),
-	// [<Class 'Connection'>] 	py::arg("method"),
-	// [<Class 'Connection'>] 	py::arg("type"));
-	// [<Enum 'ConnectionType'>] _QObject.def("connect", py::overload_cast<const QObject *, const char *, const char *, Qt::ConnectionType>(&QObject::connect),
-	// [<Enum 'ConnectionType'>] 	py::arg("asender"),
-	// [<Enum 'ConnectionType'>] 	py::arg("asignal"),
-	// [<Enum 'ConnectionType'>] 	py::arg("amember"),
-	// [<Enum 'ConnectionType'>] 	py::arg("atype"));
-	// [banned] _QObject.def_static("disconnect_static", py::overload_cast<const QObject *, const char *, const QObject *, const char *>(&QObject::disconnect),
-	// [banned] 	py::arg("sender"),
-	// [banned] 	py::arg("signal"),
-	// [banned] 	py::arg("receiver"),
-	// [banned] 	py::arg("member"));
-	// [banned] _QObject.def_static("disconnect_static", py::overload_cast<const QObject *, const QMetaMethod &, const QObject *, const QMetaMethod &>(&QObject::disconnect),
-	// [banned] 	py::arg("sender"),
-	// [banned] 	py::arg("signal"),
-	// [banned] 	py::arg("receiver"),
-	// [banned] 	py::arg("member"));
-	// [banned] _QObject.def("disconnect", py::overload_cast<const char *, const QObject *, const char *>(&QObject::disconnect),
-	// [banned] 	py::arg("signal"),
-	// [banned] 	py::arg("receiver"),
-	// [banned] 	py::arg("member"));
-	// [banned] _QObject.def("disconnect", py::overload_cast<const QObject *, const char *>(&QObject::disconnect),
-	// [banned] 	py::arg("receiver"),
-	// [banned] 	py::arg("member"));
-	// [banned] _QObject.def_static("disconnect_static", py::overload_cast<const QMetaObject::Connection &>(&QObject::disconnect),
-	// [banned] 	py::arg(""));
-	_QObject.def("dumpObjectTree", py::overload_cast<>(&QObject::dumpObjectTree));
-	_QObject.def("dumpObjectTree", py::overload_cast<>(&QObject::dumpObjectTree));
-	_QObject.def("dumpObjectInfo", py::overload_cast<>(&QObject::dumpObjectInfo));
-	_QObject.def("dumpObjectInfo", py::overload_cast<>(&QObject::dumpObjectInfo));
-	// [<Class 'QVariant'>] _QObject.def("setProperty", &QObject::setProperty,
-	// [<Class 'QVariant'>] 	py::arg("name"),
-	// [<Class 'QVariant'>] 	py::arg("value"));
-	// [<Class 'QVariant'>] _QObject.def("property", &QObject::property,
-	// [<Class 'QVariant'>] 	py::arg("name"));
-	// [<Class 'QByteArray'>] _QObject.def("dynamicPropertyNames", &QObject::dynamicPropertyNames);
-	// [<TypeDef 'uint'>] _QObject.def_static("registerUserData", &QObject::registerUserData);
-	// [<TypeDef 'uint'>] _QObject.def("setUserData", &QObject::setUserData,
-	// [<TypeDef 'uint'>] 	py::arg("id"),
-	// [<TypeDef 'uint'>] 	py::arg("data"));
-	// [<Class 'QObjectUserData'>] _QObject.def("userData", &QObject::userData,
-	// [<Class 'QObjectUserData'>] 	py::arg("id"));
-	_QObject.def("destroyed", &QObject::destroyed,
-		py::arg(""));
-	// [<Struct 'QPrivateSignal'>] _QObject.def("objectNameChanged", &QObject::objectNameChanged,
-	// [<Struct 'QPrivateSignal'>] 	py::arg("objectName"),
-	// [<Struct 'QPrivateSignal'>] 	py::arg(""));
-	_QObject.def("parent", &QObject::parent);
-	_QObject.def("inherits", &QObject::inherits,
-		py::arg("classname"));
-	_QObject.def("deleteLater", &QObject::deleteLater);
 
 	py::class_<std::runtime_error> _runtime_error(m, "runtime_error");
 	_runtime_error.def(py::init<const std::string &>());
@@ -219,423 +95,15 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg(""));
 	_runtime_error.def("what", &std::runtime_error::what);
 
-	// enum EventType
-	py::enum_<H2Core::EventType>(m, "EventType")
-		.value("EVENT_NONE", H2Core::EventType::EVENT_NONE)
-		.value("EVENT_STATE", H2Core::EventType::EVENT_STATE)
-		.value("EVENT_PATTERN_CHANGED", H2Core::EventType::EVENT_PATTERN_CHANGED)
-		.value("EVENT_PATTERN_MODIFIED", H2Core::EventType::EVENT_PATTERN_MODIFIED)
-		.value("EVENT_SELECTED_PATTERN_CHANGED", H2Core::EventType::EVENT_SELECTED_PATTERN_CHANGED)
-		.value("EVENT_SELECTED_INSTRUMENT_CHANGED", H2Core::EventType::EVENT_SELECTED_INSTRUMENT_CHANGED)
-		.value("EVENT_PARAMETERS_INSTRUMENT_CHANGED", H2Core::EventType::EVENT_PARAMETERS_INSTRUMENT_CHANGED)
-		.value("EVENT_MIDI_ACTIVITY", H2Core::EventType::EVENT_MIDI_ACTIVITY)
-		.value("EVENT_XRUN", H2Core::EventType::EVENT_XRUN)
-		.value("EVENT_NOTEON", H2Core::EventType::EVENT_NOTEON)
-		.value("EVENT_ERROR", H2Core::EventType::EVENT_ERROR)
-		.value("EVENT_METRONOME", H2Core::EventType::EVENT_METRONOME)
-		.value("EVENT_RECALCULATERUBBERBAND", H2Core::EventType::EVENT_RECALCULATERUBBERBAND)
-		.value("EVENT_PROGRESS", H2Core::EventType::EVENT_PROGRESS)
-		.value("EVENT_JACK_SESSION", H2Core::EventType::EVENT_JACK_SESSION)
-		.value("EVENT_PLAYLIST_LOADSONG", H2Core::EventType::EVENT_PLAYLIST_LOADSONG)
-		.value("EVENT_UNDO_REDO", H2Core::EventType::EVENT_UNDO_REDO)
-		.value("EVENT_SONG_MODIFIED", H2Core::EventType::EVENT_SONG_MODIFIED)
-		.value("EVENT_TEMPO_CHANGED", H2Core::EventType::EVENT_TEMPO_CHANGED)
-		.value("EVENT_UPDATE_PREFERENCES", H2Core::EventType::EVENT_UPDATE_PREFERENCES)
-		.value("EVENT_UPDATE_SONG", H2Core::EventType::EVENT_UPDATE_SONG)
-		.value("EVENT_QUIT", H2Core::EventType::EVENT_QUIT)
-		.value("EVENT_TIMELINE_ACTIVATION", H2Core::EventType::EVENT_TIMELINE_ACTIVATION)
-		.value("EVENT_TIMELINE_UPDATE", H2Core::EventType::EVENT_TIMELINE_UPDATE)
-		.value("EVENT_JACK_TRANSPORT_ACTIVATION", H2Core::EventType::EVENT_JACK_TRANSPORT_ACTIVATION)
-		.value("EVENT_JACK_TIMEBASE_ACTIVATION", H2Core::EventType::EVENT_JACK_TIMEBASE_ACTIVATION)
-		.value("EVENT_SONG_MODE_ACTIVATION", H2Core::EventType::EVENT_SONG_MODE_ACTIVATION)
-		.value("EVENT_LOOP_MODE_ACTIVATION", H2Core::EventType::EVENT_LOOP_MODE_ACTIVATION)
-		.value("EVENT_ACTION_MODE_CHANGE", H2Core::EventType::EVENT_ACTION_MODE_CHANGE);
-
 	py::class_<H2Core::Event> _Event(m, "Event");
-
-	py::class_<std::__mutex_base> ___mutex_base(m, "__mutex_base");
-
-	py::class_<QBasicMutex> _QBasicMutex(m, "QBasicMutex");
-	_QBasicMutex.def(py::init<>());
-	_QBasicMutex.def("lock", &QBasicMutex::lock);
-	_QBasicMutex.def("unlock", &QBasicMutex::unlock);
-	_QBasicMutex.def("tryLock", &QBasicMutex::tryLock);
-	_QBasicMutex.def("try_lock", &QBasicMutex::try_lock);
-	_QBasicMutex.def("isRecursive", py::overload_cast<>(&QBasicMutex::isRecursive));
-	_QBasicMutex.def("isRecursive", py::overload_cast<>(&QBasicMutex::isRecursive));
-
-	py::class_<std::thread> _thread(m, "thread");
-	_thread.def(py::init<>());
-	// [banned] _thread.def("operator=", py::overload_cast<const std::thread &>(&std::thread::operator=),
-	// [banned] 	py::arg(""));
-	// [banned] _thread.def("operator=", py::overload_cast<std::thread &&>(&std::thread::operator=),
-	// [banned] 	py::arg("__t"));
-	_thread.def("swap", &std::thread::swap,
-		py::arg("__t"));
-	_thread.def("joinable", &std::thread::joinable);
-	_thread.def("join", &std::thread::join);
-	_thread.def("detach", &std::thread::detach);
-	_thread.def("get_id", &std::thread::get_id);
-	// [<TypeDef 'native_handle_type'>] _thread.def("native_handle", &std::thread::native_handle);
-	_thread.def_static("hardware_concurrency", &std::thread::hardware_concurrency);
 
 	py::class_<timeval> _timeval(m, "timeval");
 
-	py::class_<H2Core::Filesystem> _Filesystem(m, "Filesystem");
-	_Filesystem.def_static("class_name", &H2Core::Filesystem::class_name);
-	_Filesystem.def_static("bootstrap", &H2Core::Filesystem::bootstrap,
-		"check user and system filesystem usability",
-		py::arg("logger"),
-		py::arg("sys_path"));
-	_Filesystem.def_static("sys_data_path", &H2Core::Filesystem::sys_data_path,
-		"returns system data path");
-	_Filesystem.def_static("usr_data_path", &H2Core::Filesystem::usr_data_path,
-		"returns user data path");
-	// [<Class 'QStringList'>] _Filesystem.def_static("ladspa_paths", &H2Core::Filesystem::ladspa_paths,
-		// [<Class 'QStringList'>] "returns user ladspa paths");
-	_Filesystem.def_static("sys_config_path", &H2Core::Filesystem::sys_config_path,
-		"returns system config path");
-	_Filesystem.def_static("usr_config_path", &H2Core::Filesystem::usr_config_path,
-		"returns user config path");
-	_Filesystem.def_static("empty_sample_path", &H2Core::Filesystem::empty_sample_path,
-		"returns system empty sample file path");
-	_Filesystem.def_static("empty_song_path", &H2Core::Filesystem::empty_song_path,
-		"returns system empty song file path");
-	_Filesystem.def_static("untitled_song_file_name", &H2Core::Filesystem::untitled_song_file_name,
-		"returns untitled song file name");
-	_Filesystem.def_static("click_file_path", &H2Core::Filesystem::click_file_path,
-		"Returns a string containing the path to the _click.wav_ file used in the metronome.");
-	_Filesystem.def_static("usr_click_file_path", &H2Core::Filesystem::usr_click_file_path,
-		"returns click file path from user directory if exists, otherwise from system");
-	_Filesystem.def_static("drumkit_xsd_path", &H2Core::Filesystem::drumkit_xsd_path,
-		"returns the path to the drumkit XSD (xml schema definition) file");
-	_Filesystem.def_static("pattern_xsd_path", &H2Core::Filesystem::pattern_xsd_path,
-		"returns the path to the pattern XSD (xml schema definition) file");
-	_Filesystem.def_static("playlist_xsd_path", &H2Core::Filesystem::playlist_xsd_path,
-		"returns the path to the playlist pattern XSD (xml schema definition) file");
-	_Filesystem.def_static("log_file_path", &H2Core::Filesystem::log_file_path,
-		"returns the full path (including filename) of the logfile");
-	_Filesystem.def_static("img_dir", &H2Core::Filesystem::img_dir,
-		"returns gui image path");
-	_Filesystem.def_static("doc_dir", &H2Core::Filesystem::doc_dir,
-		"returns documentation path");
-	_Filesystem.def_static("i18n_dir", &H2Core::Filesystem::i18n_dir,
-		"returns internationalization path");
-	_Filesystem.def_static("scripts_dir", &H2Core::Filesystem::scripts_dir,
-		"returns user scripts path");
-	_Filesystem.def_static("songs_dir", &H2Core::Filesystem::songs_dir,
-		"returns user songs path");
-	_Filesystem.def_static("song_path", &H2Core::Filesystem::song_path,
-		"returns user song path, add file extension",
-		py::arg("sg_name"));
-	_Filesystem.def_static("patterns_dir_static", py::overload_cast<>(&H2Core::Filesystem::patterns_dir),
-			"returns user patterns path");
-	_Filesystem.def_static("patterns_dir_static", py::overload_cast<const QString &>(&H2Core::Filesystem::patterns_dir),
-			"returns user patterns path for a specific drumkit",
-		py::arg("dk_name"));
-	_Filesystem.def_static("pattern_path", &H2Core::Filesystem::pattern_path,
-		"returns user patterns path, add file extension",
-		py::arg("dk_name"),
-		py::arg("p_name"));
-	_Filesystem.def_static("plugins_dir", &H2Core::Filesystem::plugins_dir,
-		"returns user plugins path");
-	_Filesystem.def_static("sys_drumkits_dir", &H2Core::Filesystem::sys_drumkits_dir,
-		"returns system drumkits path");
-	_Filesystem.def_static("usr_drumkits_dir", &H2Core::Filesystem::usr_drumkits_dir,
-		"returns user drumkits path");
-	_Filesystem.def_static("playlists_dir", &H2Core::Filesystem::playlists_dir,
-		"returns user playlist path");
-	_Filesystem.def_static("playlist_path", &H2Core::Filesystem::playlist_path,
-		"returns user playlist path, add file extension",
-		py::arg("pl_name"));
-	_Filesystem.def_static("untitled_playlist_file_name", &H2Core::Filesystem::untitled_playlist_file_name,
-		"returns untitled playlist file name");
-	_Filesystem.def_static("cache_dir", &H2Core::Filesystem::cache_dir,
-		"returns user cache path");
-	_Filesystem.def_static("repositories_cache_dir", &H2Core::Filesystem::repositories_cache_dir,
-		"returns user repository cache path");
-	_Filesystem.def_static("demos_dir", &H2Core::Filesystem::demos_dir,
-		"returns system demos path");
-	_Filesystem.def_static("xsd_dir", &H2Core::Filesystem::xsd_dir,
-		"returns system xsd path");
-	_Filesystem.def_static("tmp_dir", &H2Core::Filesystem::tmp_dir,
-		"returns temp path");
-	_Filesystem.def_static("tmp_file_path", &H2Core::Filesystem::tmp_file_path,
-		"touch a temporary file under tmp_dir() and return it's path. if base has a suffix it will be preserved, spaces will be replaced by underscores.",
-		py::arg("base"));
-	_Filesystem.def_static("prepare_sample_path", &H2Core::Filesystem::prepare_sample_path,
-		"Returns the basename if the given path is under an existing user or system drumkit path, otherwise the given fname",
-		py::arg("fname"));
-	_Filesystem.def_static("file_is_under_drumkit", &H2Core::Filesystem::file_is_under_drumkit,
-		"Checks if the given filepath is under an existing user or system drumkit path, not the existence of the file",
-		py::arg("fname"));
-	_Filesystem.def_static("get_basename_idx_under_drumkit", &H2Core::Filesystem::get_basename_idx_under_drumkit,
-		"Returns the index of the basename if the given path is under an existing user or system drumkit path, otherwise -1",
-		py::arg("fname"));
-	// [<Class 'QStringList'>] _Filesystem.def_static("sys_drumkit_list", &H2Core::Filesystem::sys_drumkit_list,
-		// [<Class 'QStringList'>] "returns list of usable system drumkits ( see Filesystem::drumkit_list )");
-	// [<Class 'QStringList'>] _Filesystem.def_static("usr_drumkit_list", &H2Core::Filesystem::usr_drumkit_list,
-		// [<Class 'QStringList'>] "returns list of usable user drumkits ( see Filesystem::drumkit_list )");
-	_Filesystem.def_static("drumkit_exists", &H2Core::Filesystem::drumkit_exists,
-		"returns true if the drumkit exists within usable system or user drumkits",
-		py::arg("dk_name"));
-	_Filesystem.def_static("drumkit_usr_path", &H2Core::Filesystem::drumkit_usr_path,
-		"returns path for a drumkit within user drumkit path",
-		py::arg("dk_name"));
-	_Filesystem.def_static("drumkit_path_search", &H2Core::Filesystem::drumkit_path_search,
-		"Returns the path to a H2Core::Drumkit folder.",
-		py::arg("dk_name"),
-		py::arg("lookup"),
-		py::arg("bSilent"));
-	_Filesystem.def_static("drumkit_dir_search", &H2Core::Filesystem::drumkit_dir_search,
-		"returns the directory holding the named drumkit searching within user then system drumkits",
-		py::arg("dk_name"),
-		py::arg("lookup"));
-	_Filesystem.def_static("drumkit_valid", &H2Core::Filesystem::drumkit_valid,
-		"returns true if the path contains a usable drumkit",
-		py::arg("dk_path"));
-	_Filesystem.def_static("drumkit_file", &H2Core::Filesystem::drumkit_file,
-		"returns the path to the xml file within a supposed drumkit path",
-		py::arg("dk_path"));
-	// [<Class 'QStringList'>] _Filesystem.def_static("pattern_drumkits", &H2Core::Filesystem::pattern_drumkits,
-		// [<Class 'QStringList'>] "returns a list of existing drumkit sub dir into the patterns directory");
-	// [<Class 'QStringList'>] _Filesystem.def_static("pattern_list_static", py::overload_cast<>(&H2Core::Filesystem::pattern_list),
-		// [<Class 'QStringList'>] 	"returns a list of existing patterns");
-	// [<Class 'QStringList'>] _Filesystem.def_static("pattern_list_static", py::overload_cast<const QString &>(&H2Core::Filesystem::pattern_list),
-		// [<Class 'QStringList'>] 	"returns a list of existing patterns",
-	// [<Class 'QStringList'>] 	py::arg("path"));
-	// [<Class 'QStringList'>] _Filesystem.def_static("song_list", &H2Core::Filesystem::song_list,
-		// [<Class 'QStringList'>] "returns a list of existing songs");
-	// [<Class 'QStringList'>] _Filesystem.def_static("song_list_cleared", &H2Core::Filesystem::song_list_cleared,
-		// [<Class 'QStringList'>] "returns a list of existing songs, excluding the autosaved one");
-	_Filesystem.def_static("song_exists", &H2Core::Filesystem::song_exists,
-		"returns true if the song file exists",
-		py::arg("sg_name"));
-	_Filesystem.def_static("info", &H2Core::Filesystem::info,
-		"send current settings information to logger with INFO severity");
-	// [<Class 'QStringList'>] _Filesystem.def_static("playlist_list", &H2Core::Filesystem::playlist_list,
-		// [<Class 'QStringList'>] "returns a list of existing playlists");
-	_Filesystem.def_static("file_exists", &H2Core::Filesystem::file_exists,
-		"returns true if the given path is an existing regular file",
-		py::arg("path"),
-		py::arg("silent"));
-	_Filesystem.def_static("file_readable", &H2Core::Filesystem::file_readable,
-		"returns true if the given path is an existing readable regular file",
-		py::arg("path"),
-		py::arg("silent"));
-	_Filesystem.def_static("file_writable", &H2Core::Filesystem::file_writable,
-		"returns true if the given path is a possibly writable file (may exist or not)",
-		py::arg("path"),
-		py::arg("silent"));
-	_Filesystem.def_static("file_executable", &H2Core::Filesystem::file_executable,
-		"returns true if the given path is an existing executable regular file",
-		py::arg("path"),
-		py::arg("silent"));
-	_Filesystem.def_static("dir_readable", &H2Core::Filesystem::dir_readable,
-		"returns true if the given path is a readable regular directory",
-		py::arg("path"),
-		py::arg("silent"));
-	_Filesystem.def_static("dir_writable", &H2Core::Filesystem::dir_writable,
-		"returns true if the given path is a writable regular directory",
-		py::arg("path"),
-		py::arg("silent"));
-	_Filesystem.def_static("path_usable", &H2Core::Filesystem::path_usable,
-		"returns true if the path is a readable and writable regular directory, create if it not exists",
-		py::arg("path"),
-		py::arg("create"),
-		py::arg("silent"));
-	_Filesystem.def_static("write_to_file", &H2Core::Filesystem::write_to_file,
-		"writes to a file",
-		py::arg("dst"),
-		py::arg("content"));
-	_Filesystem.def_static("file_copy", &H2Core::Filesystem::file_copy,
-		"copy a source file to a destination",
-		py::arg("src"),
-		py::arg("dst"),
-		py::arg("overwrite"));
-	_Filesystem.def_static("rm", &H2Core::Filesystem::rm,
-		"remove a path",
-		py::arg("path"),
-		py::arg("recursive"));
-	_Filesystem.def_static("mkdir", &H2Core::Filesystem::mkdir,
-		"create a path",
-		py::arg("path"));
-	_Filesystem.def_static("getPreferencesOverwritePath", &H2Core::Filesystem::getPreferencesOverwritePath,
-		"Returns m_sPreferencesOverwritePath");
-	_Filesystem.def_static("setPreferencesOverwritePath", &H2Core::Filesystem::setPreferencesOverwritePath,
-		py::arg("sPath"));
-
-	py::class_<QDomNode> _QDomNode(m, "QDomNode");
-	_QDomNode.def(py::init<>());
-	_QDomNode.def(py::init<const QDomNode &>());
-	_QDomNode.def("operator=", &QDomNode::operator=,
-		py::arg(""));
-	_QDomNode.def("operator==", &QDomNode::operator==,
-		py::arg(""));
-	_QDomNode.def("operator!=", &QDomNode::operator!=,
-		py::arg(""));
-	_QDomNode.def("insertBefore", &QDomNode::insertBefore,
-		py::arg("newChild"),
-		py::arg("refChild"));
-	_QDomNode.def("insertAfter", &QDomNode::insertAfter,
-		py::arg("newChild"),
-		py::arg("refChild"));
-	_QDomNode.def("replaceChild", &QDomNode::replaceChild,
-		py::arg("newChild"),
-		py::arg("oldChild"));
-	_QDomNode.def("removeChild", &QDomNode::removeChild,
-		py::arg("oldChild"));
-	_QDomNode.def("appendChild", &QDomNode::appendChild,
-		py::arg("newChild"));
-	_QDomNode.def("hasChildNodes", &QDomNode::hasChildNodes);
-	_QDomNode.def("cloneNode", &QDomNode::cloneNode,
-		py::arg("deep"));
-	_QDomNode.def("normalize", &QDomNode::normalize);
-	_QDomNode.def("isSupported", &QDomNode::isSupported,
-		py::arg("feature"),
-		py::arg("version"));
-	_QDomNode.def("nodeName", &QDomNode::nodeName);
-	// [<Enum 'NodeType'>] _QDomNode.def("nodeType", &QDomNode::nodeType);
-	_QDomNode.def("parentNode", &QDomNode::parentNode);
-	// [<Class 'QDomNodeList'>] _QDomNode.def("childNodes", &QDomNode::childNodes);
-	_QDomNode.def("firstChild", &QDomNode::firstChild);
-	_QDomNode.def("lastChild", &QDomNode::lastChild);
-	_QDomNode.def("previousSibling", &QDomNode::previousSibling);
-	_QDomNode.def("nextSibling", &QDomNode::nextSibling);
-	// [<Class 'QDomNamedNodeMap'>] _QDomNode.def("attributes", &QDomNode::attributes);
-	// [<Class 'QDomDocument'>] _QDomNode.def("ownerDocument", &QDomNode::ownerDocument);
-	_QDomNode.def("namespaceURI", &QDomNode::namespaceURI);
-	_QDomNode.def("localName", &QDomNode::localName);
-	_QDomNode.def("hasAttributes", &QDomNode::hasAttributes);
-	_QDomNode.def("nodeValue", &QDomNode::nodeValue);
-	_QDomNode.def("setNodeValue", &QDomNode::setNodeValue,
-		py::arg(""));
-	_QDomNode.def("prefix", &QDomNode::prefix);
-	_QDomNode.def("setPrefix", &QDomNode::setPrefix,
-		py::arg("pre"));
-	_QDomNode.def("isAttr", &QDomNode::isAttr);
-	_QDomNode.def("isCDATASection", &QDomNode::isCDATASection);
-	_QDomNode.def("isDocumentFragment", &QDomNode::isDocumentFragment);
-	_QDomNode.def("isDocument", &QDomNode::isDocument);
-	_QDomNode.def("isDocumentType", &QDomNode::isDocumentType);
-	_QDomNode.def("isElement", &QDomNode::isElement);
-	_QDomNode.def("isEntityReference", &QDomNode::isEntityReference);
-	_QDomNode.def("isText", &QDomNode::isText);
-	_QDomNode.def("isEntity", &QDomNode::isEntity);
-	_QDomNode.def("isNotation", &QDomNode::isNotation);
-	_QDomNode.def("isProcessingInstruction", &QDomNode::isProcessingInstruction);
-	_QDomNode.def("isCharacterData", &QDomNode::isCharacterData);
-	_QDomNode.def("isComment", &QDomNode::isComment);
-	_QDomNode.def("namedItem", &QDomNode::namedItem,
-		"Shortcut to avoid dealing with QDomNodeList all the time.",
-		py::arg("name"));
-	_QDomNode.def("isNull", &QDomNode::isNull);
-	_QDomNode.def("clear", &QDomNode::clear);
-	// [<Class 'QDomAttr'>] _QDomNode.def("toAttr", &QDomNode::toAttr);
-	// [<Class 'QDomCDATASection'>] _QDomNode.def("toCDATASection", &QDomNode::toCDATASection);
-	// [<Class 'QDomDocumentFragment'>] _QDomNode.def("toDocumentFragment", &QDomNode::toDocumentFragment);
-	// [<Class 'QDomDocument'>] _QDomNode.def("toDocument", &QDomNode::toDocument);
-	// [<Class 'QDomDocumentType'>] _QDomNode.def("toDocumentType", &QDomNode::toDocumentType);
-	// [<Class 'QDomElement'>] _QDomNode.def("toElement", &QDomNode::toElement);
-	// [<Class 'QDomEntityReference'>] _QDomNode.def("toEntityReference", &QDomNode::toEntityReference);
-	// [<Class 'QDomText'>] _QDomNode.def("toText", &QDomNode::toText);
-	// [<Class 'QDomEntity'>] _QDomNode.def("toEntity", &QDomNode::toEntity);
-	// [<Class 'QDomNotation'>] _QDomNode.def("toNotation", &QDomNode::toNotation);
-	// [<Class 'QDomProcessingInstruction'>] _QDomNode.def("toProcessingInstruction", &QDomNode::toProcessingInstruction);
-	// [<Class 'QDomCharacterData'>] _QDomNode.def("toCharacterData", &QDomNode::toCharacterData);
-	// [<Class 'QDomComment'>] _QDomNode.def("toComment", &QDomNode::toComment);
-	// [<Class 'QTextStream'>] _QDomNode.def("save", &QDomNode::save,
-	// [<Class 'QTextStream'>] 	py::arg(""),
-	// [<Class 'QTextStream'>] 	py::arg(""),
-	// [<Class 'QTextStream'>] 	py::arg(""));
-	// [<Class 'QDomElement'>] _QDomNode.def("firstChildElement", &QDomNode::firstChildElement,
-	// [<Class 'QDomElement'>] 	py::arg("tagName"));
-	// [<Class 'QDomElement'>] _QDomNode.def("lastChildElement", &QDomNode::lastChildElement,
-	// [<Class 'QDomElement'>] 	py::arg("tagName"));
-	// [<Class 'QDomElement'>] _QDomNode.def("previousSiblingElement", &QDomNode::previousSiblingElement,
-	// [<Class 'QDomElement'>] 	py::arg("tagName"));
-	// [<Class 'QDomElement'>] _QDomNode.def("nextSiblingElement", &QDomNode::nextSiblingElement,
-	// [<Class 'QDomElement'>] 	py::arg("taName"));
-	_QDomNode.def("lineNumber", &QDomNode::lineNumber);
-	_QDomNode.def("columnNumber", &QDomNode::columnNumber);
-
-	py::class_<QFileInfo> _QFileInfo(m, "QFileInfo");
-	_QFileInfo.def(py::init<>());
-	_QFileInfo.def(py::init<const QString &>());
-	_QFileInfo.def(py::init<const QFile &>());
-	_QFileInfo.def(py::init<const QDir &, const QString &>());
-	_QFileInfo.def(py::init<const QFileInfo &>());
-	_QFileInfo.def("operator=", py::overload_cast<const QFileInfo &>(&QFileInfo::operator=),
-		py::arg("fileinfo"));
-	// [banned] _QFileInfo.def("operator=", py::overload_cast<QFileInfo &&>(&QFileInfo::operator=),
-	// [banned] 	py::arg("other"));
-	_QFileInfo.def("swap", &QFileInfo::swap,
-		py::arg("other"));
-	_QFileInfo.def("operator==", &QFileInfo::operator==,
-		py::arg("fileinfo"));
-	_QFileInfo.def("operator!=", &QFileInfo::operator!=,
-		py::arg("fileinfo"));
-	_QFileInfo.def("setFile", py::overload_cast<const QString &>(&QFileInfo::setFile),
-		py::arg("file"));
-	// [<Class 'QFile'>] _QFileInfo.def("setFile", py::overload_cast<const QFile &>(&QFileInfo::setFile),
-	// [<Class 'QFile'>] 	py::arg("file"));
-	// [<Class 'QDir'>] _QFileInfo.def("setFile", py::overload_cast<const QDir &, const QString &>(&QFileInfo::setFile),
-	// [<Class 'QDir'>] 	py::arg("dir"),
-	// [<Class 'QDir'>] 	py::arg("file"));
-	// [banned] _QFileInfo.def("exists", py::overload_cast<>(&QFileInfo::exists));
-	// [banned] _QFileInfo.def_static("exists_static", py::overload_cast<const QString &>(&QFileInfo::exists),
-	// [banned] 	py::arg("file"));
-	_QFileInfo.def("refresh", &QFileInfo::refresh);
-	_QFileInfo.def("filePath", &QFileInfo::filePath);
-	_QFileInfo.def("absoluteFilePath", &QFileInfo::absoluteFilePath);
-	_QFileInfo.def("canonicalFilePath", &QFileInfo::canonicalFilePath);
-	_QFileInfo.def("fileName", &QFileInfo::fileName);
-	_QFileInfo.def("baseName", &QFileInfo::baseName);
-	_QFileInfo.def("completeBaseName", &QFileInfo::completeBaseName);
-	_QFileInfo.def("suffix", &QFileInfo::suffix);
-	_QFileInfo.def("bundleName", &QFileInfo::bundleName);
-	_QFileInfo.def("completeSuffix", &QFileInfo::completeSuffix);
-	_QFileInfo.def("path", &QFileInfo::path);
-	_QFileInfo.def("absolutePath", &QFileInfo::absolutePath);
-	_QFileInfo.def("canonicalPath", &QFileInfo::canonicalPath);
-	// [<Class 'QDir'>] _QFileInfo.def("dir", &QFileInfo::dir);
-	// [<Class 'QDir'>] _QFileInfo.def("absoluteDir", &QFileInfo::absoluteDir);
-	_QFileInfo.def("isReadable", &QFileInfo::isReadable);
-	_QFileInfo.def("isWritable", &QFileInfo::isWritable);
-	_QFileInfo.def("isExecutable", &QFileInfo::isExecutable);
-	_QFileInfo.def("isHidden", &QFileInfo::isHidden);
-	_QFileInfo.def("isNativePath", &QFileInfo::isNativePath);
-	_QFileInfo.def("isRelative", &QFileInfo::isRelative);
-	_QFileInfo.def("isAbsolute", &QFileInfo::isAbsolute);
-	_QFileInfo.def("makeAbsolute", &QFileInfo::makeAbsolute);
-	_QFileInfo.def("isFile", &QFileInfo::isFile);
-	_QFileInfo.def("isDir", &QFileInfo::isDir);
-	_QFileInfo.def("isSymLink", &QFileInfo::isSymLink);
-	_QFileInfo.def("isSymbolicLink", &QFileInfo::isSymbolicLink);
-	_QFileInfo.def("isShortcut", &QFileInfo::isShortcut);
-	_QFileInfo.def("isJunction", &QFileInfo::isJunction);
-	_QFileInfo.def("isRoot", &QFileInfo::isRoot);
-	_QFileInfo.def("isBundle", &QFileInfo::isBundle);
-	_QFileInfo.def("readLink", &QFileInfo::readLink);
-	_QFileInfo.def("symLinkTarget", &QFileInfo::symLinkTarget);
-	_QFileInfo.def("owner", &QFileInfo::owner);
-	// [<TypeDef 'uint'>] _QFileInfo.def("ownerId", &QFileInfo::ownerId);
-	_QFileInfo.def("group", &QFileInfo::group);
-	// [<TypeDef 'uint'>] _QFileInfo.def("groupId", &QFileInfo::groupId);
-	// [<TypeDef 'Permissions'>] _QFileInfo.def("permission", &QFileInfo::permission,
-	// [<TypeDef 'Permissions'>] 	py::arg("permissions"));
-	// [<TypeDef 'Permissions'>] _QFileInfo.def("permissions", &QFileInfo::permissions);
-	// [<TypeDef 'qint64'>] _QFileInfo.def("size", &QFileInfo::size);
-	// [<Class 'QDateTime'>] _QFileInfo.def("created", &QFileInfo::created);
-	// [<Class 'QDateTime'>] _QFileInfo.def("birthTime", &QFileInfo::birthTime);
-	// [<Class 'QDateTime'>] _QFileInfo.def("metadataChangeTime", &QFileInfo::metadataChangeTime);
-	// [<Class 'QDateTime'>] _QFileInfo.def("lastModified", &QFileInfo::lastModified);
-	// [<Class 'QDateTime'>] _QFileInfo.def("lastRead", &QFileInfo::lastRead);
-	// [<Class 'QDateTime'>] _QFileInfo.def("fileTime", &QFileInfo::fileTime,
-	// [<Class 'QDateTime'>] 	py::arg("time"));
-	_QFileInfo.def("caching", &QFileInfo::caching);
-	_QFileInfo.def("setCaching", &QFileInfo::setCaching,
-		py::arg("on"));
+	py::class_<H2Core::AudioEngineLocking> _AudioEngineLocking(m, "AudioEngineLocking");
+	_AudioEngineLocking.def(py::init<>());
+	_AudioEngineLocking.def("setNeedsLock", &H2Core::AudioEngineLocking::setNeedsLock,
+		"The audio processing thread can modify some PatternLists. For these structures, the audio engine lock must be held for any thread to access them.",
+		py::arg("bNeedsLock"));
 
 	py::class_<QColor> _QColor(m, "QColor");
 	_QColor.def(py::init<>());
@@ -657,7 +125,10 @@ PYBIND11_MODULE(h2core, m) {
 	// [banned] _QColor.def("operator=", py::overload_cast<Qt::GlobalColor>(&QColor::operator=),
 	// [banned] 	py::arg("color"));
 	_QColor.def("isValid", &QColor::isValid);
-	// [banned] _QColor.def("name", py::overload_cast<>(&QColor::name));
+	_QColor.def("name",
+	[](const QColor &color) {
+        return color.name();
+    });
 	// [banned] _QColor.def("name", py::overload_cast<QColor::NameFormat>(&QColor::name),
 	// [banned] 	py::arg("format"));
 	_QColor.def("setNamedColor", py::overload_cast<const QString &>(&QColor::setNamedColor),
@@ -667,7 +138,7 @@ PYBIND11_MODULE(h2core, m) {
 	// [<Class 'QLatin1String'>] _QColor.def("setNamedColor", py::overload_cast<QLatin1String>(&QColor::setNamedColor),
 	// [<Class 'QLatin1String'>] 	py::arg("name"));
 	// [<Class 'QStringList'>] _QColor.def_static("colorNames", &QColor::colorNames);
-	// [<Enum 'Spec'>] _QColor.def("spec", &QColor::spec);
+	_QColor.def("spec", &QColor::spec);
 	_QColor.def("alpha", &QColor::alpha);
 	_QColor.def("setAlpha", &QColor::setAlpha,
 		py::arg("alpha"));
@@ -714,9 +185,9 @@ PYBIND11_MODULE(h2core, m) {
 	// [<TypeDef 'qreal'>] 	py::arg("g"),
 	// [<TypeDef 'qreal'>] 	py::arg("b"),
 	// [<TypeDef 'qreal'>] 	py::arg("a"));
-	// [<Class 'QRgba64'>] _QColor.def("rgba64", &QColor::rgba64);
-	// [<Class 'QRgba64'>] _QColor.def("setRgba64", &QColor::setRgba64,
-	// [<Class 'QRgba64'>] 	py::arg("rgba"));
+	_QColor.def("rgba64", &QColor::rgba64);
+	_QColor.def("setRgba64", &QColor::setRgba64,
+		py::arg("rgba"));
 	// [<TypeDef 'QRgb'>] _QColor.def("rgba", &QColor::rgba);
 	// [<TypeDef 'QRgb'>] _QColor.def("setRgba", &QColor::setRgba,
 	// [<TypeDef 'QRgb'>] 	py::arg("rgba"));
@@ -826,8 +297,8 @@ PYBIND11_MODULE(h2core, m) {
 	_QColor.def("toCmyk", &QColor::toCmyk);
 	_QColor.def("toHsl", &QColor::toHsl);
 	_QColor.def("toExtendedRgb", &QColor::toExtendedRgb);
-	// [<Enum 'Spec'>] _QColor.def("convertTo", &QColor::convertTo,
-	// [<Enum 'Spec'>] 	py::arg("colorSpec"));
+	_QColor.def("convertTo", &QColor::convertTo,
+		py::arg("colorSpec"));
 	// [<TypeDef 'QRgb'>] _QColor.def_static("fromRgb_static", py::overload_cast<QRgb>(&QColor::fromRgb),
 	// [<TypeDef 'QRgb'>] 	py::arg("rgb"));
 	_QColor.def_static("fromRgb_static", py::overload_cast<int, int, int, int>(&QColor::fromRgb),
@@ -847,8 +318,8 @@ PYBIND11_MODULE(h2core, m) {
 	// [<TypeDef 'ushort'>] 	py::arg("g"),
 	// [<TypeDef 'ushort'>] 	py::arg("b"),
 	// [<TypeDef 'ushort'>] 	py::arg("a"));
-	// [<Class 'QRgba64'>] _QColor.def_static("fromRgba64_static", py::overload_cast<QRgba64>(&QColor::fromRgba64),
-	// [<Class 'QRgba64'>] 	py::arg("rgba"));
+	_QColor.def_static("fromRgba64_static", py::overload_cast<QRgba64>(&QColor::fromRgba64),
+		py::arg("rgba"));
 	_QColor.def_static("fromHsv", &QColor::fromHsv,
 		py::arg("h"),
 		py::arg("s"),
@@ -899,6 +370,51 @@ PYBIND11_MODULE(h2core, m) {
 	// [<Class 'QStringView'>] 	py::arg(""));
 	// [<Class 'QLatin1String'>] _QColor.def_static("isValidColor_static", py::overload_cast<QLatin1String>(&QColor::isValidColor),
 	// [<Class 'QLatin1String'>] 	py::arg(""));
+	_QColor.def("__repr__",
+	[](const QColor &color) {
+        return "QColor(\"" + color.name() + "\")";
+    });
+
+	py::class_<QRgba64> _QRgba64(m, "QRgba64");
+	_QRgba64.def(py::init<>());
+	// [<TypeDef 'quint64'>] _QRgba64.def_static("fromRgba64_static", py::overload_cast<quint64>(&QRgba64::fromRgba64),
+	// [<TypeDef 'quint64'>] 	py::arg("c"));
+	// [<TypeDef 'quint16'>] _QRgba64.def_static("fromRgba64_static", py::overload_cast<quint16, quint16, quint16, quint16>(&QRgba64::fromRgba64),
+	// [<TypeDef 'quint16'>] 	py::arg("red"),
+	// [<TypeDef 'quint16'>] 	py::arg("green"),
+	// [<TypeDef 'quint16'>] 	py::arg("blue"),
+	// [<TypeDef 'quint16'>] 	py::arg("alpha"));
+	// [<TypeDef 'quint8'>] _QRgba64.def_static("fromRgba", &QRgba64::fromRgba,
+	// [<TypeDef 'quint8'>] 	py::arg("red"),
+	// [<TypeDef 'quint8'>] 	py::arg("green"),
+	// [<TypeDef 'quint8'>] 	py::arg("blue"),
+	// [<TypeDef 'quint8'>] 	py::arg("alpha"));
+	// [<TypeDef 'uint'>] _QRgba64.def_static("fromArgb32", &QRgba64::fromArgb32,
+	// [<TypeDef 'uint'>] 	py::arg("rgb"));
+	_QRgba64.def("isOpaque", &QRgba64::isOpaque);
+	_QRgba64.def("isTransparent", &QRgba64::isTransparent);
+	// [<TypeDef 'quint16'>] _QRgba64.def("red", &QRgba64::red);
+	// [<TypeDef 'quint16'>] _QRgba64.def("green", &QRgba64::green);
+	// [<TypeDef 'quint16'>] _QRgba64.def("blue", &QRgba64::blue);
+	// [<TypeDef 'quint16'>] _QRgba64.def("alpha", &QRgba64::alpha);
+	// [<TypeDef 'quint16'>] _QRgba64.def("setRed", &QRgba64::setRed,
+	// [<TypeDef 'quint16'>] 	py::arg("_red"));
+	// [<TypeDef 'quint16'>] _QRgba64.def("setGreen", &QRgba64::setGreen,
+	// [<TypeDef 'quint16'>] 	py::arg("_green"));
+	// [<TypeDef 'quint16'>] _QRgba64.def("setBlue", &QRgba64::setBlue,
+	// [<TypeDef 'quint16'>] 	py::arg("_blue"));
+	// [<TypeDef 'quint16'>] _QRgba64.def("setAlpha", &QRgba64::setAlpha,
+	// [<TypeDef 'quint16'>] 	py::arg("_alpha"));
+	// [<TypeDef 'quint8'>] _QRgba64.def("red8", &QRgba64::red8);
+	// [<TypeDef 'quint8'>] _QRgba64.def("green8", &QRgba64::green8);
+	// [<TypeDef 'quint8'>] _QRgba64.def("blue8", &QRgba64::blue8);
+	// [<TypeDef 'quint8'>] _QRgba64.def("alpha8", &QRgba64::alpha8);
+	// [<TypeDef 'uint'>] _QRgba64.def("toArgb32", &QRgba64::toArgb32);
+	// [<TypeDef 'ushort'>] _QRgba64.def("toRgb16", &QRgba64::toRgb16);
+	_QRgba64.def("premultiplied", &QRgba64::premultiplied);
+	_QRgba64.def("unpremultiplied", &QRgba64::unpremultiplied);
+	// [<TypeDef 'quint64'>] _QRgba64.def("operator=", &QRgba64::operator=,
+	// [<TypeDef 'quint64'>] 	py::arg("_rgba"));
 
 	py::class_<H2Core::Synth> _Synth(m, "Synth");
 	_Synth.def(py::init<>());
@@ -914,8 +430,6 @@ PYBIND11_MODULE(h2core, m) {
 	_Synth.def("setAudioOutput", &H2Core::Synth::setAudioOutput,
 		py::arg("pAudioOutput"));
 	_Synth.def("getPlayingNotesNumber", &H2Core::Synth::getPlayingNotesNumber);
-
-// abstract class AudioOutput
 
 	py::class_<H2Core::Note> _Note(m, "Note");
 	_Note.def(py::init<std::shared_ptr<Instrument>, int, float, float, int, float>());
@@ -1035,10 +549,10 @@ PYBIND11_MODULE(h2core, m) {
 	_Note.def("key_to_string", &H2Core::Note::key_to_string,
 		"return a string representation of key-octave");
 	_Note.def("set_key_octave", py::overload_cast<const QString &>(&H2Core::Note::set_key_octave),
-			"parse str and set #__key and #__octave",
+		"parse str and set #__key and #__octave",
 		py::arg("str"));
 	_Note.def("set_key_octave", py::overload_cast<H2Core::Note::Key, H2Core::Note::Octave>(&H2Core::Note::set_key_octave),
-			"set #__key and #__octave only if within acceptable range",
+		"set #__key and #__octave only if within acceptable range",
 		py::arg("key"),
 		py::arg("octave"));
 	_Note.def("set_midi_info", &H2Core::Note::set_midi_info,
@@ -1049,12 +563,12 @@ PYBIND11_MODULE(h2core, m) {
 	_Note.def("get_adsr", &H2Core::Note::get_adsr,
 		"get the ADSR of the note");
 	// [banned] _Note.def("match", py::overload_cast<std::shared_ptr<Instrument>, H2Core::Note::Key, H2Core::Note::Octave>(&H2Core::Note::match),
-		// [banned] 	"return true if instrument, key and octave matches with internal",
+		// [banned] "return true if instrument, key and octave matches with internal",
 	// [banned] 	py::arg("instrument"),
 	// [banned] 	py::arg("key"),
 	// [banned] 	py::arg("octave"));
 	// [banned] _Note.def("match", py::overload_cast<const H2Core::Note *>(&H2Core::Note::match),
-		// [banned] 	"Return true if two notes match in instrument, key and octave.",
+		// [banned] "Return true if two notes match in instrument, key and octave.",
 	// [banned] 	py::arg("pNote"));
 	_Note.def("compute_lr_values", &H2Core::Note::compute_lr_values,
 		"compute left and right output based on filters",
@@ -1141,587 +655,6 @@ PYBIND11_MODULE(h2core, m) {
 	_Sampler.def("reinitializePlaybackTrack", &H2Core::Sampler::reinitializePlaybackTrack,
 		"Loading of the playback track.");
 
-	py::class_<H2Core::Song> _Song(m, "Song");
-	_Song.def(py::init<const QString &, const QString &, float, float>());
-	_Song.def_static("class_name", &H2Core::Song::class_name);
-	_Song.def_static("getEmptySong", &H2Core::Song::getEmptySong);
-	_Song.def_static("getDefaultSong", &H2Core::Song::getDefaultSong);
-	_Song.def("getIsMuted", &H2Core::Song::getIsMuted);
-	_Song.def("setIsMuted", &H2Core::Song::setIsMuted,
-		py::arg("bIsMuted"));
-	_Song.def("getResolution", &H2Core::Song::getResolution);
-	_Song.def("setResolution", &H2Core::Song::setResolution,
-		py::arg("resolution"));
-	_Song.def("getBpm", &H2Core::Song::getBpm);
-	_Song.def("setBpm", &H2Core::Song::setBpm,
-		py::arg("fBpm"));
-	_Song.def("getName", &H2Core::Song::getName);
-	_Song.def("setName", &H2Core::Song::setName,
-		py::arg("sName"));
-	_Song.def("setVolume", &H2Core::Song::setVolume,
-		py::arg("fValue"));
-	_Song.def("getVolume", &H2Core::Song::getVolume);
-	_Song.def("setMetronomeVolume", &H2Core::Song::setMetronomeVolume,
-		py::arg("fValue"));
-	_Song.def("getMetronomeVolume", &H2Core::Song::getMetronomeVolume);
-	_Song.def("getPatternList", &H2Core::Song::getPatternList);
-	_Song.def("setPatternList", &H2Core::Song::setPatternList,
-		py::arg("pList"));
-	_Song.def("getPatternGroupVector", py::overload_cast<>(&H2Core::Song::getPatternGroupVector),
-			"Return a pointer to a vector storing all Pattern present in the Song.");
-	_Song.def("getPatternGroupVector", py::overload_cast<>(&H2Core::Song::getPatternGroupVector),
-			"Return a pointer to a vector storing all Pattern present in the Song.");
-	_Song.def("setPatternGroupVector", &H2Core::Song::setPatternGroupVector,
-		"Sets the vector storing all Pattern present in the Song #m_pPatternGroupSequence.",
-		py::arg("pGroupVector"));
-	_Song.def("lengthInTicks", &H2Core::Song::lengthInTicks,
-		"get the length of the song, in tick units");
-	_Song.def_static("load", &H2Core::Song::load,
-		py::arg("sFilename"));
-	_Song.def("save", &H2Core::Song::save,
-		py::arg("sFilename"));
-	_Song.def("purgeInstrument", &H2Core::Song::purgeInstrument,
-		"Remove all the notes in the song that play on instrument I. The function is real-time safe (it locks the audio data while deleting notes)",
-		py::arg("pInstr"));
-	_Song.def("getInstrumentList", &H2Core::Song::getInstrumentList);
-	_Song.def("setInstrumentList", &H2Core::Song::setInstrumentList,
-		py::arg("pList"));
-	_Song.def("setNotes", &H2Core::Song::setNotes,
-		py::arg("sNotes"));
-	_Song.def("getNotes", &H2Core::Song::getNotes);
-	_Song.def("setLicense", &H2Core::Song::setLicense,
-		py::arg("sLicense"));
-	_Song.def("getLicense", &H2Core::Song::getLicense);
-	_Song.def("setAuthor", &H2Core::Song::setAuthor,
-		py::arg("sAuthor"));
-	_Song.def("getAuthor", &H2Core::Song::getAuthor);
-	_Song.def("getFilename", &H2Core::Song::getFilename);
-	_Song.def("setFilename", &H2Core::Song::setFilename,
-		py::arg("sFilename"));
-	_Song.def("getIsLoopEnabled", &H2Core::Song::getIsLoopEnabled);
-	_Song.def("setIsLoopEnabled", &H2Core::Song::setIsLoopEnabled,
-		py::arg("bEnabled"));
-	_Song.def("getHumanizeTimeValue", &H2Core::Song::getHumanizeTimeValue);
-	_Song.def("setHumanizeTimeValue", &H2Core::Song::setHumanizeTimeValue,
-		py::arg("fValue"));
-	_Song.def("getHumanizeVelocityValue", &H2Core::Song::getHumanizeVelocityValue);
-	_Song.def("setHumanizeVelocityValue", &H2Core::Song::setHumanizeVelocityValue,
-		py::arg("fValue"));
-	_Song.def("getSwingFactor", &H2Core::Song::getSwingFactor);
-	_Song.def("setSwingFactor", &H2Core::Song::setSwingFactor,
-		py::arg("fFactor"));
-	_Song.def("getMode", &H2Core::Song::getMode);
-	_Song.def("setMode", &H2Core::Song::setMode,
-		py::arg("mode"));
-	_Song.def("setIsModified", &H2Core::Song::setIsModified,
-		py::arg("bIsModified"));
-	_Song.def("getIsModified", &H2Core::Song::getIsModified);
-	_Song.def("getComponents", &H2Core::Song::getComponents);
-	_Song.def("getVelocityAutomationPath", &H2Core::Song::getVelocityAutomationPath);
-	_Song.def("getComponent", &H2Core::Song::getComponent,
-		py::arg("nID"));
-	_Song.def("readTempPatternList", &H2Core::Song::readTempPatternList,
-		py::arg("sFilename"));
-	_Song.def("writeTempPatternList", &H2Core::Song::writeTempPatternList,
-		py::arg("sFilename"));
-	_Song.def("copyInstrumentLineToString", &H2Core::Song::copyInstrumentLineToString,
-		py::arg("nSelectedPattern"),
-		py::arg("selectedInstrument"));
-	_Song.def("pasteInstrumentLineFromString", &H2Core::Song::pasteInstrumentLineFromString,
-		py::arg("sSerialized"),
-		py::arg("nSelectedPattern"),
-		py::arg("nSelectedInstrument"),
-		py::arg("pPatterns"));
-	_Song.def("getLatestRoundRobin", &H2Core::Song::getLatestRoundRobin,
-		py::arg("fStartVelocity"));
-	_Song.def("setLatestRoundRobin", &H2Core::Song::setLatestRoundRobin,
-		py::arg("fStartVelocity"),
-		py::arg("nLatestRoundRobin"));
-	_Song.def("getPlaybackTrackFilename", &H2Core::Song::getPlaybackTrackFilename,
-		"Returns #m_sPlaybackTrackFilename");
-	_Song.def("setPlaybackTrackFilename", &H2Core::Song::setPlaybackTrackFilename,
-		py::arg("sFilename"));
-	_Song.def("getPlaybackTrackEnabled", &H2Core::Song::getPlaybackTrackEnabled,
-		"Returns #m_bPlaybackTrackEnabled");
-	_Song.def("setPlaybackTrackEnabled", &H2Core::Song::setPlaybackTrackEnabled,
-		"Specifies whether a playback track should be used.",
-		py::arg("bEnabled"));
-	_Song.def("getPlaybackTrackVolume", &H2Core::Song::getPlaybackTrackVolume,
-		"Returns #m_fPlaybackTrackVolume");
-	_Song.def("setPlaybackTrackVolume", &H2Core::Song::setPlaybackTrackVolume,
-		py::arg("fVolume"));
-	_Song.def("getActionMode", &H2Core::Song::getActionMode);
-	_Song.def("setActionMode", &H2Core::Song::setActionMode,
-		py::arg("actionMode"));
-	_Song.def("hasMissingSamples", &H2Core::Song::hasMissingSamples,
-		"Song was incompletely loaded from file (missing samples)");
-	_Song.def("clearMissingSamples", &H2Core::Song::clearMissingSamples);
-	_Song.def("setPanLawType", &H2Core::Song::setPanLawType,
-		py::arg("nPanLawType"));
-	_Song.def("getPanLawType", &H2Core::Song::getPanLawType);
-	_Song.def("setPanLawKNorm", &H2Core::Song::setPanLawKNorm,
-		py::arg("fKNorm"));
-	_Song.def("getPanLawKNorm", &H2Core::Song::getPanLawKNorm);
-	_Song.def("toQString", &H2Core::Song::toQString,
-		"Formatted string version for debugging purposes.",
-		py::arg("sPrefix"),
-		py::arg("bShort"));
-
-	py::class_<H2Core::Instrument> _Instrument(m, "Instrument");
-	_Instrument.def(py::init<const int, const QString &, std::shared_ptr<ADSR>>());
-	_Instrument.def(py::init<std::shared_ptr<Instrument>>());
-	_Instrument.def_static("class_name", &H2Core::Instrument::class_name);
-	_Instrument.def_static("load_instrument", &H2Core::Instrument::load_instrument,
-		"creates a new Instrument, loads samples from a given instrument within a given drumkit",
-		py::arg("drumkit_name"),
-		py::arg("instrument_name"),
-		py::arg("lookup"));
-	_Instrument.def("load_from", py::overload_cast<const QString &, const QString &, bool, Filesystem::Lookup>(&H2Core::Instrument::load_from),
-			"loads instrument from a given instrument within a given drumkit into a `live` Instrument object.",
-		py::arg("drumkit_name"),
-		py::arg("instrument_name"),
-		py::arg("is_live"),
-		py::arg("lookup"));
-	_Instrument.def("load_from", py::overload_cast<H2Core::Drumkit *, std::shared_ptr<Instrument>, bool>(&H2Core::Instrument::load_from),
-			"loads instrument from a given instrument into a `live` Instrument object.",
-		py::arg("drumkit"),
-		py::arg("instrument"),
-		py::arg("is_live"));
-	_Instrument.def_static("load_from_static", py::overload_cast<H2Core::XMLNode *, const QString &, const QString &>(&H2Core::Instrument::load_from),
-			"load an instrument from an XMLNode",
-		py::arg("node"),
-		py::arg("dk_path"),
-		py::arg("dk_name"));
-	_Instrument.def("load_samples", &H2Core::Instrument::load_samples,
-		"Calls the InstrumentLayer::load_sample() member function of all layers of each component of the Instrument.");
-	_Instrument.def("unload_samples", &H2Core::Instrument::unload_samples,
-		"Calls the InstrumentLayer::unload_sample() member function of all layers of each component of the Instrument.");
-	_Instrument.def("save_to", &H2Core::Instrument::save_to,
-		"save the instrument within the given XMLNode",
-		py::arg("node"),
-		py::arg("component_id"));
-	_Instrument.def("set_name", &H2Core::Instrument::set_name,
-		"Sets the name of the Instrument #__name.",
-		py::arg("name"));
-	_Instrument.def("get_name", &H2Core::Instrument::get_name,
-		"Access the name of the Instrument.");
-	_Instrument.def("set_id", &H2Core::Instrument::set_id,
-		"Sets #__id to id.",
-		py::arg("id"));
-	_Instrument.def("get_id", &H2Core::Instrument::get_id,
-		"Returns #__id.");
-	_Instrument.def("set_adsr", &H2Core::Instrument::set_adsr,
-		"set the ADSR of the instrument",
-		py::arg("adsr"));
-	_Instrument.def("get_adsr", &H2Core::Instrument::get_adsr,
-		"get the ADSR of the instrument");
-	_Instrument.def("copy_adsr", &H2Core::Instrument::copy_adsr,
-		"get a copy of the ADSR of the instrument");
-	_Instrument.def("set_mute_group", &H2Core::Instrument::set_mute_group,
-		"set the mute group of the instrument",
-		py::arg("group"));
-	_Instrument.def("get_mute_group", &H2Core::Instrument::get_mute_group,
-		"get the mute group of the instrument");
-	_Instrument.def("set_midi_out_channel", &H2Core::Instrument::set_midi_out_channel,
-		"set the midi out channel of the instrument",
-		py::arg("channel"));
-	_Instrument.def("get_midi_out_channel", &H2Core::Instrument::get_midi_out_channel,
-		"get the midi out channel of the instrument");
-	_Instrument.def("set_midi_out_note", &H2Core::Instrument::set_midi_out_note,
-		"set the midi out note of the instrument",
-		py::arg("note"));
-	_Instrument.def("get_midi_out_note", &H2Core::Instrument::get_midi_out_note,
-		"get the midi out note of the instrument");
-	_Instrument.def("set_muted", &H2Core::Instrument::set_muted,
-		"set muted status of the instrument",
-		py::arg("muted"));
-	_Instrument.def("is_muted", &H2Core::Instrument::is_muted,
-		"get muted status of the instrument");
-	_Instrument.def("setPan", &H2Core::Instrument::setPan,
-		"set pan of the instrument",
-		py::arg("val"));
-	_Instrument.def("setPanWithRangeFrom0To1", &H2Core::Instrument::setPanWithRangeFrom0To1,
-		"set pan of the instrument, assuming the input range in [0;1]",
-		py::arg("fVal"));
-	_Instrument.def("getPan", &H2Core::Instrument::getPan,
-		"get pan of the instrument");
-	_Instrument.def("getPanWithRangeFrom0To1", &H2Core::Instrument::getPanWithRangeFrom0To1,
-		"get pan of the instrument scaling and translating the range from [-1;1] to [0;1]");
-	_Instrument.def("set_gain", &H2Core::Instrument::set_gain,
-		"set gain of the instrument",
-		py::arg("gain"));
-	_Instrument.def("get_gain", &H2Core::Instrument::get_gain,
-		"get gain of the instrument");
-	_Instrument.def("set_volume", &H2Core::Instrument::set_volume,
-		"set the volume of the instrument",
-		py::arg("volume"));
-	_Instrument.def("get_volume", &H2Core::Instrument::get_volume,
-		"get the volume of the instrument");
-	_Instrument.def("set_filter_active", &H2Core::Instrument::set_filter_active,
-		"activate the filter of the instrument",
-		py::arg("active"));
-	_Instrument.def("is_filter_active", &H2Core::Instrument::is_filter_active,
-		"get the status of the filter of the instrument");
-	_Instrument.def("set_filter_resonance", &H2Core::Instrument::set_filter_resonance,
-		"set the filter resonance of the instrument",
-		py::arg("val"));
-	_Instrument.def("get_filter_resonance", &H2Core::Instrument::get_filter_resonance,
-		"get the filter resonance of the instrument");
-	_Instrument.def("set_filter_cutoff", &H2Core::Instrument::set_filter_cutoff,
-		"set the filter cutoff of the instrument",
-		py::arg("val"));
-	_Instrument.def("get_filter_cutoff", &H2Core::Instrument::get_filter_cutoff,
-		"get the filter cutoff of the instrument");
-	_Instrument.def("set_peak_l", &H2Core::Instrument::set_peak_l,
-		"set the left peak of the instrument",
-		py::arg("val"));
-	_Instrument.def("get_peak_l", &H2Core::Instrument::get_peak_l,
-		"get the left peak of the instrument");
-	_Instrument.def("set_peak_r", &H2Core::Instrument::set_peak_r,
-		"set the right peak of the instrument",
-		py::arg("val"));
-	_Instrument.def("get_peak_r", &H2Core::Instrument::get_peak_r,
-		"get the right peak of the instrument");
-	_Instrument.def("set_fx_level", &H2Core::Instrument::set_fx_level,
-		"set the fx level of the instrument",
-		py::arg("level"),
-		py::arg("index"));
-	_Instrument.def("get_fx_level", &H2Core::Instrument::get_fx_level,
-		"get the fx level of the instrument",
-		py::arg("index"));
-	_Instrument.def("set_random_pitch_factor", &H2Core::Instrument::set_random_pitch_factor,
-		"set the random pitch factor of the instrument",
-		py::arg("val"));
-	_Instrument.def("get_random_pitch_factor", &H2Core::Instrument::get_random_pitch_factor,
-		"get the random pitch factor of the instrument");
-	_Instrument.def("set_pitch_offset", &H2Core::Instrument::set_pitch_offset,
-		"set the pitch offset of the instrument",
-		py::arg("val"));
-	_Instrument.def("get_pitch_offset", &H2Core::Instrument::get_pitch_offset,
-		"get the pitch offset of the instrument");
-	_Instrument.def("set_active", &H2Core::Instrument::set_active,
-		"set the active status of the instrument",
-		py::arg("active"));
-	_Instrument.def("is_active", &H2Core::Instrument::is_active,
-		"get the active status of the instrument");
-	_Instrument.def("set_soloed", &H2Core::Instrument::set_soloed,
-		"set the soloed status of the instrument",
-		py::arg("soloed"));
-	_Instrument.def("is_soloed", &H2Core::Instrument::is_soloed,
-		"get the soloed status of the instrument");
-	_Instrument.def("enqueue", &H2Core::Instrument::enqueue,
-		"enqueue the instrument");
-	_Instrument.def("dequeue", &H2Core::Instrument::dequeue,
-		"dequeue the instrument");
-	_Instrument.def("is_queued", &H2Core::Instrument::is_queued,
-		"get the queued status of the instrument");
-	_Instrument.def("set_stop_notes", &H2Core::Instrument::set_stop_notes,
-		"set the stop notes status of the instrument",
-		py::arg("stopnotes"));
-	_Instrument.def("is_stop_notes", &H2Core::Instrument::is_stop_notes,
-		"get the stop notes of the instrument");
-	_Instrument.def("set_sample_selection_alg", &H2Core::Instrument::set_sample_selection_alg,
-		py::arg("selected_algo"));
-	_Instrument.def("sample_selection_alg", &H2Core::Instrument::sample_selection_alg);
-	_Instrument.def("set_hihat_grp", &H2Core::Instrument::set_hihat_grp,
-		py::arg("hihat_grp"));
-	_Instrument.def("get_hihat_grp", &H2Core::Instrument::get_hihat_grp);
-	_Instrument.def("set_lower_cc", &H2Core::Instrument::set_lower_cc,
-		py::arg("message"));
-	_Instrument.def("get_lower_cc", &H2Core::Instrument::get_lower_cc);
-	_Instrument.def("set_higher_cc", &H2Core::Instrument::set_higher_cc,
-		py::arg("message"));
-	_Instrument.def("get_higher_cc", &H2Core::Instrument::get_higher_cc);
-	_Instrument.def("set_drumkit_name", &H2Core::Instrument::set_drumkit_name,
-		py::arg("name"));
-	_Instrument.def("get_drumkit_name", &H2Core::Instrument::get_drumkit_name);
-	_Instrument.def("set_is_preview_instrument", &H2Core::Instrument::set_is_preview_instrument,
-		"Mark the instrument as hydrogen's preview instrument",
-		py::arg("isPreview"));
-	_Instrument.def("is_preview_instrument", &H2Core::Instrument::is_preview_instrument);
-	_Instrument.def("set_is_metronome_instrument", &H2Core::Instrument::set_is_metronome_instrument,
-		"Mark the instrument as metronome instrument",
-		py::arg("isMetronome"));
-	_Instrument.def("is_metronome_instrument", &H2Core::Instrument::is_metronome_instrument);
-	_Instrument.def("get_components", &H2Core::Instrument::get_components);
-	_Instrument.def("get_component", &H2Core::Instrument::get_component,
-		py::arg("DrumkitComponentID"));
-	_Instrument.def("set_apply_velocity", &H2Core::Instrument::set_apply_velocity,
-		py::arg("apply_velocity"));
-	_Instrument.def("get_apply_velocity", &H2Core::Instrument::get_apply_velocity);
-	_Instrument.def("is_currently_exported", &H2Core::Instrument::is_currently_exported);
-	_Instrument.def("set_currently_exported", &H2Core::Instrument::set_currently_exported,
-		py::arg("isCurrentlyExported"));
-	_Instrument.def("has_missing_samples", &H2Core::Instrument::has_missing_samples);
-	_Instrument.def("set_missing_samples", &H2Core::Instrument::set_missing_samples,
-		py::arg("bHasMissingSamples"));
-	_Instrument.def("toQString", &H2Core::Instrument::toQString,
-		"Formatted string version for debugging purposes.",
-		py::arg("sPrefix"),
-		py::arg("bShort"));
-
-	py::class_<H2Core::Sample> _Sample(m, "Sample");
-	_Sample.def(py::init<>());
-	_Sample.def(py::init<const QString &, int, int, float *, float *>());
-	_Sample.def(py::init<std::shared_ptr<Sample>>());
-	_Sample.def_static("class_name", &H2Core::Sample::class_name);
-	_Sample.def("write", &H2Core::Sample::write,
-		"write sample to a file",
-		py::arg("path"),
-		py::arg("format"));
-	_Sample.def_static("load_static", py::overload_cast<const QString &>(&H2Core::Sample::load),
-			"Load a sample from a file.",
-		py::arg("filepath"));
-	// [<TemplateRef 'vector'>] _Sample.def_static("load_static", py::overload_cast<const QString &, const H2Core::Sample::Loops &, const H2Core::Sample::Rubberband &, const H2Core::Sample::VelocityEnvelope &, const H2Core::Sample::PanEnvelope &>(&H2Core::Sample::load),
-		// [<TemplateRef 'vector'>] 	"Load a sample from a file and apply the transformations to the sample data.",
-	// [<TemplateRef 'vector'>] 	py::arg("filepath"),
-	// [<TemplateRef 'vector'>] 	py::arg("loops"),
-	// [<TemplateRef 'vector'>] 	py::arg("rubber"),
-	// [<TemplateRef 'vector'>] 	py::arg("velocity"),
-	// [<TemplateRef 'vector'>] 	py::arg("pan"));
-	_Sample.def("load", py::overload_cast<>(&H2Core::Sample::load),
-			"Load the sample stored in #__filepath into #__data_l and #__data_r.");
-	_Sample.def("unload", &H2Core::Sample::unload,
-		"Flush the current content of the left and right channel and the current metadata.");
-	// [<TemplateRef 'vector'>] _Sample.def("apply", &H2Core::Sample::apply,
-		// [<TemplateRef 'vector'>] "Apply transformations to the sample data.",
-	// [<TemplateRef 'vector'>] 	py::arg("loops"),
-	// [<TemplateRef 'vector'>] 	py::arg("rubber"),
-	// [<TemplateRef 'vector'>] 	py::arg("velocity"),
-	// [<TemplateRef 'vector'>] 	py::arg("pan"));
-	_Sample.def("apply_loops", &H2Core::Sample::apply_loops,
-		"apply loop transformation to the sample",
-		py::arg("lo"));
-	// [<TemplateRef 'vector'>] _Sample.def("apply_velocity", &H2Core::Sample::apply_velocity,
-		// [<TemplateRef 'vector'>] "apply velocity transformation to the sample",
-	// [<TemplateRef 'vector'>] 	py::arg("v"));
-	// [<TemplateRef 'vector'>] _Sample.def("apply_pan", &H2Core::Sample::apply_pan,
-		// [<TemplateRef 'vector'>] "apply velocity transformation to the sample",
-	// [<TemplateRef 'vector'>] 	py::arg("p"));
-	_Sample.def("apply_rubberband", &H2Core::Sample::apply_rubberband,
-		"apply rubberband transformation to the sample",
-		py::arg("rb"));
-	_Sample.def("exec_rubberband_cli", &H2Core::Sample::exec_rubberband_cli,
-		"call rubberband cli to modify the sample",
-		py::arg("rb"));
-	_Sample.def("is_empty", &H2Core::Sample::is_empty,
-		"Returns true if both data channels are null pointers");
-	_Sample.def("get_filepath", &H2Core::Sample::get_filepath,
-		"Returns #__filepath");
-	_Sample.def("get_filename", &H2Core::Sample::get_filename,
-		"Returns Filename part of #__filepath");
-	_Sample.def("set_filepath", &H2Core::Sample::set_filepath,
-		py::arg("filepath"));
-	_Sample.def("set_filename", &H2Core::Sample::set_filename,
-		py::arg("filename"));
-	_Sample.def("set_frames", &H2Core::Sample::set_frames,
-		"#__frames setter",
-		py::arg("frames"));
-	_Sample.def("get_frames", &H2Core::Sample::get_frames,
-		"Returns #__frames accessor");
-	_Sample.def("set_sample_rate", &H2Core::Sample::set_sample_rate,
-		py::arg("sampleRate"));
-	_Sample.def("get_sample_rate", &H2Core::Sample::get_sample_rate,
-		"Returns #__sample_rate");
-	_Sample.def("get_sample_duration", &H2Core::Sample::get_sample_duration,
-		"Returns sample duration in seconds");
-	_Sample.def("get_size", &H2Core::Sample::get_size,
-		"Returns data size, which is calculated by #__frames time sizeof( float ) * 2");
-	_Sample.def("get_data_l", &H2Core::Sample::get_data_l,
-		"Returns #__data_l");
-	_Sample.def("get_data_r", &H2Core::Sample::get_data_r,
-		"Returns #__data_r");
-	_Sample.def("set_is_modified", &H2Core::Sample::set_is_modified,
-		"#__is_modified setter",
-		py::arg("is_modified"));
-	_Sample.def("get_is_modified", &H2Core::Sample::get_is_modified,
-		"Returns #__is_modified");
-	// [<TemplateRef 'vector'>] _Sample.def("get_pan_envelope", &H2Core::Sample::get_pan_envelope,
-		// [<TemplateRef 'vector'>] "Returns #__pan_envelope");
-	// [<TemplateRef 'vector'>] _Sample.def("get_velocity_envelope", &H2Core::Sample::get_velocity_envelope,
-		// [<TemplateRef 'vector'>] "Returns #__velocity_envelope");
-	_Sample.def("get_loops", &H2Core::Sample::get_loops,
-		"Returns #__loops parameters");
-	_Sample.def("get_rubberband", &H2Core::Sample::get_rubberband,
-		"Returns #__rubberband parameters");
-	_Sample.def_static("parse_loop_mode", &H2Core::Sample::parse_loop_mode,
-		"parse the given string and rturn the corresponding loop_mode",
-		py::arg("string"));
-	_Sample.def("get_loop_mode_string", &H2Core::Sample::get_loop_mode_string,
-		"Returns mode member of #__loops as a string");
-	_Sample.def("toQString", &H2Core::Sample::toQString,
-		"Formatted string version for debugging purposes.",
-		py::arg("sPrefix"),
-		py::arg("bShort"));
-
-	py::class_<H2Core::InstrumentComponent> _InstrumentComponent(m, "InstrumentComponent");
-	_InstrumentComponent.def(py::init<int>());
-	_InstrumentComponent.def(py::init<std::shared_ptr<InstrumentComponent>>());
-	_InstrumentComponent.def_static("class_name", &H2Core::InstrumentComponent::class_name);
-	_InstrumentComponent.def("save_to", &H2Core::InstrumentComponent::save_to,
-		py::arg("node"),
-		py::arg("component_id"));
-	_InstrumentComponent.def_static("load_from", &H2Core::InstrumentComponent::load_from,
-		py::arg("node"),
-		py::arg("dk_path"));
-	_InstrumentComponent.def("operator[]", &H2Core::InstrumentComponent::operator[],
-		py::arg("idx"));
-	_InstrumentComponent.def("get_layer", &H2Core::InstrumentComponent::get_layer,
-		py::arg("idx"));
-	_InstrumentComponent.def("set_layer", &H2Core::InstrumentComponent::set_layer,
-		py::arg("layer"),
-		py::arg("idx"));
-	_InstrumentComponent.def("set_drumkit_componentID", &H2Core::InstrumentComponent::set_drumkit_componentID,
-		"Sets the component ID #__related_drumkit_componentID",
-		py::arg("related_drumkit_componentID"));
-	_InstrumentComponent.def("get_drumkit_componentID", &H2Core::InstrumentComponent::get_drumkit_componentID,
-		"Returns the component ID of the drumkit.");
-	_InstrumentComponent.def("set_gain", &H2Core::InstrumentComponent::set_gain,
-		py::arg("gain"));
-	_InstrumentComponent.def("get_gain", &H2Core::InstrumentComponent::get_gain);
-	_InstrumentComponent.def_static("getMaxLayers", &H2Core::InstrumentComponent::getMaxLayers,
-		"Returns #m_nMaxLayers.");
-	_InstrumentComponent.def_static("setMaxLayers", &H2Core::InstrumentComponent::setMaxLayers,
-		py::arg("layers"));
-	_InstrumentComponent.def("toQString", &H2Core::InstrumentComponent::toQString,
-		"Formatted string version for debugging purposes.",
-		py::arg("sPrefix"),
-		py::arg("bShort"));
-
-	py::class_<H2Core::DrumkitComponent> _DrumkitComponent(m, "DrumkitComponent");
-	_DrumkitComponent.def(py::init<const int, const QString &>());
-	_DrumkitComponent.def(py::init<H2Core::DrumkitComponent *>());
-	_DrumkitComponent.def_static("class_name", &H2Core::DrumkitComponent::class_name);
-	_DrumkitComponent.def("save_to", &H2Core::DrumkitComponent::save_to,
-		py::arg("node"));
-	_DrumkitComponent.def_static("load_from_static", py::overload_cast<H2Core::XMLNode *, const QString &>(&H2Core::DrumkitComponent::load_from),
-		py::arg("node"),
-		py::arg("dk_path"));
-	_DrumkitComponent.def("load_from", py::overload_cast<H2Core::DrumkitComponent *, bool>(&H2Core::DrumkitComponent::load_from),
-		py::arg("component"),
-		py::arg("is_live"));
-	_DrumkitComponent.def("set_name", &H2Core::DrumkitComponent::set_name,
-		"Sets the name of the DrumkitComponent #__name.",
-		py::arg("name"));
-	_DrumkitComponent.def("get_name", &H2Core::DrumkitComponent::get_name,
-		"Access the name of the DrumkitComponent.");
-	_DrumkitComponent.def("set_id", &H2Core::DrumkitComponent::set_id,
-		py::arg("id"));
-	_DrumkitComponent.def("get_id", &H2Core::DrumkitComponent::get_id);
-	_DrumkitComponent.def("set_volume", &H2Core::DrumkitComponent::set_volume,
-		py::arg("volume"));
-	_DrumkitComponent.def("get_volume", &H2Core::DrumkitComponent::get_volume);
-	_DrumkitComponent.def("set_muted", &H2Core::DrumkitComponent::set_muted,
-		py::arg("muted"));
-	_DrumkitComponent.def("is_muted", &H2Core::DrumkitComponent::is_muted);
-	_DrumkitComponent.def("set_soloed", &H2Core::DrumkitComponent::set_soloed,
-		py::arg("soloed"));
-	_DrumkitComponent.def("is_soloed", &H2Core::DrumkitComponent::is_soloed);
-	_DrumkitComponent.def("set_peak_l", &H2Core::DrumkitComponent::set_peak_l,
-		py::arg("val"));
-	_DrumkitComponent.def("get_peak_l", &H2Core::DrumkitComponent::get_peak_l);
-	_DrumkitComponent.def("set_peak_r", &H2Core::DrumkitComponent::set_peak_r,
-		py::arg("val"));
-	_DrumkitComponent.def("get_peak_r", &H2Core::DrumkitComponent::get_peak_r);
-	// [<TypeDef 'uint32_t'>] _DrumkitComponent.def("reset_outs", &H2Core::DrumkitComponent::reset_outs,
-	// [<TypeDef 'uint32_t'>] 	py::arg("nFrames"));
-	_DrumkitComponent.def("set_outs", &H2Core::DrumkitComponent::set_outs,
-		py::arg("nBufferPos"),
-		py::arg("valL"),
-		py::arg("valR"));
-	_DrumkitComponent.def("get_out_L", &H2Core::DrumkitComponent::get_out_L,
-		py::arg("nBufferPos"));
-	_DrumkitComponent.def("get_out_R", &H2Core::DrumkitComponent::get_out_R,
-		py::arg("nBufferPos"));
-	_DrumkitComponent.def("toQString", &H2Core::DrumkitComponent::toQString,
-		"Formatted string version for debugging purposes.",
-		py::arg("sPrefix"),
-		py::arg("bShort"));
-
-	py::class_<H2Core::Pattern> _Pattern(m, "Pattern");
-	_Pattern.def(py::init<const QString &, const QString &, const QString &, int, int>());
-	_Pattern.def(py::init<H2Core::Pattern *>());
-	_Pattern.def_static("class_name", &H2Core::Pattern::class_name);
-	_Pattern.def_static("load_file", &H2Core::Pattern::load_file,
-		"load a pattern from a file",
-		py::arg("pattern_path"),
-		py::arg("instruments"));
-	_Pattern.def("save_file", &H2Core::Pattern::save_file,
-		"save a pattern into an xml file",
-		py::arg("drumkit_name"),
-		py::arg("author"),
-		py::arg("license"),
-		py::arg("pattern_path"),
-		py::arg("overwrite"));
-	_Pattern.def("set_name", &H2Core::Pattern::set_name,
-		py::arg("name"));
-	_Pattern.def("get_name", &H2Core::Pattern::get_name);
-	_Pattern.def("set_category", &H2Core::Pattern::set_category,
-		py::arg("category"));
-	_Pattern.def("set_info", &H2Core::Pattern::set_info,
-		py::arg("info"));
-	_Pattern.def("get_info", &H2Core::Pattern::get_info);
-	_Pattern.def("get_category", &H2Core::Pattern::get_category);
-	_Pattern.def("set_length", &H2Core::Pattern::set_length,
-		py::arg("length"));
-	_Pattern.def("get_length", &H2Core::Pattern::get_length);
-	_Pattern.def("set_denominator", &H2Core::Pattern::set_denominator,
-		py::arg("denominator"));
-	_Pattern.def("get_denominator", &H2Core::Pattern::get_denominator);
-	// [<TypeDef 'notes_t'>] _Pattern.def("get_notes", &H2Core::Pattern::get_notes);
-	// [<TypeDef 'virtual_patterns_t'>] _Pattern.def("get_virtual_patterns", &H2Core::Pattern::get_virtual_patterns);
-	// [<TypeDef 'virtual_patterns_t'>] _Pattern.def("get_flattened_virtual_patterns", &H2Core::Pattern::get_flattened_virtual_patterns);
-	_Pattern.def("insert_note", &H2Core::Pattern::insert_note,
-		"insert a new note within __notes",
-		py::arg("note"));
-	// [banned] _Pattern.def("find_note", py::overload_cast<int, int, std::shared_ptr<Instrument>, bool>(&H2Core::Pattern::find_note),
-		// [banned] 	"search for a note at a given index within __notes which correspond to the given arguments",
-	// [banned] 	py::arg("idx_a"),
-	// [banned] 	py::arg("idx_b"),
-	// [banned] 	py::arg("instrument"),
-	// [banned] 	py::arg("strict"));
-	// [banned] _Pattern.def("find_note", py::overload_cast<int, int, std::shared_ptr<Instrument>, Note::Key, Note::Octave, bool>(&H2Core::Pattern::find_note),
-		// [banned] 	"search for a note at a given index within __notes which correspond to the given arguments",
-	// [banned] 	py::arg("idx_a"),
-	// [banned] 	py::arg("idx_b"),
-	// [banned] 	py::arg("instrument"),
-	// [banned] 	py::arg("key"),
-	// [banned] 	py::arg("octave"),
-	// [banned] 	py::arg("strict"));
-	_Pattern.def("remove_note", &H2Core::Pattern::remove_note,
-		"removes a given note from __notes, it's not deleted",
-		py::arg("note"));
-	_Pattern.def("references", &H2Core::Pattern::references,
-		"check if this pattern contains a note referencing the given instrument",
-		py::arg("instr"));
-	_Pattern.def("purge_instrument", &H2Core::Pattern::purge_instrument,
-		"delete the notes referencing the given instrument The function is thread safe (it locks the audio data while deleting notes)",
-		py::arg("instr"));
-	_Pattern.def("set_to_old", &H2Core::Pattern::set_to_old,
-		"mark all notes as old");
-	_Pattern.def("virtual_patterns_empty", &H2Core::Pattern::virtual_patterns_empty);
-	_Pattern.def("virtual_patterns_clear", &H2Core::Pattern::virtual_patterns_clear);
-	_Pattern.def("virtual_patterns_add", &H2Core::Pattern::virtual_patterns_add,
-		"add a pattern to __virtual_patterns",
-		py::arg("pattern"));
-	_Pattern.def("virtual_patterns_del", &H2Core::Pattern::virtual_patterns_del,
-		"remove a pattern from virtual_pattern set, flattened virtual patterns have to be rebuilt",
-		py::arg("pattern"));
-	_Pattern.def("flattened_virtual_patterns_clear", &H2Core::Pattern::flattened_virtual_patterns_clear);
-	_Pattern.def("flattened_virtual_patterns_compute", &H2Core::Pattern::flattened_virtual_patterns_compute,
-		"compute virtual_pattern_transitive_closure_set based on virtual_pattern_transitive_closure_set virtual_pattern_transitive_closure_set must have been cleared before which is the case is called from PatternList::compute_flattened_virtual_patterns");
-	_Pattern.def("extand_with_flattened_virtual_patterns", &H2Core::Pattern::extand_with_flattened_virtual_patterns,
-		"add content of __flatteened_virtual_patterns into patterns",
-		py::arg("patterns"));
-	_Pattern.def("save_to", &H2Core::Pattern::save_to,
-		"save the pattern within the given XMLNode",
-		py::arg("node"),
-		py::arg("instrumentOnly"));
-	_Pattern.def("toQString", &H2Core::Pattern::toQString,
-		"Formatted string version for debugging purposes.",
-		py::arg("sPrefix"),
-		py::arg("bShort"));
-
 	py::class_<H2Core::TransportInfo> _TransportInfo(m, "TransportInfo");
 	_TransportInfo.def(py::init<>());
 	_TransportInfo.def_static("class_name", &H2Core::TransportInfo::class_name);
@@ -1731,6 +664,8 @@ PYBIND11_MODULE(h2core, m) {
 // abstract class MidiOutput
 
 // abstract class MidiInput
+
+// abstract class AudioOutput
 
 	py::class_<H2Core::LadspaFX> _LadspaFX(m, "LadspaFX");
 	_LadspaFX.def_static("class_name", &H2Core::LadspaFX::class_name);
@@ -1774,6 +709,13 @@ PYBIND11_MODULE(h2core, m) {
 	_Effects.def("getPluginList", &H2Core::Effects::getPluginList);
 	_Effects.def("getLadspaFXGroup", &H2Core::Effects::getLadspaFXGroup);
 
+	py::class_<H2Core::LadspaFXInfo> _LadspaFXInfo(m, "LadspaFXInfo");
+	_LadspaFXInfo.def(py::init<const QString &>());
+	_LadspaFXInfo.def_static("class_name", &H2Core::LadspaFXInfo::class_name);
+	_LadspaFXInfo.def_static("alphabeticOrder", &H2Core::LadspaFXInfo::alphabeticOrder,
+		py::arg("a"),
+		py::arg("b"));
+
 	py::class_<H2Core::LadspaFXGroup> _LadspaFXGroup(m, "LadspaFXGroup");
 	_LadspaFXGroup.def(py::init<const QString &>());
 	_LadspaFXGroup.def_static("class_name", &H2Core::LadspaFXGroup::class_name);
@@ -1790,12 +732,37 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg(""));
 	_LadspaFXGroup.def("sort", &H2Core::LadspaFXGroup::sort);
 
-	py::class_<H2Core::LadspaFXInfo> _LadspaFXInfo(m, "LadspaFXInfo");
-	_LadspaFXInfo.def(py::init<const QString &>());
-	_LadspaFXInfo.def_static("class_name", &H2Core::LadspaFXInfo::class_name);
-	_LadspaFXInfo.def_static("alphabeticOrder", &H2Core::LadspaFXInfo::alphabeticOrder,
-		py::arg("a"),
-		py::arg("b"));
+	py::class_<H2Core::Timeline> _Timeline(m, "Timeline");
+	_Timeline.def(py::init<>());
+	_Timeline.def_static("class_name", &H2Core::Timeline::class_name);
+	_Timeline.def("addTempoMarker", &H2Core::Timeline::addTempoMarker,
+		py::arg("nBar"),
+		py::arg("fBpm"));
+	_Timeline.def("deleteTempoMarker", &H2Core::Timeline::deleteTempoMarker,
+		py::arg("nBar"));
+	_Timeline.def("deleteAllTempoMarkers", &H2Core::Timeline::deleteAllTempoMarkers);
+	_Timeline.def("getTempoAtBar", &H2Core::Timeline::getTempoAtBar,
+		"Returns the tempo of the Song at a given bar.",
+		py::arg("nBar"),
+		py::arg("bSticky"));
+	_Timeline.def("getAllTempoMarkers", &H2Core::Timeline::getAllTempoMarkers,
+		"Returns std::vector<std::shared_ptr<const TempoMarker>> Provides read-only access to m_tempoMarker.");
+	_Timeline.def("addTag", &H2Core::Timeline::addTag,
+		py::arg("nBar"),
+		py::arg("sTag"));
+	_Timeline.def("deleteTag", &H2Core::Timeline::deleteTag,
+		py::arg("nBar"));
+	_Timeline.def("deleteAllTags", &H2Core::Timeline::deleteAllTags);
+	_Timeline.def("getTagAtBar", &H2Core::Timeline::getTagAtBar,
+		"Returns the tag of the Song at a given bar.",
+		py::arg("nBar"),
+		py::arg("bSticky"));
+	_Timeline.def("getAllTags", &H2Core::Timeline::getAllTags,
+		"Returns std::vector<std::shared_ptr<const Tag>> Provides read-only access to m_tags.");
+	_Timeline.def("toQString", &H2Core::Timeline::toQString,
+		"Formatted string version for debugging purposes.",
+		py::arg("sPrefix"),
+		py::arg("bShort"));
 
 	py::class_<MidiActionManager> _MidiActionManager(m, "MidiActionManager");
 	_MidiActionManager.def(py::init<>());
@@ -1820,198 +787,6 @@ PYBIND11_MODULE(h2core, m) {
 	_Action.def("getParameter1", &Action::getParameter1);
 	_Action.def("getParameter2", &Action::getParameter2);
 	_Action.def("getType", &Action::getType);
-
-	py::class_<H2Core::Hydrogen> _Hydrogen(m, "Hydrogen");
-	_Hydrogen.def_static("class_name", &H2Core::Hydrogen::class_name);
-	_Hydrogen.def_static("create_instance", &H2Core::Hydrogen::create_instance,
-		"Creates all the instances used within Hydrogen in the right order.");
-	_Hydrogen.def_static("get_instance", &H2Core::Hydrogen::get_instance,
-		"Returns the current Hydrogen instance #__instance.",
-		py::arg("nullok"),
-		py::arg("create"));
-	_Hydrogen.def("getAudioEngine", &H2Core::Hydrogen::getAudioEngine);
-	_Hydrogen.def("sequencer_play", &H2Core::Hydrogen::sequencer_play,
-		"Start the internal sequencer");
-	_Hydrogen.def("sequencer_stop", &H2Core::Hydrogen::sequencer_stop,
-		"Stop the internal sequencer");
-	_Hydrogen.def("midi_noteOn", &H2Core::Hydrogen::midi_noteOn,
-		py::arg("note"));
-	_Hydrogen.def("sequencer_setNextPattern", &H2Core::Hydrogen::sequencer_setNextPattern,
-		"Adding and removing a Pattern from #m_pNextPatterns.",
-		py::arg("pos"));
-	_Hydrogen.def("sequencer_setOnlyNextPattern", &H2Core::Hydrogen::sequencer_setOnlyNextPattern,
-		"Clear #m_pNextPatterns and add one Pattern.",
-		py::arg("pos"));
-	_Hydrogen.def("togglePlaysSelected", &H2Core::Hydrogen::togglePlaysSelected,
-		"Switches playback to focused pattern.");
-	_Hydrogen.def("getSong", &H2Core::Hydrogen::getSong,
-		"Get the current song.");
-	_Hydrogen.def("setSong", &H2Core::Hydrogen::setSong,
-		"Sets the current song #__song to newSong.",
-		py::arg("newSong"));
-	_Hydrogen.def("removeSong", &H2Core::Hydrogen::removeSong);
-	_Hydrogen.def("addRealtimeNote", &H2Core::Hydrogen::addRealtimeNote,
-		py::arg("instrument"),
-		py::arg("velocity"),
-		py::arg("fPan"),
-		py::arg("pitch"),
-		py::arg("noteoff"),
-		py::arg("forcePlay"),
-		py::arg("msg1"));
-	_Hydrogen.def("getTickPosition", &H2Core::Hydrogen::getTickPosition,
-		"Returns #m_nPatternTickPosition");
-	_Hydrogen.def("getRealtimeTickPosition", &H2Core::Hydrogen::getRealtimeTickPosition,
-		"Keep track of the tick position in realtime.");
-	_Hydrogen.def("getTotalFrames", &H2Core::Hydrogen::getTotalFrames);
-	_Hydrogen.def("setRealtimeFrames", &H2Core::Hydrogen::setRealtimeFrames,
-		"Sets #m_nRealtimeFrames",
-		py::arg("frames"));
-	_Hydrogen.def("getRealtimeFrames", &H2Core::Hydrogen::getRealtimeFrames,
-		"Returns the current realtime transport position TransportInfo::m_nFrames.");
-	_Hydrogen.def("getCurrentPatternList", &H2Core::Hydrogen::getCurrentPatternList,
-		"Returns #m_pPlayingPatterns");
-	_Hydrogen.def("setCurrentPatternList", &H2Core::Hydrogen::setCurrentPatternList,
-		"Sets #m_pPlayingPatterns.",
-		py::arg("pPatternList"));
-	_Hydrogen.def("getNextPatterns", &H2Core::Hydrogen::getNextPatterns,
-		"Returns #m_pNextPatterns");
-	_Hydrogen.def("getPatternPos", &H2Core::Hydrogen::getPatternPos,
-		"Get the position of the current Pattern in the Song.");
-	_Hydrogen.def("setPatternPos", &H2Core::Hydrogen::setPatternPos,
-		"Relocate the position to another Pattern in the Song.",
-		py::arg("pos"));
-	_Hydrogen.def("getPosForTick", &H2Core::Hydrogen::getPosForTick,
-		"Returns the pattern number corresponding to the tick position TickPos.",
-		py::arg("TickPos"),
-		py::arg("nPatternStartTick"));
-	_Hydrogen.def("resetPatternStartTick", &H2Core::Hydrogen::resetPatternStartTick,
-		"Move playback in Pattern mode to the beginning of the pattern.");
-	_Hydrogen.def("getTickForPosition", &H2Core::Hydrogen::getTickForPosition,
-		"Get the total number of ticks passed up to a Pattern at position pos.",
-		py::arg("pos"));
-	_Hydrogen.def("restartDrivers", &H2Core::Hydrogen::restartDrivers);
-	_Hydrogen.def("getAudioOutput", &H2Core::Hydrogen::getAudioOutput);
-	_Hydrogen.def("getMidiInput", &H2Core::Hydrogen::getMidiInput);
-	_Hydrogen.def("getMidiOutput", &H2Core::Hydrogen::getMidiOutput);
-	_Hydrogen.def("getState", &H2Core::Hydrogen::getState,
-		"Returns the current state of the audio engine.");
-	_Hydrogen.def("loadDrumkit", py::overload_cast<H2Core::Drumkit *>(&H2Core::Hydrogen::loadDrumkit),
-			"Wrapper around loadDrumkit( Drumkit, bool ) with the conditional argument set to true.",
-		py::arg("pDrumkitInfo"));
-	_Hydrogen.def("loadDrumkit", py::overload_cast<H2Core::Drumkit *, bool>(&H2Core::Hydrogen::loadDrumkit),
-			"Loads the H2Core::Drumkit provided in pDrumkitInfo into the current session.",
-		py::arg("pDrumkitInfo"),
-		py::arg("conditional"));
-	_Hydrogen.def("instrumentHasNotes", &H2Core::Hydrogen::instrumentHasNotes,
-		"Test if an Instrument has some Note in the Pattern (used to test before deleting an Instrument)",
-		py::arg("pInst"));
-	_Hydrogen.def("removeInstrument", &H2Core::Hydrogen::removeInstrument,
-		"Delete an Instrument. If conditional is true, and there are some Pattern that are using this Instrument, it's not deleted anyway.",
-		py::arg("instrumentnumber"),
-		py::arg("conditional"));
-	_Hydrogen.def("getCurrentDrumkitName", &H2Core::Hydrogen::getCurrentDrumkitName,
-		"Returns m_sCurrentDrumkitName");
-	_Hydrogen.def("setCurrentDrumkitName", &H2Core::Hydrogen::setCurrentDrumkitName,
-		py::arg("sName"));
-	_Hydrogen.def("getCurrentDrumkitLookup", &H2Core::Hydrogen::getCurrentDrumkitLookup,
-		"Returns m_currentDrumkitLookup");
-	_Hydrogen.def("setCurrentDrumkitLookup", &H2Core::Hydrogen::setCurrentDrumkitLookup,
-		py::arg("lookup"));
-	_Hydrogen.def("raiseError", &H2Core::Hydrogen::raiseError,
-		py::arg("nErrorCode"));
-	_Hydrogen.def("onTapTempoAccelEvent", &H2Core::Hydrogen::onTapTempoAccelEvent);
-	_Hydrogen.def("setTapTempo", &H2Core::Hydrogen::setTapTempo,
-		py::arg("fInterval"));
-	_Hydrogen.def("setBPM", &H2Core::Hydrogen::setBPM,
-		"Updates the speed.",
-		py::arg("fBPM"));
-	_Hydrogen.def("restartLadspaFX", &H2Core::Hydrogen::restartLadspaFX);
-	_Hydrogen.def("getSelectedPatternNumber", &H2Core::Hydrogen::getSelectedPatternNumber,
-		"Returns #m_nSelectedPatternNumber");
-	_Hydrogen.def("setSelectedPatternNumber", &H2Core::Hydrogen::setSelectedPatternNumber,
-		"Sets #m_nSelectedPatternNumber.",
-		py::arg("nPat"));
-	_Hydrogen.def("getSelectedInstrumentNumber", &H2Core::Hydrogen::getSelectedInstrumentNumber);
-	_Hydrogen.def("setSelectedInstrumentNumber", &H2Core::Hydrogen::setSelectedInstrumentNumber,
-		py::arg("nInstrument"));
-	_Hydrogen.def("refreshInstrumentParameters", &H2Core::Hydrogen::refreshInstrumentParameters,
-		py::arg("nInstrument"));
-	_Hydrogen.def("renameJackPorts", &H2Core::Hydrogen::renameJackPorts,
-		"Calls audioEngine_renameJackPorts() if Preferences::m_bJackTrackOuts is set to true.",
-		py::arg("pSong"));
-	_Hydrogen.def("toggleOscServer", &H2Core::Hydrogen::toggleOscServer,
-		"Starts/stops the OSC server",
-		py::arg("bEnable"));
-	_Hydrogen.def("recreateOscServer", &H2Core::Hydrogen::recreateOscServer,
-		"Destroys and recreates the OscServer singleton in order to adopt a new OSC port.");
-	_Hydrogen.def("startNsmClient", &H2Core::Hydrogen::startNsmClient);
-	_Hydrogen.def("setbeatsToCount", &H2Core::Hydrogen::setbeatsToCount,
-		py::arg("beatstocount"));
-	_Hydrogen.def("getbeatsToCount", &H2Core::Hydrogen::getbeatsToCount);
-	_Hydrogen.def("setNoteLength", &H2Core::Hydrogen::setNoteLength,
-		py::arg("notelength"));
-	_Hydrogen.def("getNoteLength", &H2Core::Hydrogen::getNoteLength);
-	_Hydrogen.def("getBcStatus", &H2Core::Hydrogen::getBcStatus);
-	_Hydrogen.def("handleBeatCounter", &H2Core::Hydrogen::handleBeatCounter);
-	_Hydrogen.def("setBcOffsetAdjust", &H2Core::Hydrogen::setBcOffsetAdjust);
-	_Hydrogen.def("offJackMaster", &H2Core::Hydrogen::offJackMaster,
-		"Calling JackAudioDriver::releaseTimebaseMaster() directly from the GUI");
-	_Hydrogen.def("onJackMaster", &H2Core::Hydrogen::onJackMaster,
-		"Calling JackAudioDriver::initTimebaseMaster() directly from the GUI");
-	_Hydrogen.def("getPatternLength", &H2Core::Hydrogen::getPatternLength,
-		"Get the length (in ticks) of the nPattern th pattern.",
-		py::arg("nPattern"));
-	_Hydrogen.def("getNewBpmJTM", &H2Core::Hydrogen::getNewBpmJTM,
-		"Returns the fallback speed.");
-	_Hydrogen.def("setNewBpmJTM", &H2Core::Hydrogen::setNewBpmJTM,
-		"Set the fallback speed #m_nNewBpmJTM.",
-		py::arg("bpmJTM"));
-	_Hydrogen.def("__panic", &H2Core::Hydrogen::__panic);
-	_Hydrogen.def("setTimelineBpm", &H2Core::Hydrogen::setTimelineBpm,
-		"Updates Song::m_fBpm, TransportInfo::m_fBPM, and #m_fNewBpmJTM to the local speed.");
-	_Hydrogen.def("getTimelineBpm", &H2Core::Hydrogen::getTimelineBpm,
-		"Returns the local speed at a specific nBar in the Timeline.",
-		py::arg("nBar"));
-	_Hydrogen.def("getTimeline", &H2Core::Hydrogen::getTimeline);
-	_Hydrogen.def("getIsExportSessionActive", &H2Core::Hydrogen::getIsExportSessionActive);
-	_Hydrogen.def("startExportSession", &H2Core::Hydrogen::startExportSession,
-		py::arg("rate"),
-		py::arg("depth"));
-	_Hydrogen.def("stopExportSession", &H2Core::Hydrogen::stopExportSession);
-	_Hydrogen.def("startExportSong", &H2Core::Hydrogen::startExportSong,
-		py::arg("filename"));
-	_Hydrogen.def("stopExportSong", &H2Core::Hydrogen::stopExportSong);
-	_Hydrogen.def("getCoreActionController", &H2Core::Hydrogen::getCoreActionController);
-	_Hydrogen.def("setPlaybackTrackState", &H2Core::Hydrogen::setPlaybackTrackState,
-		"*********************************************************",
-		py::arg("state"));
-	_Hydrogen.def("getPlaybackTrackState", &H2Core::Hydrogen::getPlaybackTrackState,
-		"Wrapper around Song::getPlaybackTrackEnabled().");
-	_Hydrogen.def("loadPlaybackTrack", &H2Core::Hydrogen::loadPlaybackTrack,
-		"Wrapper function for loading the playback track.",
-		py::arg("filename"));
-	_Hydrogen.def("getGUIState", &H2Core::Hydrogen::getGUIState,
-		"Returns #m_GUIState");
-	_Hydrogen.def("setGUIState", &H2Core::Hydrogen::setGUIState,
-		py::arg("state"));
-	_Hydrogen.def("calculateLeadLagFactor", &H2Core::Hydrogen::calculateLeadLagFactor,
-		"Calculates the lookahead for a specific tick size.",
-		py::arg("fTickSize"));
-	_Hydrogen.def("calculateLookahead", &H2Core::Hydrogen::calculateLookahead,
-		"Calculates time offset (in frames) used to determine the notes process by the audio engine.",
-		py::arg("fTickSize"));
-	_Hydrogen.def("haveJackAudioDriver", &H2Core::Hydrogen::haveJackAudioDriver,
-		"Returns Whether JackAudioDriver is used as current audio driver.");
-	_Hydrogen.def("haveJackTransport", &H2Core::Hydrogen::haveJackTransport,
-		"Returns Whether JackAudioDriver is used as current audio driver and JACK transport was activated via the GUI (#Preferences::m_bJackTransportMode).");
-	_Hydrogen.def("getJackTimebaseState", &H2Core::Hydrogen::getJackTimebaseState,
-		"Returns Whether we haveJackTransport() and there is an external JACK timebase master broadcasting us tempo information and making use disregard Hydrogen's Timeline information (see #JackAudioDriver::m_timebaseState).");
-	_Hydrogen.def("isUnderSessionManagement", &H2Core::Hydrogen::isUnderSessionManagement,
-		"Returns NsmClient::m_bUnderSessionManagement if NSM is supported.");
-	_Hydrogen.def("toQString", &H2Core::Hydrogen::toQString,
-		"Formatted string version for debugging purposes.",
-		py::arg("sPrefix"),
-		py::arg("bShort"));
 
 	py::class_<H2Core::EventQueue> _EventQueue(m, "EventQueue");
 	_EventQueue.def_static("class_name", &H2Core::EventQueue::class_name);
@@ -2168,37 +943,381 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("tickPosition"));
 	_AudioEngine.def("getCurrentTickTime", &H2Core::AudioEngine::getCurrentTickTime);
 
-	py::class_<H2Core::Timeline> _Timeline(m, "Timeline");
-	_Timeline.def(py::init<>());
-	_Timeline.def_static("class_name", &H2Core::Timeline::class_name);
-	_Timeline.def("addTempoMarker", &H2Core::Timeline::addTempoMarker,
-		py::arg("nBar"),
-		py::arg("fBpm"));
-	_Timeline.def("deleteTempoMarker", &H2Core::Timeline::deleteTempoMarker,
+	py::class_<H2Core::Hydrogen> _Hydrogen(m, "Hydrogen");
+	_Hydrogen.def_static("class_name", &H2Core::Hydrogen::class_name);
+	_Hydrogen.def_static("create_instance", &H2Core::Hydrogen::create_instance,
+		"Creates all the instances used within Hydrogen in the right order.");
+	_Hydrogen.def_static("get_instance", &H2Core::Hydrogen::get_instance,
+		"Returns the current Hydrogen instance #__instance.",
+		py::arg("nullok"),
+		py::arg("create"));
+	_Hydrogen.def("getAudioEngine", &H2Core::Hydrogen::getAudioEngine);
+	_Hydrogen.def("sequencer_play", &H2Core::Hydrogen::sequencer_play,
+		"Start the internal sequencer");
+	_Hydrogen.def("sequencer_stop", &H2Core::Hydrogen::sequencer_stop,
+		"Stop the internal sequencer");
+	_Hydrogen.def("midi_noteOn", &H2Core::Hydrogen::midi_noteOn,
+		py::arg("note"));
+	_Hydrogen.def("sequencer_setNextPattern", &H2Core::Hydrogen::sequencer_setNextPattern,
+		"Adding and removing a Pattern from #m_pNextPatterns.",
+		py::arg("pos"));
+	_Hydrogen.def("sequencer_setOnlyNextPattern", &H2Core::Hydrogen::sequencer_setOnlyNextPattern,
+		"Clear #m_pNextPatterns and add one Pattern.",
+		py::arg("pos"));
+	_Hydrogen.def("togglePlaysSelected", &H2Core::Hydrogen::togglePlaysSelected,
+		"Switches playback to focused pattern.");
+	_Hydrogen.def("getSong", &H2Core::Hydrogen::getSong,
+		"Get the current song.");
+	_Hydrogen.def("setSong", &H2Core::Hydrogen::setSong,
+		"Sets the current song #__song to newSong.",
+		py::arg("newSong"));
+	_Hydrogen.def("removeSong", &H2Core::Hydrogen::removeSong);
+	_Hydrogen.def("addRealtimeNote", &H2Core::Hydrogen::addRealtimeNote,
+		py::arg("instrument"),
+		py::arg("velocity"),
+		py::arg("fPan"),
+		py::arg("pitch"),
+		py::arg("noteoff"),
+		py::arg("forcePlay"),
+		py::arg("msg1"));
+	_Hydrogen.def("getTickPosition", &H2Core::Hydrogen::getTickPosition,
+		"Returns #m_nPatternTickPosition");
+	_Hydrogen.def("getRealtimeTickPosition", &H2Core::Hydrogen::getRealtimeTickPosition,
+		"Keep track of the tick position in realtime.");
+	_Hydrogen.def("getTotalFrames", &H2Core::Hydrogen::getTotalFrames);
+	_Hydrogen.def("setRealtimeFrames", &H2Core::Hydrogen::setRealtimeFrames,
+		"Sets #m_nRealtimeFrames",
+		py::arg("frames"));
+	_Hydrogen.def("getRealtimeFrames", &H2Core::Hydrogen::getRealtimeFrames,
+		"Returns the current realtime transport position TransportInfo::m_nFrames.");
+	_Hydrogen.def("getCurrentPatternList", &H2Core::Hydrogen::getCurrentPatternList,
+		"Returns #m_pPlayingPatterns");
+	_Hydrogen.def("setCurrentPatternList", &H2Core::Hydrogen::setCurrentPatternList,
+		"Sets #m_pPlayingPatterns.",
+		py::arg("pPatternList"));
+	_Hydrogen.def("getNextPatterns", &H2Core::Hydrogen::getNextPatterns,
+		"Returns #m_pNextPatterns");
+	_Hydrogen.def("getPatternPos", &H2Core::Hydrogen::getPatternPos,
+		"Get the position of the current Pattern in the Song.");
+	_Hydrogen.def("setPatternPos", &H2Core::Hydrogen::setPatternPos,
+		"Relocate the position to another Pattern in the Song.",
+		py::arg("pos"));
+	_Hydrogen.def("getPosForTick", &H2Core::Hydrogen::getPosForTick,
+		"Returns the pattern number corresponding to the tick position TickPos.",
+		py::arg("TickPos"),
+		py::arg("nPatternStartTick"));
+	_Hydrogen.def("resetPatternStartTick", &H2Core::Hydrogen::resetPatternStartTick,
+		"Move playback in Pattern mode to the beginning of the pattern.");
+	_Hydrogen.def("getTickForPosition", &H2Core::Hydrogen::getTickForPosition,
+		"Get the total number of ticks passed up to a Pattern at position pos.",
+		py::arg("pos"));
+	_Hydrogen.def("restartDrivers", &H2Core::Hydrogen::restartDrivers);
+	_Hydrogen.def("getAudioOutput", &H2Core::Hydrogen::getAudioOutput);
+	_Hydrogen.def("getMidiInput", &H2Core::Hydrogen::getMidiInput);
+	_Hydrogen.def("getMidiOutput", &H2Core::Hydrogen::getMidiOutput);
+	_Hydrogen.def("getState", &H2Core::Hydrogen::getState,
+		"Returns the current state of the audio engine.");
+	_Hydrogen.def("loadDrumkit", py::overload_cast<H2Core::Drumkit *>(&H2Core::Hydrogen::loadDrumkit),
+		"Wrapper around loadDrumkit( Drumkit, bool ) with the conditional argument set to true.",
+		py::arg("pDrumkitInfo"));
+	_Hydrogen.def("loadDrumkit", py::overload_cast<H2Core::Drumkit *, bool>(&H2Core::Hydrogen::loadDrumkit),
+		"Loads the H2Core::Drumkit provided in pDrumkitInfo into the current session.",
+		py::arg("pDrumkitInfo"),
+		py::arg("conditional"));
+	_Hydrogen.def("instrumentHasNotes", &H2Core::Hydrogen::instrumentHasNotes,
+		"Test if an Instrument has some Note in the Pattern (used to test before deleting an Instrument)",
+		py::arg("pInst"));
+	_Hydrogen.def("removeInstrument", &H2Core::Hydrogen::removeInstrument,
+		"Delete an Instrument. If conditional is true, and there are some Pattern that are using this Instrument, it's not deleted anyway.",
+		py::arg("instrumentnumber"),
+		py::arg("conditional"));
+	_Hydrogen.def("getCurrentDrumkitName", &H2Core::Hydrogen::getCurrentDrumkitName,
+		"Returns m_sCurrentDrumkitName");
+	_Hydrogen.def("setCurrentDrumkitName", &H2Core::Hydrogen::setCurrentDrumkitName,
+		py::arg("sName"));
+	_Hydrogen.def("getCurrentDrumkitLookup", &H2Core::Hydrogen::getCurrentDrumkitLookup,
+		"Returns m_currentDrumkitLookup");
+	_Hydrogen.def("setCurrentDrumkitLookup", &H2Core::Hydrogen::setCurrentDrumkitLookup,
+		py::arg("lookup"));
+	_Hydrogen.def("raiseError", &H2Core::Hydrogen::raiseError,
+		py::arg("nErrorCode"));
+	_Hydrogen.def("onTapTempoAccelEvent", &H2Core::Hydrogen::onTapTempoAccelEvent);
+	_Hydrogen.def("setTapTempo", &H2Core::Hydrogen::setTapTempo,
+		py::arg("fInterval"));
+	_Hydrogen.def("setBPM", &H2Core::Hydrogen::setBPM,
+		"Updates the speed.",
+		py::arg("fBPM"));
+	_Hydrogen.def("restartLadspaFX", &H2Core::Hydrogen::restartLadspaFX);
+	_Hydrogen.def("getSelectedPatternNumber", &H2Core::Hydrogen::getSelectedPatternNumber,
+		"Returns #m_nSelectedPatternNumber");
+	_Hydrogen.def("setSelectedPatternNumber", &H2Core::Hydrogen::setSelectedPatternNumber,
+		"Sets #m_nSelectedPatternNumber.",
+		py::arg("nPat"));
+	_Hydrogen.def("getSelectedInstrumentNumber", &H2Core::Hydrogen::getSelectedInstrumentNumber);
+	_Hydrogen.def("setSelectedInstrumentNumber", &H2Core::Hydrogen::setSelectedInstrumentNumber,
+		py::arg("nInstrument"));
+	_Hydrogen.def("refreshInstrumentParameters", &H2Core::Hydrogen::refreshInstrumentParameters,
+		py::arg("nInstrument"));
+	_Hydrogen.def("renameJackPorts", &H2Core::Hydrogen::renameJackPorts,
+		"Calls audioEngine_renameJackPorts() if Preferences::m_bJackTrackOuts is set to true.",
+		py::arg("pSong"));
+	_Hydrogen.def("toggleOscServer", &H2Core::Hydrogen::toggleOscServer,
+		"Starts/stops the OSC server",
+		py::arg("bEnable"));
+	_Hydrogen.def("recreateOscServer", &H2Core::Hydrogen::recreateOscServer,
+		"Destroys and recreates the OscServer singleton in order to adopt a new OSC port.");
+	_Hydrogen.def("startNsmClient", &H2Core::Hydrogen::startNsmClient);
+	_Hydrogen.def("setbeatsToCount", &H2Core::Hydrogen::setbeatsToCount,
+		py::arg("beatstocount"));
+	_Hydrogen.def("getbeatsToCount", &H2Core::Hydrogen::getbeatsToCount);
+	_Hydrogen.def("setNoteLength", &H2Core::Hydrogen::setNoteLength,
+		py::arg("notelength"));
+	_Hydrogen.def("getNoteLength", &H2Core::Hydrogen::getNoteLength);
+	_Hydrogen.def("getBcStatus", &H2Core::Hydrogen::getBcStatus);
+	_Hydrogen.def("handleBeatCounter", &H2Core::Hydrogen::handleBeatCounter);
+	_Hydrogen.def("setBcOffsetAdjust", &H2Core::Hydrogen::setBcOffsetAdjust);
+	_Hydrogen.def("offJackMaster", &H2Core::Hydrogen::offJackMaster,
+		"Calling JackAudioDriver::releaseTimebaseMaster() directly from the GUI");
+	_Hydrogen.def("onJackMaster", &H2Core::Hydrogen::onJackMaster,
+		"Calling JackAudioDriver::initTimebaseMaster() directly from the GUI");
+	_Hydrogen.def("getPatternLength", &H2Core::Hydrogen::getPatternLength,
+		"Get the length (in ticks) of the nPattern th pattern.",
+		py::arg("nPattern"));
+	_Hydrogen.def("getNewBpmJTM", &H2Core::Hydrogen::getNewBpmJTM,
+		"Returns the fallback speed.");
+	_Hydrogen.def("setNewBpmJTM", &H2Core::Hydrogen::setNewBpmJTM,
+		"Set the fallback speed #m_nNewBpmJTM.",
+		py::arg("bpmJTM"));
+	_Hydrogen.def("__panic", &H2Core::Hydrogen::__panic);
+	_Hydrogen.def("setTimelineBpm", &H2Core::Hydrogen::setTimelineBpm,
+		"Updates Song::m_fBpm, TransportInfo::m_fBPM, and #m_fNewBpmJTM to the local speed.");
+	_Hydrogen.def("getTimelineBpm", &H2Core::Hydrogen::getTimelineBpm,
+		"Returns the local speed at a specific nBar in the Timeline.",
 		py::arg("nBar"));
-	_Timeline.def("deleteAllTempoMarkers", &H2Core::Timeline::deleteAllTempoMarkers);
-	_Timeline.def("getTempoAtBar", &H2Core::Timeline::getTempoAtBar,
-		"Returns the tempo of the Song at a given bar.",
-		py::arg("nBar"),
-		py::arg("bSticky"));
-	// [<Struct 'TempoMarker'>] _Timeline.def("getAllTempoMarkers", &H2Core::Timeline::getAllTempoMarkers,
-		// [<Struct 'TempoMarker'>] "Returns std::vector<std::shared_ptr<const TempoMarker>> Provides read-only access to m_tempoMarker.");
-	_Timeline.def("addTag", &H2Core::Timeline::addTag,
-		py::arg("nBar"),
-		py::arg("sTag"));
-	_Timeline.def("deleteTag", &H2Core::Timeline::deleteTag,
-		py::arg("nBar"));
-	_Timeline.def("deleteAllTags", &H2Core::Timeline::deleteAllTags);
-	_Timeline.def("getTagAtBar", &H2Core::Timeline::getTagAtBar,
-		"Returns the tag of the Song at a given bar.",
-		py::arg("nBar"),
-		py::arg("bSticky"));
-	// [<Struct 'Tag'>] _Timeline.def("getAllTags", &H2Core::Timeline::getAllTags,
-		// [<Struct 'Tag'>] "Returns std::vector<std::shared_ptr<const Tag>> Provides read-only access to m_tags.");
-	_Timeline.def("toQString", &H2Core::Timeline::toQString,
+	_Hydrogen.def("getTimeline", &H2Core::Hydrogen::getTimeline);
+	_Hydrogen.def("getIsExportSessionActive", &H2Core::Hydrogen::getIsExportSessionActive);
+	_Hydrogen.def("startExportSession", &H2Core::Hydrogen::startExportSession,
+		py::arg("rate"),
+		py::arg("depth"));
+	_Hydrogen.def("stopExportSession", &H2Core::Hydrogen::stopExportSession);
+	_Hydrogen.def("startExportSong", &H2Core::Hydrogen::startExportSong,
+		py::arg("filename"));
+	_Hydrogen.def("stopExportSong", &H2Core::Hydrogen::stopExportSong);
+	_Hydrogen.def("getCoreActionController", &H2Core::Hydrogen::getCoreActionController);
+	_Hydrogen.def("setPlaybackTrackState", &H2Core::Hydrogen::setPlaybackTrackState,
+		"*********************************************************",
+		py::arg("state"));
+	_Hydrogen.def("getPlaybackTrackState", &H2Core::Hydrogen::getPlaybackTrackState,
+		"Wrapper around Song::getPlaybackTrackEnabled().");
+	_Hydrogen.def("loadPlaybackTrack", &H2Core::Hydrogen::loadPlaybackTrack,
+		"Wrapper function for loading the playback track.",
+		py::arg("filename"));
+	_Hydrogen.def("getGUIState", &H2Core::Hydrogen::getGUIState,
+		"Returns #m_GUIState");
+	_Hydrogen.def("setGUIState", &H2Core::Hydrogen::setGUIState,
+		py::arg("state"));
+	_Hydrogen.def("calculateLeadLagFactor", &H2Core::Hydrogen::calculateLeadLagFactor,
+		"Calculates the lookahead for a specific tick size.",
+		py::arg("fTickSize"));
+	_Hydrogen.def("calculateLookahead", &H2Core::Hydrogen::calculateLookahead,
+		"Calculates time offset (in frames) used to determine the notes process by the audio engine.",
+		py::arg("fTickSize"));
+	_Hydrogen.def("haveJackAudioDriver", &H2Core::Hydrogen::haveJackAudioDriver,
+		"Returns Whether JackAudioDriver is used as current audio driver.");
+	_Hydrogen.def("haveJackTransport", &H2Core::Hydrogen::haveJackTransport,
+		"Returns Whether JackAudioDriver is used as current audio driver and JACK transport was activated via the GUI (#Preferences::m_bJackTransportMode).");
+	_Hydrogen.def("getJackTimebaseState", &H2Core::Hydrogen::getJackTimebaseState,
+		"Returns Whether we haveJackTransport() and there is an external JACK timebase master broadcasting us tempo information and making use disregard Hydrogen's Timeline information (see #JackAudioDriver::m_timebaseState).");
+	_Hydrogen.def("isUnderSessionManagement", &H2Core::Hydrogen::isUnderSessionManagement,
+		"Returns NsmClient::m_bUnderSessionManagement if NSM is supported.");
+	_Hydrogen.def("toQString", &H2Core::Hydrogen::toQString,
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
 		py::arg("bShort"));
+
+	py::class_<H2Core::Filesystem> _Filesystem(m, "Filesystem");
+	_Filesystem.def_static("class_name", &H2Core::Filesystem::class_name);
+	_Filesystem.def_static("bootstrap", &H2Core::Filesystem::bootstrap,
+		"check user and system filesystem usability",
+		py::arg("logger"),
+		py::arg("sys_path"));
+	_Filesystem.def_static("sys_data_path", &H2Core::Filesystem::sys_data_path,
+		"returns system data path");
+	_Filesystem.def_static("usr_data_path", &H2Core::Filesystem::usr_data_path,
+		"returns user data path");
+	// [<Class 'QStringList'>] _Filesystem.def_static("ladspa_paths", &H2Core::Filesystem::ladspa_paths,
+		// [<Class 'QStringList'>] "returns user ladspa paths");
+	_Filesystem.def_static("sys_config_path", &H2Core::Filesystem::sys_config_path,
+		"returns system config path");
+	_Filesystem.def_static("usr_config_path", &H2Core::Filesystem::usr_config_path,
+		"returns user config path");
+	_Filesystem.def_static("empty_sample_path", &H2Core::Filesystem::empty_sample_path,
+		"returns system empty sample file path");
+	_Filesystem.def_static("empty_song_path", &H2Core::Filesystem::empty_song_path,
+		"returns system empty song file path");
+	_Filesystem.def_static("untitled_song_file_name", &H2Core::Filesystem::untitled_song_file_name,
+		"returns untitled song file name");
+	_Filesystem.def_static("click_file_path", &H2Core::Filesystem::click_file_path,
+		"Returns a string containing the path to the _click.wav_ file used in the metronome.");
+	_Filesystem.def_static("usr_click_file_path", &H2Core::Filesystem::usr_click_file_path,
+		"returns click file path from user directory if exists, otherwise from system");
+	_Filesystem.def_static("drumkit_xsd_path", &H2Core::Filesystem::drumkit_xsd_path,
+		"returns the path to the drumkit XSD (xml schema definition) file");
+	_Filesystem.def_static("pattern_xsd_path", &H2Core::Filesystem::pattern_xsd_path,
+		"returns the path to the pattern XSD (xml schema definition) file");
+	_Filesystem.def_static("playlist_xsd_path", &H2Core::Filesystem::playlist_xsd_path,
+		"returns the path to the playlist pattern XSD (xml schema definition) file");
+	_Filesystem.def_static("log_file_path", &H2Core::Filesystem::log_file_path,
+		"returns the full path (including filename) of the logfile");
+	_Filesystem.def_static("img_dir", &H2Core::Filesystem::img_dir,
+		"returns gui image path");
+	_Filesystem.def_static("doc_dir", &H2Core::Filesystem::doc_dir,
+		"returns documentation path");
+	_Filesystem.def_static("i18n_dir", &H2Core::Filesystem::i18n_dir,
+		"returns internationalization path");
+	_Filesystem.def_static("scripts_dir", &H2Core::Filesystem::scripts_dir,
+		"returns user scripts path");
+	_Filesystem.def_static("songs_dir", &H2Core::Filesystem::songs_dir,
+		"returns user songs path");
+	_Filesystem.def_static("song_path", &H2Core::Filesystem::song_path,
+		"returns user song path, add file extension",
+		py::arg("sg_name"));
+	_Filesystem.def_static("patterns_dir_static", py::overload_cast<>(&H2Core::Filesystem::patterns_dir),
+		"returns user patterns path");
+	_Filesystem.def_static("patterns_dir_static", py::overload_cast<const QString &>(&H2Core::Filesystem::patterns_dir),
+		"returns user patterns path for a specific drumkit",
+		py::arg("dk_name"));
+	_Filesystem.def_static("pattern_path", &H2Core::Filesystem::pattern_path,
+		"returns user patterns path, add file extension",
+		py::arg("dk_name"),
+		py::arg("p_name"));
+	_Filesystem.def_static("plugins_dir", &H2Core::Filesystem::plugins_dir,
+		"returns user plugins path");
+	_Filesystem.def_static("sys_drumkits_dir", &H2Core::Filesystem::sys_drumkits_dir,
+		"returns system drumkits path");
+	_Filesystem.def_static("usr_drumkits_dir", &H2Core::Filesystem::usr_drumkits_dir,
+		"returns user drumkits path");
+	_Filesystem.def_static("playlists_dir", &H2Core::Filesystem::playlists_dir,
+		"returns user playlist path");
+	_Filesystem.def_static("playlist_path", &H2Core::Filesystem::playlist_path,
+		"returns user playlist path, add file extension",
+		py::arg("pl_name"));
+	_Filesystem.def_static("untitled_playlist_file_name", &H2Core::Filesystem::untitled_playlist_file_name,
+		"returns untitled playlist file name");
+	_Filesystem.def_static("cache_dir", &H2Core::Filesystem::cache_dir,
+		"returns user cache path");
+	_Filesystem.def_static("repositories_cache_dir", &H2Core::Filesystem::repositories_cache_dir,
+		"returns user repository cache path");
+	_Filesystem.def_static("demos_dir", &H2Core::Filesystem::demos_dir,
+		"returns system demos path");
+	_Filesystem.def_static("xsd_dir", &H2Core::Filesystem::xsd_dir,
+		"returns system xsd path");
+	_Filesystem.def_static("tmp_dir", &H2Core::Filesystem::tmp_dir,
+		"returns temp path");
+	_Filesystem.def_static("tmp_file_path", &H2Core::Filesystem::tmp_file_path,
+		"touch a temporary file under tmp_dir() and return it's path. if base has a suffix it will be preserved, spaces will be replaced by underscores.",
+		py::arg("base"));
+	_Filesystem.def_static("prepare_sample_path", &H2Core::Filesystem::prepare_sample_path,
+		"Returns the basename if the given path is under an existing user or system drumkit path, otherwise the given fname",
+		py::arg("fname"));
+	_Filesystem.def_static("file_is_under_drumkit", &H2Core::Filesystem::file_is_under_drumkit,
+		"Checks if the given filepath is under an existing user or system drumkit path, not the existence of the file",
+		py::arg("fname"));
+	_Filesystem.def_static("get_basename_idx_under_drumkit", &H2Core::Filesystem::get_basename_idx_under_drumkit,
+		"Returns the index of the basename if the given path is under an existing user or system drumkit path, otherwise -1",
+		py::arg("fname"));
+	// [<Class 'QStringList'>] _Filesystem.def_static("sys_drumkit_list", &H2Core::Filesystem::sys_drumkit_list,
+		// [<Class 'QStringList'>] "returns list of usable system drumkits ( see Filesystem::drumkit_list )");
+	// [<Class 'QStringList'>] _Filesystem.def_static("usr_drumkit_list", &H2Core::Filesystem::usr_drumkit_list,
+		// [<Class 'QStringList'>] "returns list of usable user drumkits ( see Filesystem::drumkit_list )");
+	_Filesystem.def_static("drumkit_exists", &H2Core::Filesystem::drumkit_exists,
+		"returns true if the drumkit exists within usable system or user drumkits",
+		py::arg("dk_name"));
+	_Filesystem.def_static("drumkit_usr_path", &H2Core::Filesystem::drumkit_usr_path,
+		"returns path for a drumkit within user drumkit path",
+		py::arg("dk_name"));
+	_Filesystem.def_static("drumkit_path_search", &H2Core::Filesystem::drumkit_path_search,
+		"Returns the path to a H2Core::Drumkit folder.",
+		py::arg("dk_name"),
+		py::arg("lookup"),
+		py::arg("bSilent"));
+	_Filesystem.def_static("drumkit_dir_search", &H2Core::Filesystem::drumkit_dir_search,
+		"returns the directory holding the named drumkit searching within user then system drumkits",
+		py::arg("dk_name"),
+		py::arg("lookup"));
+	_Filesystem.def_static("drumkit_valid", &H2Core::Filesystem::drumkit_valid,
+		"returns true if the path contains a usable drumkit",
+		py::arg("dk_path"));
+	_Filesystem.def_static("drumkit_file", &H2Core::Filesystem::drumkit_file,
+		"returns the path to the xml file within a supposed drumkit path",
+		py::arg("dk_path"));
+	// [<Class 'QStringList'>] _Filesystem.def_static("pattern_drumkits", &H2Core::Filesystem::pattern_drumkits,
+		// [<Class 'QStringList'>] "returns a list of existing drumkit sub dir into the patterns directory");
+	// [<Class 'QStringList'>] _Filesystem.def_static("pattern_list_static", py::overload_cast<>(&H2Core::Filesystem::pattern_list),
+		// [<Class 'QStringList'>] "returns a list of existing patterns");
+	// [<Class 'QStringList'>] _Filesystem.def_static("pattern_list_static", py::overload_cast<const QString &>(&H2Core::Filesystem::pattern_list),
+		// [<Class 'QStringList'>] "returns a list of existing patterns",
+	// [<Class 'QStringList'>] 	py::arg("path"));
+	// [<Class 'QStringList'>] _Filesystem.def_static("song_list", &H2Core::Filesystem::song_list,
+		// [<Class 'QStringList'>] "returns a list of existing songs");
+	// [<Class 'QStringList'>] _Filesystem.def_static("song_list_cleared", &H2Core::Filesystem::song_list_cleared,
+		// [<Class 'QStringList'>] "returns a list of existing songs, excluding the autosaved one");
+	_Filesystem.def_static("song_exists", &H2Core::Filesystem::song_exists,
+		"returns true if the song file exists",
+		py::arg("sg_name"));
+	_Filesystem.def_static("info", &H2Core::Filesystem::info,
+		"send current settings information to logger with INFO severity");
+	// [<Class 'QStringList'>] _Filesystem.def_static("playlist_list", &H2Core::Filesystem::playlist_list,
+		// [<Class 'QStringList'>] "returns a list of existing playlists");
+	_Filesystem.def_static("file_exists", &H2Core::Filesystem::file_exists,
+		"returns true if the given path is an existing regular file",
+		py::arg("path"),
+		py::arg("silent"));
+	_Filesystem.def_static("file_readable", &H2Core::Filesystem::file_readable,
+		"returns true if the given path is an existing readable regular file",
+		py::arg("path"),
+		py::arg("silent"));
+	_Filesystem.def_static("file_writable", &H2Core::Filesystem::file_writable,
+		"returns true if the given path is a possibly writable file (may exist or not)",
+		py::arg("path"),
+		py::arg("silent"));
+	_Filesystem.def_static("file_executable", &H2Core::Filesystem::file_executable,
+		"returns true if the given path is an existing executable regular file",
+		py::arg("path"),
+		py::arg("silent"));
+	_Filesystem.def_static("dir_readable", &H2Core::Filesystem::dir_readable,
+		"returns true if the given path is a readable regular directory",
+		py::arg("path"),
+		py::arg("silent"));
+	_Filesystem.def_static("dir_writable", &H2Core::Filesystem::dir_writable,
+		"returns true if the given path is a writable regular directory",
+		py::arg("path"),
+		py::arg("silent"));
+	_Filesystem.def_static("path_usable", &H2Core::Filesystem::path_usable,
+		"returns true if the path is a readable and writable regular directory, create if it not exists",
+		py::arg("path"),
+		py::arg("create"),
+		py::arg("silent"));
+	_Filesystem.def_static("write_to_file", &H2Core::Filesystem::write_to_file,
+		"writes to a file",
+		py::arg("dst"),
+		py::arg("content"));
+	_Filesystem.def_static("file_copy", &H2Core::Filesystem::file_copy,
+		"copy a source file to a destination",
+		py::arg("src"),
+		py::arg("dst"),
+		py::arg("overwrite"));
+	_Filesystem.def_static("rm", &H2Core::Filesystem::rm,
+		"remove a path",
+		py::arg("path"),
+		py::arg("recursive"));
+	_Filesystem.def_static("mkdir", &H2Core::Filesystem::mkdir,
+		"create a path",
+		py::arg("path"));
+	_Filesystem.def_static("getPreferencesOverwritePath", &H2Core::Filesystem::getPreferencesOverwritePath,
+		"Returns m_sPreferencesOverwritePath");
+	_Filesystem.def_static("setPreferencesOverwritePath", &H2Core::Filesystem::setPreferencesOverwritePath,
+		py::arg("sPath"));
 
 	py::class_<H2Core::CoreActionController> _CoreActionController(m, "CoreActionController");
 	_CoreActionController.def(py::init<>());
@@ -2239,10 +1358,10 @@ PYBIND11_MODULE(h2core, m) {
 		"Create an empty #Song, which will be stored in songPath.",
 		py::arg("songPath"));
 	_CoreActionController.def("openSong", py::overload_cast<const QString &>(&H2Core::CoreActionController::openSong),
-			"Opens the #Song specified in songPath.",
+		"Opens the #Song specified in songPath.",
 		py::arg("songPath"));
 	_CoreActionController.def("openSong", py::overload_cast<H2Core::Song *>(&H2Core::CoreActionController::openSong),
-			"Opens the #Song specified in songPath.",
+		"Opens the #Song specified in songPath.",
 		py::arg("pSong"));
 	_CoreActionController.def("saveSong", &H2Core::CoreActionController::saveSong,
 		"Saves the current #Song.");
@@ -2284,199 +1403,136 @@ PYBIND11_MODULE(h2core, m) {
 		"Checks the path of the .h2song provided via OSC.",
 		py::arg("songPath"));
 
-	py::class_<H2Core::Drumkit> _Drumkit(m, "Drumkit");
-	_Drumkit.def(py::init<>());
-	_Drumkit.def(py::init<H2Core::Drumkit *>());
-	_Drumkit.def_static("class_name", &H2Core::Drumkit::class_name);
-	_Drumkit.def_static("load", &H2Core::Drumkit::load,
-		"Load drumkit information from a directory.",
-		py::arg("dk_dir"),
-		py::arg("load_samples"));
-	_Drumkit.def_static("load_by_name", &H2Core::Drumkit::load_by_name,
-		"Simple wrapper for load() used with the drumkit's name instead of its directory.",
-		py::arg("dk_name"),
-		py::arg("load_samples"),
-		py::arg("lookup"));
-	_Drumkit.def_static("load_file", &H2Core::Drumkit::load_file,
-		"Load a Drumkit from a file.",
-		py::arg("dk_path"),
-		py::arg("load_samples"));
-	_Drumkit.def("load_samples", &H2Core::Drumkit::load_samples,
-		"Calls the InstrumentList::load_samples() member function of #__instruments.");
-	_Drumkit.def("unload_samples", &H2Core::Drumkit::unload_samples,
-		"Calls the InstrumentList::unload_samples() member function of #__instruments.");
-	_Drumkit.def_static("upgrade_drumkit", &H2Core::Drumkit::upgrade_drumkit,
-		"Saves the current drumkit to dk_path, but makes a backup. This is used when the drumkit did not comply to our xml schema.",
-		py::arg("pDrumkit"),
-		py::arg("dk_path"));
-	_Drumkit.def_static("user_drumkit_exists", &H2Core::Drumkit::user_drumkit_exists,
-		"check if a user drumkit with the given name already exists",
-		py::arg("dk_path"));
-	_Drumkit.def("save", py::overload_cast<bool>(&H2Core::Drumkit::save),
-			"save a drumkit, xml file and samples",
-		py::arg("overwrite"));
-	_Drumkit.def("save", py::overload_cast<const QString &, bool>(&H2Core::Drumkit::save),
-			"save a drumkit, xml file and samples neither #__path nor #__name are updated",
-		py::arg("dk_dir"),
-		py::arg("overwrite"));
-	_Drumkit.def_static("save_static", py::overload_cast<const QString &, const QString &, const QString &, const QString &, const QString &, const QString &, H2Core::InstrumentList *, std::vector<DrumkitComponent *> *, bool>(&H2Core::Drumkit::save),
-			"save a drumkit using given parameters and an instrument list",
-		py::arg("sName"),
-		py::arg("sAuthor"),
-		py::arg("sInfo"),
-		py::arg("sLicense"),
-		py::arg("sImage"),
-		py::arg("sImageLicense"),
-		py::arg("pInstruments"),
-		py::arg("pComponents"),
-		py::arg("bOverwrite"));
-	_Drumkit.def("save_file", &H2Core::Drumkit::save_file,
-		"save a drumkit into an xml file",
-		py::arg("dk_path"),
-		py::arg("overwrite"),
-		py::arg("component_id"));
-	_Drumkit.def("save_samples", &H2Core::Drumkit::save_samples,
-		"save a drumkit instruments samples into a directory",
-		py::arg("dk_dir"),
-		py::arg("overwrite"));
-	_Drumkit.def("save_image", &H2Core::Drumkit::save_image,
-		"save the drumkit image into the new directory",
-		py::arg("dk_dir"),
-		py::arg("overwrite"));
-	_Drumkit.def_static("install", &H2Core::Drumkit::install,
-		"install a drumkit from a filename",
-		py::arg("path"));
-	_Drumkit.def_static("remove", &H2Core::Drumkit::remove,
-		"remove a drumkit from the disk",
-		py::arg("dk_name"),
-		py::arg("lookup"));
-	_Drumkit.def("set_instruments", &H2Core::Drumkit::set_instruments,
-		"set __instruments, delete existing one",
-		py::arg("instruments"));
-	_Drumkit.def("get_instruments", &H2Core::Drumkit::get_instruments,
-		"returns #__instruments");
-	_Drumkit.def("set_path", &H2Core::Drumkit::set_path,
-		"#__path setter",
-		py::arg("path"));
-	_Drumkit.def("get_path", &H2Core::Drumkit::get_path,
-		"#__path accessor");
-	_Drumkit.def("set_name", &H2Core::Drumkit::set_name,
-		"#__name setter",
-		py::arg("name"));
-	_Drumkit.def("get_name", &H2Core::Drumkit::get_name,
-		"#__name accessor");
-	_Drumkit.def("set_author", &H2Core::Drumkit::set_author,
-		"#__author setter",
-		py::arg("author"));
-	_Drumkit.def("get_author", &H2Core::Drumkit::get_author,
-		"#__author accessor");
-	_Drumkit.def("set_info", &H2Core::Drumkit::set_info,
-		"#__info setter",
-		py::arg("info"));
-	_Drumkit.def("get_info", &H2Core::Drumkit::get_info,
-		"#__info accessor");
-	_Drumkit.def("set_license", &H2Core::Drumkit::set_license,
-		"#__license setter",
-		py::arg("license"));
-	_Drumkit.def("get_license", &H2Core::Drumkit::get_license,
-		"#__license accessor");
-	_Drumkit.def("set_image", &H2Core::Drumkit::set_image,
-		"#__image setter",
-		py::arg("image"));
-	_Drumkit.def("get_image", &H2Core::Drumkit::get_image,
-		"#__image accessor");
-	_Drumkit.def("set_image_license", &H2Core::Drumkit::set_image_license,
-		"#__imageLicense setter",
-		py::arg("imageLicense"));
-	_Drumkit.def("get_image_license", &H2Core::Drumkit::get_image_license,
-		"#__imageLicense accessor");
-	_Drumkit.def("samples_loaded", &H2Core::Drumkit::samples_loaded,
-		"return true if the samples are loaded");
-	_Drumkit.def("dump", &H2Core::Drumkit::dump);
-	_Drumkit.def("isUserDrumkit", &H2Core::Drumkit::isUserDrumkit,
-		"Returns Whether the associated files are located in the user or the systems drumkit folder.");
-	_Drumkit.def("get_components", &H2Core::Drumkit::get_components);
-	_Drumkit.def("set_components", &H2Core::Drumkit::set_components,
-		py::arg("components"));
-	_Drumkit.def("toQString", &H2Core::Drumkit::toQString,
+	py::class_<H2Core::Song> _Song(m, "Song");
+	_Song.def(py::init<const QString &, const QString &, float, float>());
+	_Song.def_static("class_name", &H2Core::Song::class_name);
+	_Song.def_static("getEmptySong", &H2Core::Song::getEmptySong);
+	_Song.def_static("getDefaultSong", &H2Core::Song::getDefaultSong);
+	_Song.def("getIsMuted", &H2Core::Song::getIsMuted);
+	_Song.def("setIsMuted", &H2Core::Song::setIsMuted,
+		py::arg("bIsMuted"));
+	_Song.def("getResolution", &H2Core::Song::getResolution);
+	_Song.def("setResolution", &H2Core::Song::setResolution,
+		py::arg("resolution"));
+	_Song.def("getBpm", &H2Core::Song::getBpm);
+	_Song.def("setBpm", &H2Core::Song::setBpm,
+		py::arg("fBpm"));
+	_Song.def("getName", &H2Core::Song::getName);
+	_Song.def("setName", &H2Core::Song::setName,
+		py::arg("sName"));
+	_Song.def("setVolume", &H2Core::Song::setVolume,
+		py::arg("fValue"));
+	_Song.def("getVolume", &H2Core::Song::getVolume);
+	_Song.def("setMetronomeVolume", &H2Core::Song::setMetronomeVolume,
+		py::arg("fValue"));
+	_Song.def("getMetronomeVolume", &H2Core::Song::getMetronomeVolume);
+	_Song.def("getPatternList", &H2Core::Song::getPatternList);
+	_Song.def("setPatternList", &H2Core::Song::setPatternList,
+		py::arg("pList"));
+	_Song.def("getPatternGroupVector", py::overload_cast<>(&H2Core::Song::getPatternGroupVector),
+		"Return a pointer to a vector storing all Pattern present in the Song.");
+	_Song.def("getPatternGroupVector", py::overload_cast<>(&H2Core::Song::getPatternGroupVector),
+		"Return a pointer to a vector storing all Pattern present in the Song.");
+	_Song.def("setPatternGroupVector", &H2Core::Song::setPatternGroupVector,
+		"Sets the vector storing all Pattern present in the Song #m_pPatternGroupSequence.",
+		py::arg("pGroupVector"));
+	_Song.def("lengthInTicks", &H2Core::Song::lengthInTicks,
+		"get the length of the song, in tick units");
+	_Song.def_static("load", &H2Core::Song::load,
+		py::arg("sFilename"));
+	_Song.def("save", &H2Core::Song::save,
+		py::arg("sFilename"));
+	_Song.def("purgeInstrument", &H2Core::Song::purgeInstrument,
+		"Remove all the notes in the song that play on instrument I. The function is real-time safe (it locks the audio data while deleting notes)",
+		py::arg("pInstr"));
+	_Song.def("getInstrumentList", &H2Core::Song::getInstrumentList);
+	_Song.def("setInstrumentList", &H2Core::Song::setInstrumentList,
+		py::arg("pList"));
+	_Song.def("setNotes", &H2Core::Song::setNotes,
+		py::arg("sNotes"));
+	_Song.def("getNotes", &H2Core::Song::getNotes);
+	_Song.def("setLicense", &H2Core::Song::setLicense,
+		py::arg("sLicense"));
+	_Song.def("getLicense", &H2Core::Song::getLicense);
+	_Song.def("setAuthor", &H2Core::Song::setAuthor,
+		py::arg("sAuthor"));
+	_Song.def("getAuthor", &H2Core::Song::getAuthor);
+	_Song.def("getFilename", &H2Core::Song::getFilename);
+	_Song.def("setFilename", &H2Core::Song::setFilename,
+		py::arg("sFilename"));
+	_Song.def("getIsLoopEnabled", &H2Core::Song::getIsLoopEnabled);
+	_Song.def("setIsLoopEnabled", &H2Core::Song::setIsLoopEnabled,
+		py::arg("bEnabled"));
+	_Song.def("getHumanizeTimeValue", &H2Core::Song::getHumanizeTimeValue);
+	_Song.def("setHumanizeTimeValue", &H2Core::Song::setHumanizeTimeValue,
+		py::arg("fValue"));
+	_Song.def("getHumanizeVelocityValue", &H2Core::Song::getHumanizeVelocityValue);
+	_Song.def("setHumanizeVelocityValue", &H2Core::Song::setHumanizeVelocityValue,
+		py::arg("fValue"));
+	_Song.def("getSwingFactor", &H2Core::Song::getSwingFactor);
+	_Song.def("setSwingFactor", &H2Core::Song::setSwingFactor,
+		py::arg("fFactor"));
+	_Song.def("getMode", &H2Core::Song::getMode);
+	_Song.def("setMode", &H2Core::Song::setMode,
+		py::arg("mode"));
+	_Song.def("setIsModified", &H2Core::Song::setIsModified,
+		py::arg("bIsModified"));
+	_Song.def("getIsModified", &H2Core::Song::getIsModified);
+	_Song.def("getComponents", &H2Core::Song::getComponents);
+	_Song.def("getVelocityAutomationPath", &H2Core::Song::getVelocityAutomationPath);
+	_Song.def("getComponent", &H2Core::Song::getComponent,
+		py::arg("nID"));
+	_Song.def("readTempPatternList", &H2Core::Song::readTempPatternList,
+		py::arg("sFilename"));
+	_Song.def("writeTempPatternList", &H2Core::Song::writeTempPatternList,
+		py::arg("sFilename"));
+	_Song.def("copyInstrumentLineToString", &H2Core::Song::copyInstrumentLineToString,
+		py::arg("nSelectedPattern"),
+		py::arg("selectedInstrument"));
+	_Song.def("pasteInstrumentLineFromString", &H2Core::Song::pasteInstrumentLineFromString,
+		py::arg("sSerialized"),
+		py::arg("nSelectedPattern"),
+		py::arg("nSelectedInstrument"),
+		py::arg("pPatterns"));
+	_Song.def("getLatestRoundRobin", &H2Core::Song::getLatestRoundRobin,
+		py::arg("fStartVelocity"));
+	_Song.def("setLatestRoundRobin", &H2Core::Song::setLatestRoundRobin,
+		py::arg("fStartVelocity"),
+		py::arg("nLatestRoundRobin"));
+	_Song.def("getPlaybackTrackFilename", &H2Core::Song::getPlaybackTrackFilename,
+		"Returns #m_sPlaybackTrackFilename");
+	_Song.def("setPlaybackTrackFilename", &H2Core::Song::setPlaybackTrackFilename,
+		py::arg("sFilename"));
+	_Song.def("getPlaybackTrackEnabled", &H2Core::Song::getPlaybackTrackEnabled,
+		"Returns #m_bPlaybackTrackEnabled");
+	_Song.def("setPlaybackTrackEnabled", &H2Core::Song::setPlaybackTrackEnabled,
+		"Specifies whether a playback track should be used.",
+		py::arg("bEnabled"));
+	_Song.def("getPlaybackTrackVolume", &H2Core::Song::getPlaybackTrackVolume,
+		"Returns #m_fPlaybackTrackVolume");
+	_Song.def("setPlaybackTrackVolume", &H2Core::Song::setPlaybackTrackVolume,
+		py::arg("fVolume"));
+	_Song.def("getActionMode", &H2Core::Song::getActionMode);
+	_Song.def("setActionMode", &H2Core::Song::setActionMode,
+		py::arg("actionMode"));
+	_Song.def("hasMissingSamples", &H2Core::Song::hasMissingSamples,
+		"Song was incompletely loaded from file (missing samples)");
+	_Song.def("clearMissingSamples", &H2Core::Song::clearMissingSamples);
+	_Song.def("setPanLawType", &H2Core::Song::setPanLawType,
+		py::arg("nPanLawType"));
+	_Song.def("getPanLawType", &H2Core::Song::getPanLawType);
+	_Song.def("setPanLawKNorm", &H2Core::Song::setPanLawKNorm,
+		py::arg("fKNorm"));
+	_Song.def("getPanLawKNorm", &H2Core::Song::getPanLawKNorm);
+	_Song.def("toQString", &H2Core::Song::toQString,
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
 		py::arg("bShort"));
-
-	py::class_<H2Core::InstrumentList> _InstrumentList(m, "InstrumentList");
-	_InstrumentList.def(py::init<>());
-	_InstrumentList.def(py::init<H2Core::InstrumentList *>());
-	_InstrumentList.def_static("class_name", &H2Core::InstrumentList::class_name);
-	_InstrumentList.def("size", &H2Core::InstrumentList::size,
-		"returns the numbers of instruments");
-	_InstrumentList.def("operator<<", &H2Core::InstrumentList::operator<<,
-		"add an instrument to the list",
-		py::arg("instrument"));
-	_InstrumentList.def("operator[]", &H2Core::InstrumentList::operator[],
-		"get an instrument from the list",
-		py::arg("idx"));
-	_InstrumentList.def("add", &H2Core::InstrumentList::add,
-		"add an instrument to the list",
-		py::arg("instrument"));
-	_InstrumentList.def("insert", &H2Core::InstrumentList::insert,
-		"insert an instrument into the list",
-		py::arg("idx"),
-		py::arg("instrument"));
-	_InstrumentList.def("is_valid_index", &H2Core::InstrumentList::is_valid_index,
-		"check if there is a idx is a valid index for this list without throwing an error messaage",
-		py::arg("idx"));
-	_InstrumentList.def("get", &H2Core::InstrumentList::get,
-		"get an instrument from the list",
-		py::arg("idx"));
-	_InstrumentList.def("del", py::overload_cast<int>(&H2Core::InstrumentList::del),
-			"remove the instrument at a given index, does not delete it",
-		py::arg("idx"));
-	_InstrumentList.def("del", py::overload_cast<std::shared_ptr<Instrument>>(&H2Core::InstrumentList::del),
-			"remove an instrument from the list, does not delete it",
-		py::arg("instrument"));
-	_InstrumentList.def("index", &H2Core::InstrumentList::index,
-		"get the index of an instrument within the instruments",
-		py::arg("instrument"));
-	_InstrumentList.def("find", py::overload_cast<const int>(&H2Core::InstrumentList::find),
-			"find an instrument within the instruments",
-		py::arg("i"));
-	_InstrumentList.def("find", py::overload_cast<const QString &>(&H2Core::InstrumentList::find),
-			"find an instrument within the instruments",
-		py::arg("name"));
-	_InstrumentList.def("findMidiNote", &H2Core::InstrumentList::findMidiNote,
-		"find an instrument which play the given midi note",
-		py::arg("note"));
-	_InstrumentList.def("swap", &H2Core::InstrumentList::swap,
-		"swap the instruments of two different indexes",
-		py::arg("idx_a"),
-		py::arg("idx_b"));
-	_InstrumentList.def("move", &H2Core::InstrumentList::move,
-		"move an instrument from a position to another",
-		py::arg("idx_a"),
-		py::arg("idx_b"));
-	_InstrumentList.def("load_samples", &H2Core::InstrumentList::load_samples,
-		"Calls the Instrument::load_samples() member function of all Instruments in #__instruments.");
-	_InstrumentList.def("unload_samples", &H2Core::InstrumentList::unload_samples,
-		"Calls the Instrument::unload_samples() member function of all Instruments in #__instruments.");
-	_InstrumentList.def("save_to", &H2Core::InstrumentList::save_to,
-		"save the instrument list within the given XMLNode",
-		py::arg("node"),
-		py::arg("component_id"));
-	_InstrumentList.def_static("load_from", &H2Core::InstrumentList::load_from,
-		"load an instrument list from an XMLNode",
-		py::arg("node"),
-		py::arg("dk_path"),
-		py::arg("dk_name"));
-	_InstrumentList.def("fix_issue_307", &H2Core::InstrumentList::fix_issue_307,
-		"Fix GitHub issue #307, so called \"Hi Bongo fiasco\".");
-	_InstrumentList.def("has_all_midi_notes_same", &H2Core::InstrumentList::has_all_midi_notes_same,
-		"Check if all instruments have assigned the same MIDI out note");
-	_InstrumentList.def("set_default_midi_out_notes", &H2Core::InstrumentList::set_default_midi_out_notes,
-		"Set each instrument consecuteve MIDI out notes, starting from 36");
-	_InstrumentList.def("toQString", &H2Core::InstrumentList::toQString,
-		"Formatted string version for debugging purposes.",
-		py::arg("sPrefix"),
-		py::arg("bShort"));
+	_Song.def("__repr__",
+	[](const H2Core::Song & song) {
+        return "<Song \"" + song.getName() + "\">";
+    }
+    );
 
 	py::class_<H2Core::AutomationPath> _AutomationPath(m, "AutomationPath");
 	_AutomationPath.def(py::init<float, float, float>());
@@ -2507,6 +1563,90 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("sPrefix"),
 		py::arg("bShort"));
 
+	py::class_<H2Core::Pattern> _Pattern(m, "Pattern");
+	_Pattern.def(py::init<const QString &, const QString &, const QString &, int, int>());
+	_Pattern.def(py::init<H2Core::Pattern *>());
+	_Pattern.def_static("class_name", &H2Core::Pattern::class_name);
+	_Pattern.def_static("load_file", &H2Core::Pattern::load_file,
+		"load a pattern from a file",
+		py::arg("pattern_path"),
+		py::arg("instruments"));
+	_Pattern.def("save_file", &H2Core::Pattern::save_file,
+		"save a pattern into an xml file",
+		py::arg("drumkit_name"),
+		py::arg("author"),
+		py::arg("license"),
+		py::arg("pattern_path"),
+		py::arg("overwrite"));
+	_Pattern.def("set_name", &H2Core::Pattern::set_name,
+		py::arg("name"));
+	_Pattern.def("get_name", &H2Core::Pattern::get_name);
+	_Pattern.def("set_category", &H2Core::Pattern::set_category,
+		py::arg("category"));
+	_Pattern.def("set_info", &H2Core::Pattern::set_info,
+		py::arg("info"));
+	_Pattern.def("get_info", &H2Core::Pattern::get_info);
+	_Pattern.def("get_category", &H2Core::Pattern::get_category);
+	_Pattern.def("set_length", &H2Core::Pattern::set_length,
+		py::arg("length"));
+	_Pattern.def("get_length", &H2Core::Pattern::get_length);
+	_Pattern.def("set_denominator", &H2Core::Pattern::set_denominator,
+		py::arg("denominator"));
+	_Pattern.def("get_denominator", &H2Core::Pattern::get_denominator);
+	// [<TypeDef 'notes_t'>] _Pattern.def("get_notes", &H2Core::Pattern::get_notes);
+	// [<TypeDef 'virtual_patterns_t'>] _Pattern.def("get_virtual_patterns", &H2Core::Pattern::get_virtual_patterns);
+	// [<TypeDef 'virtual_patterns_t'>] _Pattern.def("get_flattened_virtual_patterns", &H2Core::Pattern::get_flattened_virtual_patterns);
+	_Pattern.def("insert_note", &H2Core::Pattern::insert_note,
+		"insert a new note within __notes",
+		py::arg("note"));
+	// [banned] _Pattern.def("find_note", py::overload_cast<int, int, std::shared_ptr<Instrument>, bool>(&H2Core::Pattern::find_note),
+		// [banned] "search for a note at a given index within __notes which correspond to the given arguments",
+	// [banned] 	py::arg("idx_a"),
+	// [banned] 	py::arg("idx_b"),
+	// [banned] 	py::arg("instrument"),
+	// [banned] 	py::arg("strict"));
+	// [banned] _Pattern.def("find_note", py::overload_cast<int, int, std::shared_ptr<Instrument>, Note::Key, Note::Octave, bool>(&H2Core::Pattern::find_note),
+		// [banned] "search for a note at a given index within __notes which correspond to the given arguments",
+	// [banned] 	py::arg("idx_a"),
+	// [banned] 	py::arg("idx_b"),
+	// [banned] 	py::arg("instrument"),
+	// [banned] 	py::arg("key"),
+	// [banned] 	py::arg("octave"),
+	// [banned] 	py::arg("strict"));
+	_Pattern.def("remove_note", &H2Core::Pattern::remove_note,
+		"removes a given note from __notes, it's not deleted",
+		py::arg("note"));
+	_Pattern.def("references", &H2Core::Pattern::references,
+		"check if this pattern contains a note referencing the given instrument",
+		py::arg("instr"));
+	_Pattern.def("purge_instrument", &H2Core::Pattern::purge_instrument,
+		"delete the notes referencing the given instrument The function is thread safe (it locks the audio data while deleting notes)",
+		py::arg("instr"));
+	_Pattern.def("set_to_old", &H2Core::Pattern::set_to_old,
+		"mark all notes as old");
+	_Pattern.def("virtual_patterns_empty", &H2Core::Pattern::virtual_patterns_empty);
+	_Pattern.def("virtual_patterns_clear", &H2Core::Pattern::virtual_patterns_clear);
+	_Pattern.def("virtual_patterns_add", &H2Core::Pattern::virtual_patterns_add,
+		"add a pattern to __virtual_patterns",
+		py::arg("pattern"));
+	_Pattern.def("virtual_patterns_del", &H2Core::Pattern::virtual_patterns_del,
+		"remove a pattern from virtual_pattern set, flattened virtual patterns have to be rebuilt",
+		py::arg("pattern"));
+	_Pattern.def("flattened_virtual_patterns_clear", &H2Core::Pattern::flattened_virtual_patterns_clear);
+	_Pattern.def("flattened_virtual_patterns_compute", &H2Core::Pattern::flattened_virtual_patterns_compute,
+		"compute virtual_pattern_transitive_closure_set based on virtual_pattern_transitive_closure_set virtual_pattern_transitive_closure_set must have been cleared before which is the case is called from PatternList::compute_flattened_virtual_patterns");
+	_Pattern.def("extand_with_flattened_virtual_patterns", &H2Core::Pattern::extand_with_flattened_virtual_patterns,
+		"add content of __flatteened_virtual_patterns into patterns",
+		py::arg("patterns"));
+	_Pattern.def("save_to", &H2Core::Pattern::save_to,
+		"save the pattern within the given XMLNode",
+		py::arg("node"),
+		py::arg("instrumentOnly"));
+	_Pattern.def("toQString", &H2Core::Pattern::toQString,
+		"Formatted string version for debugging purposes.",
+		py::arg("sPrefix"),
+		py::arg("bShort"));
+
 	py::class_<H2Core::Playlist> _Playlist(m, "Playlist");
 	_Playlist.def_static("class_name", &H2Core::Playlist::class_name);
 	_Playlist.def_static("create_instance", &H2Core::Playlist::create_instance,
@@ -2516,11 +1656,11 @@ PYBIND11_MODULE(h2core, m) {
 	_Playlist.def("activateSong", &H2Core::Playlist::activateSong,
 		py::arg("SongNumber"));
 	_Playlist.def("size", &H2Core::Playlist::size);
-	// [<Struct 'Entry'>] _Playlist.def("get", &H2Core::Playlist::get,
-	// [<Struct 'Entry'>] 	py::arg("idx"));
+	_Playlist.def("get", &H2Core::Playlist::get,
+		py::arg("idx"));
 	_Playlist.def("clear", &H2Core::Playlist::clear);
-	// [<Struct 'Entry'>] _Playlist.def("add", &H2Core::Playlist::add,
-	// [<Struct 'Entry'>] 	py::arg("entry"));
+	_Playlist.def("add", &H2Core::Playlist::add,
+		py::arg("entry"));
 	_Playlist.def("setNextSongByNumber", &H2Core::Playlist::setNextSongByNumber,
 		py::arg("SongNumber"));
 	_Playlist.def("getSelectedSongNr", &H2Core::Playlist::getSelectedSongNr);
@@ -2786,6 +1926,10 @@ PYBIND11_MODULE(h2core, m) {
 	_Preferences.def("setMidiExportDirectory", &H2Core::Preferences::setMidiExportDirectory,
 		py::arg("ExportDirectory"));
 
+	py::class_<H2Core::UIStyle> _UIStyle(m, "UIStyle");
+	_UIStyle.def(py::init<>());
+	_UIStyle.def_static("class_name", &H2Core::UIStyle::class_name);
+
 	py::class_<H2Core::WindowProperties> _WindowProperties(m, "WindowProperties");
 	_WindowProperties.def(py::init<>());
 	_WindowProperties.def_static("class_name", &H2Core::WindowProperties::class_name);
@@ -2796,9 +1940,174 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("_height"),
 		py::arg("_visible"));
 
-	py::class_<H2Core::UIStyle> _UIStyle(m, "UIStyle");
-	_UIStyle.def(py::init<>());
-	_UIStyle.def_static("class_name", &H2Core::UIStyle::class_name);
+	py::class_<H2Core::Sample> _Sample(m, "Sample");
+	_Sample.def(py::init<>());
+	_Sample.def(py::init<const QString &, int, int, float *, float *>());
+	_Sample.def(py::init<std::shared_ptr<Sample>>());
+	_Sample.def_static("class_name", &H2Core::Sample::class_name);
+	_Sample.def("write", &H2Core::Sample::write,
+		"write sample to a file",
+		py::arg("path"),
+		py::arg("format"));
+	_Sample.def_static("load_static", py::overload_cast<const QString &>(&H2Core::Sample::load),
+		"Load a sample from a file.",
+		py::arg("filepath"));
+	// [<TemplateRef 'vector'>] _Sample.def_static("load_static", py::overload_cast<const QString &, const H2Core::Sample::Loops &, const H2Core::Sample::Rubberband &, const H2Core::Sample::VelocityEnvelope &, const H2Core::Sample::PanEnvelope &>(&H2Core::Sample::load),
+		// [<TemplateRef 'vector'>] "Load a sample from a file and apply the transformations to the sample data.",
+	// [<TemplateRef 'vector'>] 	py::arg("filepath"),
+	// [<TemplateRef 'vector'>] 	py::arg("loops"),
+	// [<TemplateRef 'vector'>] 	py::arg("rubber"),
+	// [<TemplateRef 'vector'>] 	py::arg("velocity"),
+	// [<TemplateRef 'vector'>] 	py::arg("pan"));
+	_Sample.def("load", py::overload_cast<>(&H2Core::Sample::load),
+		"Load the sample stored in #__filepath into #__data_l and #__data_r.");
+	_Sample.def("unload", &H2Core::Sample::unload,
+		"Flush the current content of the left and right channel and the current metadata.");
+	// [<TemplateRef 'vector'>] _Sample.def("apply", &H2Core::Sample::apply,
+		// [<TemplateRef 'vector'>] "Apply transformations to the sample data.",
+	// [<TemplateRef 'vector'>] 	py::arg("loops"),
+	// [<TemplateRef 'vector'>] 	py::arg("rubber"),
+	// [<TemplateRef 'vector'>] 	py::arg("velocity"),
+	// [<TemplateRef 'vector'>] 	py::arg("pan"));
+	_Sample.def("apply_loops", &H2Core::Sample::apply_loops,
+		"apply loop transformation to the sample",
+		py::arg("lo"));
+	// [<TemplateRef 'vector'>] _Sample.def("apply_velocity", &H2Core::Sample::apply_velocity,
+		// [<TemplateRef 'vector'>] "apply velocity transformation to the sample",
+	// [<TemplateRef 'vector'>] 	py::arg("v"));
+	// [<TemplateRef 'vector'>] _Sample.def("apply_pan", &H2Core::Sample::apply_pan,
+		// [<TemplateRef 'vector'>] "apply velocity transformation to the sample",
+	// [<TemplateRef 'vector'>] 	py::arg("p"));
+	_Sample.def("apply_rubberband", &H2Core::Sample::apply_rubberband,
+		"apply rubberband transformation to the sample",
+		py::arg("rb"));
+	_Sample.def("exec_rubberband_cli", &H2Core::Sample::exec_rubberband_cli,
+		"call rubberband cli to modify the sample",
+		py::arg("rb"));
+	_Sample.def("is_empty", &H2Core::Sample::is_empty,
+		"Returns true if both data channels are null pointers");
+	_Sample.def("get_filepath", &H2Core::Sample::get_filepath,
+		"Returns #__filepath");
+	_Sample.def("get_filename", &H2Core::Sample::get_filename,
+		"Returns Filename part of #__filepath");
+	_Sample.def("set_filepath", &H2Core::Sample::set_filepath,
+		py::arg("filepath"));
+	_Sample.def("set_filename", &H2Core::Sample::set_filename,
+		py::arg("filename"));
+	_Sample.def("set_frames", &H2Core::Sample::set_frames,
+		"#__frames setter",
+		py::arg("frames"));
+	_Sample.def("get_frames", &H2Core::Sample::get_frames,
+		"Returns #__frames accessor");
+	_Sample.def("set_sample_rate", &H2Core::Sample::set_sample_rate,
+		py::arg("sampleRate"));
+	_Sample.def("get_sample_rate", &H2Core::Sample::get_sample_rate,
+		"Returns #__sample_rate");
+	_Sample.def("get_sample_duration", &H2Core::Sample::get_sample_duration,
+		"Returns sample duration in seconds");
+	_Sample.def("get_size", &H2Core::Sample::get_size,
+		"Returns data size, which is calculated by #__frames time sizeof( float ) * 2");
+	_Sample.def("get_data_l", &H2Core::Sample::get_data_l,
+		"Returns #__data_l");
+	_Sample.def("get_data_r", &H2Core::Sample::get_data_r,
+		"Returns #__data_r");
+	_Sample.def("set_is_modified", &H2Core::Sample::set_is_modified,
+		"#__is_modified setter",
+		py::arg("is_modified"));
+	_Sample.def("get_is_modified", &H2Core::Sample::get_is_modified,
+		"Returns #__is_modified");
+	// [<TemplateRef 'vector'>] _Sample.def("get_pan_envelope", &H2Core::Sample::get_pan_envelope,
+		// [<TemplateRef 'vector'>] "Returns #__pan_envelope");
+	// [<TemplateRef 'vector'>] _Sample.def("get_velocity_envelope", &H2Core::Sample::get_velocity_envelope,
+		// [<TemplateRef 'vector'>] "Returns #__velocity_envelope");
+	_Sample.def("get_loops", &H2Core::Sample::get_loops,
+		"Returns #__loops parameters");
+	_Sample.def("get_rubberband", &H2Core::Sample::get_rubberband,
+		"Returns #__rubberband parameters");
+	_Sample.def_static("parse_loop_mode", &H2Core::Sample::parse_loop_mode,
+		"parse the given string and rturn the corresponding loop_mode",
+		py::arg("string"));
+	_Sample.def("get_loop_mode_string", &H2Core::Sample::get_loop_mode_string,
+		"Returns mode member of #__loops as a string");
+	_Sample.def("toQString", &H2Core::Sample::toQString,
+		"Formatted string version for debugging purposes.",
+		py::arg("sPrefix"),
+		py::arg("bShort"));
+
+	py::class_<H2Core::InstrumentList> _InstrumentList(m, "InstrumentList");
+	_InstrumentList.def(py::init<>());
+	_InstrumentList.def(py::init<H2Core::InstrumentList *>());
+	_InstrumentList.def_static("class_name", &H2Core::InstrumentList::class_name);
+	_InstrumentList.def("size", &H2Core::InstrumentList::size,
+		"returns the numbers of instruments");
+	_InstrumentList.def("operator<<", &H2Core::InstrumentList::operator<<,
+		"add an instrument to the list",
+		py::arg("instrument"));
+	_InstrumentList.def("operator[]", &H2Core::InstrumentList::operator[],
+		"get an instrument from the list",
+		py::arg("idx"));
+	_InstrumentList.def("add", &H2Core::InstrumentList::add,
+		"add an instrument to the list",
+		py::arg("instrument"));
+	_InstrumentList.def("insert", &H2Core::InstrumentList::insert,
+		"insert an instrument into the list",
+		py::arg("idx"),
+		py::arg("instrument"));
+	_InstrumentList.def("is_valid_index", &H2Core::InstrumentList::is_valid_index,
+		"check if there is a idx is a valid index for this list without throwing an error messaage",
+		py::arg("idx"));
+	_InstrumentList.def("get", &H2Core::InstrumentList::get,
+		"get an instrument from the list",
+		py::arg("idx"));
+	_InstrumentList.def("del", py::overload_cast<int>(&H2Core::InstrumentList::del),
+		"remove the instrument at a given index, does not delete it",
+		py::arg("idx"));
+	_InstrumentList.def("del", py::overload_cast<std::shared_ptr<Instrument>>(&H2Core::InstrumentList::del),
+		"remove an instrument from the list, does not delete it",
+		py::arg("instrument"));
+	_InstrumentList.def("index", &H2Core::InstrumentList::index,
+		"get the index of an instrument within the instruments",
+		py::arg("instrument"));
+	_InstrumentList.def("find", py::overload_cast<const int>(&H2Core::InstrumentList::find),
+		"find an instrument within the instruments",
+		py::arg("i"));
+	_InstrumentList.def("find", py::overload_cast<const QString &>(&H2Core::InstrumentList::find),
+		"find an instrument within the instruments",
+		py::arg("name"));
+	_InstrumentList.def("findMidiNote", &H2Core::InstrumentList::findMidiNote,
+		"find an instrument which play the given midi note",
+		py::arg("note"));
+	_InstrumentList.def("swap", &H2Core::InstrumentList::swap,
+		"swap the instruments of two different indexes",
+		py::arg("idx_a"),
+		py::arg("idx_b"));
+	_InstrumentList.def("move", &H2Core::InstrumentList::move,
+		"move an instrument from a position to another",
+		py::arg("idx_a"),
+		py::arg("idx_b"));
+	_InstrumentList.def("load_samples", &H2Core::InstrumentList::load_samples,
+		"Calls the Instrument::load_samples() member function of all Instruments in #__instruments.");
+	_InstrumentList.def("unload_samples", &H2Core::InstrumentList::unload_samples,
+		"Calls the Instrument::unload_samples() member function of all Instruments in #__instruments.");
+	_InstrumentList.def("save_to", &H2Core::InstrumentList::save_to,
+		"save the instrument list within the given XMLNode",
+		py::arg("node"),
+		py::arg("component_id"));
+	_InstrumentList.def_static("load_from", &H2Core::InstrumentList::load_from,
+		"load an instrument list from an XMLNode",
+		py::arg("node"),
+		py::arg("dk_path"),
+		py::arg("dk_name"));
+	_InstrumentList.def("fix_issue_307", &H2Core::InstrumentList::fix_issue_307,
+		"Fix GitHub issue #307, so called \"Hi Bongo fiasco\".");
+	_InstrumentList.def("has_all_midi_notes_same", &H2Core::InstrumentList::has_all_midi_notes_same,
+		"Check if all instruments have assigned the same MIDI out note");
+	_InstrumentList.def("set_default_midi_out_notes", &H2Core::InstrumentList::set_default_midi_out_notes,
+		"Set each instrument consecuteve MIDI out notes, starting from 36");
+	_InstrumentList.def("toQString", &H2Core::InstrumentList::toQString,
+		"Formatted string version for debugging purposes.",
+		py::arg("sPrefix"),
+		py::arg("bShort"));
 
 	py::class_<H2Core::InstrumentLayer> _InstrumentLayer(m, "InstrumentLayer");
 	_InstrumentLayer.def(py::init<std::shared_ptr<Sample>>());
@@ -2845,6 +2154,233 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("sPrefix"),
 		py::arg("bShort"));
 
+	py::class_<H2Core::InstrumentComponent> _InstrumentComponent(m, "InstrumentComponent");
+	_InstrumentComponent.def(py::init<int>());
+	_InstrumentComponent.def(py::init<std::shared_ptr<InstrumentComponent>>());
+	_InstrumentComponent.def_static("class_name", &H2Core::InstrumentComponent::class_name);
+	_InstrumentComponent.def("save_to", &H2Core::InstrumentComponent::save_to,
+		py::arg("node"),
+		py::arg("component_id"));
+	_InstrumentComponent.def_static("load_from", &H2Core::InstrumentComponent::load_from,
+		py::arg("node"),
+		py::arg("dk_path"));
+	_InstrumentComponent.def("operator[]", &H2Core::InstrumentComponent::operator[],
+		py::arg("idx"));
+	_InstrumentComponent.def("get_layer", &H2Core::InstrumentComponent::get_layer,
+		py::arg("idx"));
+	_InstrumentComponent.def("set_layer", &H2Core::InstrumentComponent::set_layer,
+		py::arg("layer"),
+		py::arg("idx"));
+	_InstrumentComponent.def("set_drumkit_componentID", &H2Core::InstrumentComponent::set_drumkit_componentID,
+		"Sets the component ID #__related_drumkit_componentID",
+		py::arg("related_drumkit_componentID"));
+	_InstrumentComponent.def("get_drumkit_componentID", &H2Core::InstrumentComponent::get_drumkit_componentID,
+		"Returns the component ID of the drumkit.");
+	_InstrumentComponent.def("set_gain", &H2Core::InstrumentComponent::set_gain,
+		py::arg("gain"));
+	_InstrumentComponent.def("get_gain", &H2Core::InstrumentComponent::get_gain);
+	_InstrumentComponent.def_static("getMaxLayers", &H2Core::InstrumentComponent::getMaxLayers,
+		"Returns #m_nMaxLayers.");
+	_InstrumentComponent.def_static("setMaxLayers", &H2Core::InstrumentComponent::setMaxLayers,
+		py::arg("layers"));
+	_InstrumentComponent.def("toQString", &H2Core::InstrumentComponent::toQString,
+		"Formatted string version for debugging purposes.",
+		py::arg("sPrefix"),
+		py::arg("bShort"));
+
+	py::class_<H2Core::Instrument> _Instrument(m, "Instrument");
+	_Instrument.def(py::init<const int, const QString &, std::shared_ptr<ADSR>>());
+	_Instrument.def(py::init<std::shared_ptr<Instrument>>());
+	_Instrument.def_static("class_name", &H2Core::Instrument::class_name);
+	_Instrument.def_static("load_instrument", &H2Core::Instrument::load_instrument,
+		"creates a new Instrument, loads samples from a given instrument within a given drumkit",
+		py::arg("drumkit_name"),
+		py::arg("instrument_name"),
+		py::arg("lookup"));
+	_Instrument.def("load_from", py::overload_cast<const QString &, const QString &, bool, Filesystem::Lookup>(&H2Core::Instrument::load_from),
+		"loads instrument from a given instrument within a given drumkit into a `live` Instrument object.",
+		py::arg("drumkit_name"),
+		py::arg("instrument_name"),
+		py::arg("is_live"),
+		py::arg("lookup"));
+	_Instrument.def("load_from", py::overload_cast<H2Core::Drumkit *, std::shared_ptr<Instrument>, bool>(&H2Core::Instrument::load_from),
+		"loads instrument from a given instrument into a `live` Instrument object.",
+		py::arg("drumkit"),
+		py::arg("instrument"),
+		py::arg("is_live"));
+	_Instrument.def_static("load_from_static", py::overload_cast<H2Core::XMLNode *, const QString &, const QString &>(&H2Core::Instrument::load_from),
+		"load an instrument from an XMLNode",
+		py::arg("node"),
+		py::arg("dk_path"),
+		py::arg("dk_name"));
+	_Instrument.def("load_samples", &H2Core::Instrument::load_samples,
+		"Calls the InstrumentLayer::load_sample() member function of all layers of each component of the Instrument.");
+	_Instrument.def("unload_samples", &H2Core::Instrument::unload_samples,
+		"Calls the InstrumentLayer::unload_sample() member function of all layers of each component of the Instrument.");
+	_Instrument.def("save_to", &H2Core::Instrument::save_to,
+		"save the instrument within the given XMLNode",
+		py::arg("node"),
+		py::arg("component_id"));
+	_Instrument.def("set_name", &H2Core::Instrument::set_name,
+		"Sets the name of the Instrument #__name.",
+		py::arg("name"));
+	_Instrument.def("get_name", &H2Core::Instrument::get_name,
+		"Access the name of the Instrument.");
+	_Instrument.def("set_id", &H2Core::Instrument::set_id,
+		"Sets #__id to id.",
+		py::arg("id"));
+	_Instrument.def("get_id", &H2Core::Instrument::get_id,
+		"Returns #__id.");
+	_Instrument.def("set_adsr", &H2Core::Instrument::set_adsr,
+		"set the ADSR of the instrument",
+		py::arg("adsr"));
+	_Instrument.def("get_adsr", &H2Core::Instrument::get_adsr,
+		"get the ADSR of the instrument");
+	_Instrument.def("copy_adsr", &H2Core::Instrument::copy_adsr,
+		"get a copy of the ADSR of the instrument");
+	_Instrument.def("set_mute_group", &H2Core::Instrument::set_mute_group,
+		"set the mute group of the instrument",
+		py::arg("group"));
+	_Instrument.def("get_mute_group", &H2Core::Instrument::get_mute_group,
+		"get the mute group of the instrument");
+	_Instrument.def("set_midi_out_channel", &H2Core::Instrument::set_midi_out_channel,
+		"set the midi out channel of the instrument",
+		py::arg("channel"));
+	_Instrument.def("get_midi_out_channel", &H2Core::Instrument::get_midi_out_channel,
+		"get the midi out channel of the instrument");
+	_Instrument.def("set_midi_out_note", &H2Core::Instrument::set_midi_out_note,
+		"set the midi out note of the instrument",
+		py::arg("note"));
+	_Instrument.def("get_midi_out_note", &H2Core::Instrument::get_midi_out_note,
+		"get the midi out note of the instrument");
+	_Instrument.def("set_muted", &H2Core::Instrument::set_muted,
+		"set muted status of the instrument",
+		py::arg("muted"));
+	_Instrument.def("is_muted", &H2Core::Instrument::is_muted,
+		"get muted status of the instrument");
+	_Instrument.def("setPan", &H2Core::Instrument::setPan,
+		"set pan of the instrument",
+		py::arg("val"));
+	_Instrument.def("setPanWithRangeFrom0To1", &H2Core::Instrument::setPanWithRangeFrom0To1,
+		"set pan of the instrument, assuming the input range in [0;1]",
+		py::arg("fVal"));
+	_Instrument.def("getPan", &H2Core::Instrument::getPan,
+		"get pan of the instrument");
+	_Instrument.def("getPanWithRangeFrom0To1", &H2Core::Instrument::getPanWithRangeFrom0To1,
+		"get pan of the instrument scaling and translating the range from [-1;1] to [0;1]");
+	_Instrument.def("set_gain", &H2Core::Instrument::set_gain,
+		"set gain of the instrument",
+		py::arg("gain"));
+	_Instrument.def("get_gain", &H2Core::Instrument::get_gain,
+		"get gain of the instrument");
+	_Instrument.def("set_volume", &H2Core::Instrument::set_volume,
+		"set the volume of the instrument",
+		py::arg("volume"));
+	_Instrument.def("get_volume", &H2Core::Instrument::get_volume,
+		"get the volume of the instrument");
+	_Instrument.def("set_filter_active", &H2Core::Instrument::set_filter_active,
+		"activate the filter of the instrument",
+		py::arg("active"));
+	_Instrument.def("is_filter_active", &H2Core::Instrument::is_filter_active,
+		"get the status of the filter of the instrument");
+	_Instrument.def("set_filter_resonance", &H2Core::Instrument::set_filter_resonance,
+		"set the filter resonance of the instrument",
+		py::arg("val"));
+	_Instrument.def("get_filter_resonance", &H2Core::Instrument::get_filter_resonance,
+		"get the filter resonance of the instrument");
+	_Instrument.def("set_filter_cutoff", &H2Core::Instrument::set_filter_cutoff,
+		"set the filter cutoff of the instrument",
+		py::arg("val"));
+	_Instrument.def("get_filter_cutoff", &H2Core::Instrument::get_filter_cutoff,
+		"get the filter cutoff of the instrument");
+	_Instrument.def("set_peak_l", &H2Core::Instrument::set_peak_l,
+		"set the left peak of the instrument",
+		py::arg("val"));
+	_Instrument.def("get_peak_l", &H2Core::Instrument::get_peak_l,
+		"get the left peak of the instrument");
+	_Instrument.def("set_peak_r", &H2Core::Instrument::set_peak_r,
+		"set the right peak of the instrument",
+		py::arg("val"));
+	_Instrument.def("get_peak_r", &H2Core::Instrument::get_peak_r,
+		"get the right peak of the instrument");
+	_Instrument.def("set_fx_level", &H2Core::Instrument::set_fx_level,
+		"set the fx level of the instrument",
+		py::arg("level"),
+		py::arg("index"));
+	_Instrument.def("get_fx_level", &H2Core::Instrument::get_fx_level,
+		"get the fx level of the instrument",
+		py::arg("index"));
+	_Instrument.def("set_random_pitch_factor", &H2Core::Instrument::set_random_pitch_factor,
+		"set the random pitch factor of the instrument",
+		py::arg("val"));
+	_Instrument.def("get_random_pitch_factor", &H2Core::Instrument::get_random_pitch_factor,
+		"get the random pitch factor of the instrument");
+	_Instrument.def("set_pitch_offset", &H2Core::Instrument::set_pitch_offset,
+		"set the pitch offset of the instrument",
+		py::arg("val"));
+	_Instrument.def("get_pitch_offset", &H2Core::Instrument::get_pitch_offset,
+		"get the pitch offset of the instrument");
+	_Instrument.def("set_active", &H2Core::Instrument::set_active,
+		"set the active status of the instrument",
+		py::arg("active"));
+	_Instrument.def("is_active", &H2Core::Instrument::is_active,
+		"get the active status of the instrument");
+	_Instrument.def("set_soloed", &H2Core::Instrument::set_soloed,
+		"set the soloed status of the instrument",
+		py::arg("soloed"));
+	_Instrument.def("is_soloed", &H2Core::Instrument::is_soloed,
+		"get the soloed status of the instrument");
+	_Instrument.def("enqueue", &H2Core::Instrument::enqueue,
+		"enqueue the instrument");
+	_Instrument.def("dequeue", &H2Core::Instrument::dequeue,
+		"dequeue the instrument");
+	_Instrument.def("is_queued", &H2Core::Instrument::is_queued,
+		"get the queued status of the instrument");
+	_Instrument.def("set_stop_notes", &H2Core::Instrument::set_stop_notes,
+		"set the stop notes status of the instrument",
+		py::arg("stopnotes"));
+	_Instrument.def("is_stop_notes", &H2Core::Instrument::is_stop_notes,
+		"get the stop notes of the instrument");
+	_Instrument.def("set_sample_selection_alg", &H2Core::Instrument::set_sample_selection_alg,
+		py::arg("selected_algo"));
+	_Instrument.def("sample_selection_alg", &H2Core::Instrument::sample_selection_alg);
+	_Instrument.def("set_hihat_grp", &H2Core::Instrument::set_hihat_grp,
+		py::arg("hihat_grp"));
+	_Instrument.def("get_hihat_grp", &H2Core::Instrument::get_hihat_grp);
+	_Instrument.def("set_lower_cc", &H2Core::Instrument::set_lower_cc,
+		py::arg("message"));
+	_Instrument.def("get_lower_cc", &H2Core::Instrument::get_lower_cc);
+	_Instrument.def("set_higher_cc", &H2Core::Instrument::set_higher_cc,
+		py::arg("message"));
+	_Instrument.def("get_higher_cc", &H2Core::Instrument::get_higher_cc);
+	_Instrument.def("set_drumkit_name", &H2Core::Instrument::set_drumkit_name,
+		py::arg("name"));
+	_Instrument.def("get_drumkit_name", &H2Core::Instrument::get_drumkit_name);
+	_Instrument.def("set_is_preview_instrument", &H2Core::Instrument::set_is_preview_instrument,
+		"Mark the instrument as hydrogen's preview instrument",
+		py::arg("isPreview"));
+	_Instrument.def("is_preview_instrument", &H2Core::Instrument::is_preview_instrument);
+	_Instrument.def("set_is_metronome_instrument", &H2Core::Instrument::set_is_metronome_instrument,
+		"Mark the instrument as metronome instrument",
+		py::arg("isMetronome"));
+	_Instrument.def("is_metronome_instrument", &H2Core::Instrument::is_metronome_instrument);
+	_Instrument.def("get_components", &H2Core::Instrument::get_components);
+	_Instrument.def("get_component", &H2Core::Instrument::get_component,
+		py::arg("DrumkitComponentID"));
+	_Instrument.def("set_apply_velocity", &H2Core::Instrument::set_apply_velocity,
+		py::arg("apply_velocity"));
+	_Instrument.def("get_apply_velocity", &H2Core::Instrument::get_apply_velocity);
+	_Instrument.def("is_currently_exported", &H2Core::Instrument::is_currently_exported);
+	_Instrument.def("set_currently_exported", &H2Core::Instrument::set_currently_exported,
+		py::arg("isCurrentlyExported"));
+	_Instrument.def("has_missing_samples", &H2Core::Instrument::has_missing_samples);
+	_Instrument.def("set_missing_samples", &H2Core::Instrument::set_missing_samples,
+		py::arg("bHasMissingSamples"));
+	_Instrument.def("toQString", &H2Core::Instrument::toQString,
+		"Formatted string version for debugging purposes.",
+		py::arg("sPrefix"),
+		py::arg("bShort"));
+
 	py::class_<H2Core::ADSR> _ADSR(m, "ADSR");
 	_ADSR.def(py::init<unsigned int, unsigned int, float, unsigned int>());
 	_ADSR.def(py::init<const std::shared_ptr<ADSR>>());
@@ -2881,179 +2417,179 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("sPrefix"),
 		py::arg("bShort"));
 
-	py::class_<H2Core::PatternList> _PatternList(m, "PatternList");
-	_PatternList.def(py::init<>());
-	_PatternList.def(py::init<H2Core::PatternList *>());
-	_PatternList.def_static("class_name", &H2Core::PatternList::class_name);
-	_PatternList.def("size", &H2Core::PatternList::size,
-		"returns the numbers of patterns");
-	_PatternList.def("operator<<", &H2Core::PatternList::operator<<,
-		"add a pattern to the list",
-		py::arg("pattern"));
-	_PatternList.def("operator[]", &H2Core::PatternList::operator[],
-		"get a pattern from the list",
-		py::arg("idx"));
-	_PatternList.def("add", &H2Core::PatternList::add,
-		"add a pattern to the list",
-		py::arg("pattern"));
-	_PatternList.def("insert", &H2Core::PatternList::insert,
-		"insert a pattern into the list",
-		py::arg("idx"),
-		py::arg("pattern"));
-	_PatternList.def("get", py::overload_cast<int>(&H2Core::PatternList::get),
-			"get a pattern from the list",
-		py::arg("idx"));
-	_PatternList.def("get", py::overload_cast<int>(&H2Core::PatternList::get),
-		py::arg("idx"));
-	_PatternList.def("del", py::overload_cast<int>(&H2Core::PatternList::del),
-			"remove the pattern at a given index, does not delete it",
-		py::arg("idx"));
-	_PatternList.def("del", py::overload_cast<H2Core::Pattern *>(&H2Core::PatternList::del),
-			"remove a pattern from the list, does not delete it",
-		py::arg("pattern"));
-	_PatternList.def("index", &H2Core::PatternList::index,
-		"get the index of the pattern within the patterns",
-		py::arg("pattern"));
-	_PatternList.def("replace", &H2Core::PatternList::replace,
-		"replace the pattern at a given index with a new one",
-		py::arg("idx"),
-		py::arg("pattern"));
-	_PatternList.def("clear", &H2Core::PatternList::clear,
-		"empty the pattern list");
-	_PatternList.def("set_to_old", &H2Core::PatternList::set_to_old,
-		"mark all patterns as old");
-	_PatternList.def("find", &H2Core::PatternList::find,
-		"find a pattern within the patterns",
+	py::class_<H2Core::DrumkitComponent> _DrumkitComponent(m, "DrumkitComponent");
+	_DrumkitComponent.def(py::init<const int, const QString &>());
+	_DrumkitComponent.def(py::init<H2Core::DrumkitComponent *>());
+	_DrumkitComponent.def_static("class_name", &H2Core::DrumkitComponent::class_name);
+	_DrumkitComponent.def("save_to", &H2Core::DrumkitComponent::save_to,
+		py::arg("node"));
+	_DrumkitComponent.def_static("load_from_static", py::overload_cast<H2Core::XMLNode *, const QString &>(&H2Core::DrumkitComponent::load_from),
+		py::arg("node"),
+		py::arg("dk_path"));
+	_DrumkitComponent.def("load_from", py::overload_cast<H2Core::DrumkitComponent *, bool>(&H2Core::DrumkitComponent::load_from),
+		py::arg("component"),
+		py::arg("is_live"));
+	_DrumkitComponent.def("set_name", &H2Core::DrumkitComponent::set_name,
+		"Sets the name of the DrumkitComponent #__name.",
 		py::arg("name"));
-	_PatternList.def("swap", &H2Core::PatternList::swap,
-		"swap the patterns of two different indexes",
-		py::arg("idx_a"),
-		py::arg("idx_b"));
-	_PatternList.def("move", &H2Core::PatternList::move,
-		"move a pattern from a position to another",
-		py::arg("idx_a"),
-		py::arg("idx_b"));
-	_PatternList.def("flattened_virtual_patterns_compute", &H2Core::PatternList::flattened_virtual_patterns_compute,
-		"call compute_flattened_virtual_patterns on each pattern");
-	_PatternList.def("virtual_pattern_del", &H2Core::PatternList::virtual_pattern_del,
-		"call del_virtual_pattern on each pattern",
-		py::arg("pattern"));
-	_PatternList.def("check_name", &H2Core::PatternList::check_name,
-		"check if a pattern with name patternName already exists in this list",
-		py::arg("patternName"),
-		py::arg("ignore"));
-	_PatternList.def("find_unused_pattern_name", &H2Core::PatternList::find_unused_pattern_name,
-		"find unused patternName",
-		py::arg("sourceName"),
-		py::arg("ignore"));
-	_PatternList.def("longest_pattern_length", &H2Core::PatternList::longest_pattern_length,
-		"Get the length of the longest pattern in the list");
-	_PatternList.def("toQString", &H2Core::PatternList::toQString,
+	_DrumkitComponent.def("get_name", &H2Core::DrumkitComponent::get_name,
+		"Access the name of the DrumkitComponent.");
+	_DrumkitComponent.def("set_id", &H2Core::DrumkitComponent::set_id,
+		py::arg("id"));
+	_DrumkitComponent.def("get_id", &H2Core::DrumkitComponent::get_id);
+	_DrumkitComponent.def("set_volume", &H2Core::DrumkitComponent::set_volume,
+		py::arg("volume"));
+	_DrumkitComponent.def("get_volume", &H2Core::DrumkitComponent::get_volume);
+	_DrumkitComponent.def("set_muted", &H2Core::DrumkitComponent::set_muted,
+		py::arg("muted"));
+	_DrumkitComponent.def("is_muted", &H2Core::DrumkitComponent::is_muted);
+	_DrumkitComponent.def("set_soloed", &H2Core::DrumkitComponent::set_soloed,
+		py::arg("soloed"));
+	_DrumkitComponent.def("is_soloed", &H2Core::DrumkitComponent::is_soloed);
+	_DrumkitComponent.def("set_peak_l", &H2Core::DrumkitComponent::set_peak_l,
+		py::arg("val"));
+	_DrumkitComponent.def("get_peak_l", &H2Core::DrumkitComponent::get_peak_l);
+	_DrumkitComponent.def("set_peak_r", &H2Core::DrumkitComponent::set_peak_r,
+		py::arg("val"));
+	_DrumkitComponent.def("get_peak_r", &H2Core::DrumkitComponent::get_peak_r);
+	// [<TypeDef 'uint32_t'>] _DrumkitComponent.def("reset_outs", &H2Core::DrumkitComponent::reset_outs,
+	// [<TypeDef 'uint32_t'>] 	py::arg("nFrames"));
+	_DrumkitComponent.def("set_outs", &H2Core::DrumkitComponent::set_outs,
+		py::arg("nBufferPos"),
+		py::arg("valL"),
+		py::arg("valR"));
+	_DrumkitComponent.def("get_out_L", &H2Core::DrumkitComponent::get_out_L,
+		py::arg("nBufferPos"));
+	_DrumkitComponent.def("get_out_R", &H2Core::DrumkitComponent::get_out_R,
+		py::arg("nBufferPos"));
+	_DrumkitComponent.def("toQString", &H2Core::DrumkitComponent::toQString,
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
 		py::arg("bShort"));
 
-	// enum MidiMessageType
-	py::enum_<H2Core::MidiMessage::MidiMessageType>(_MidiMessage, "MidiMessageType")
-		.value("UNKNOWN", H2Core::MidiMessage::MidiMessageType::UNKNOWN)
-		.value("SYSEX", H2Core::MidiMessage::MidiMessageType::SYSEX)
-		.value("NOTE_ON", H2Core::MidiMessage::MidiMessageType::NOTE_ON)
-		.value("NOTE_OFF", H2Core::MidiMessage::MidiMessageType::NOTE_OFF)
-		.value("POLYPHONIC_KEY_PRESSURE", H2Core::MidiMessage::MidiMessageType::POLYPHONIC_KEY_PRESSURE)
-		.value("CONTROL_CHANGE", H2Core::MidiMessage::MidiMessageType::CONTROL_CHANGE)
-		.value("PROGRAM_CHANGE", H2Core::MidiMessage::MidiMessageType::PROGRAM_CHANGE)
-		.value("CHANNEL_PRESSURE", H2Core::MidiMessage::MidiMessageType::CHANNEL_PRESSURE)
-		.value("PITCH_WHEEL", H2Core::MidiMessage::MidiMessageType::PITCH_WHEEL)
-		.value("SYSTEM_EXCLUSIVE", H2Core::MidiMessage::MidiMessageType::SYSTEM_EXCLUSIVE)
-		.value("START", H2Core::MidiMessage::MidiMessageType::START)
-		.value("CONTINUE", H2Core::MidiMessage::MidiMessageType::CONTINUE)
-		.value("STOP", H2Core::MidiMessage::MidiMessageType::STOP)
-		.value("SONG_POS", H2Core::MidiMessage::MidiMessageType::SONG_POS)
-		.value("QUARTER_FRAME", H2Core::MidiMessage::MidiMessageType::QUARTER_FRAME);
-
-	py::class_<QLibrary> _QLibrary(m, "QLibrary");
-	_QLibrary.def(py::init<QObject *>());
-	_QLibrary.def(py::init<const QString &, QObject *>());
-	_QLibrary.def(py::init<const QString &, int, QObject *>());
-	_QLibrary.def(py::init<const QString &, const QString &, QObject *>());
-	// [<Struct 'QMetaObject'>] _QLibrary.def("metaObject", &QLibrary::metaObject);
-	_QLibrary.def("qt_metacast", &QLibrary::qt_metacast,
-		py::arg(""));
-	// [<Enum 'Call'>] _QLibrary.def("qt_metacall", &QLibrary::qt_metacall,
-	// [<Enum 'Call'>] 	py::arg(""),
-	// [<Enum 'Call'>] 	py::arg(""),
-	// [<Enum 'Call'>] 	py::arg(""));
-	_QLibrary.def_static("tr", &QLibrary::tr,
-		py::arg("s"),
-		py::arg("c"),
-		py::arg("n"));
-	_QLibrary.def_static("trUtf8", &QLibrary::trUtf8,
-		py::arg("s"),
-		py::arg("c"),
-		py::arg("n"));
-	// [<TypeDef 'QFunctionPointer'>] _QLibrary.def("resolve", py::overload_cast<const char *>(&QLibrary::resolve),
-	// [<TypeDef 'QFunctionPointer'>] 	py::arg("symbol"));
-	// [<TypeDef 'QFunctionPointer'>] _QLibrary.def_static("resolve_static", py::overload_cast<const QString &, const char *>(&QLibrary::resolve),
-	// [<TypeDef 'QFunctionPointer'>] 	py::arg("fileName"),
-	// [<TypeDef 'QFunctionPointer'>] 	py::arg("symbol"));
-	// [<TypeDef 'QFunctionPointer'>] _QLibrary.def_static("resolve_static", py::overload_cast<const QString &, int, const char *>(&QLibrary::resolve),
-	// [<TypeDef 'QFunctionPointer'>] 	py::arg("fileName"),
-	// [<TypeDef 'QFunctionPointer'>] 	py::arg("verNum"),
-	// [<TypeDef 'QFunctionPointer'>] 	py::arg("symbol"));
-	// [<TypeDef 'QFunctionPointer'>] _QLibrary.def_static("resolve_static", py::overload_cast<const QString &, const QString &, const char *>(&QLibrary::resolve),
-	// [<TypeDef 'QFunctionPointer'>] 	py::arg("fileName"),
-	// [<TypeDef 'QFunctionPointer'>] 	py::arg("version"),
-	// [<TypeDef 'QFunctionPointer'>] 	py::arg("symbol"));
-	_QLibrary.def("load", &QLibrary::load);
-	_QLibrary.def("unload", &QLibrary::unload);
-	_QLibrary.def("isLoaded", &QLibrary::isLoaded);
-	_QLibrary.def_static("isLibrary", &QLibrary::isLibrary,
-		py::arg("fileName"));
-	_QLibrary.def("setFileName", &QLibrary::setFileName,
-		py::arg("fileName"));
-	_QLibrary.def("fileName", &QLibrary::fileName);
-	_QLibrary.def("setFileNameAndVersion", py::overload_cast<const QString &, int>(&QLibrary::setFileNameAndVersion),
-		py::arg("fileName"),
-		py::arg("verNum"));
-	_QLibrary.def("setFileNameAndVersion", py::overload_cast<const QString &, const QString &>(&QLibrary::setFileNameAndVersion),
-		py::arg("fileName"),
-		py::arg("version"));
-	_QLibrary.def("errorString", &QLibrary::errorString);
-	// [<TypeDef 'LoadHints'>] _QLibrary.def("setLoadHints", &QLibrary::setLoadHints,
-	// [<TypeDef 'LoadHints'>] 	py::arg("hints"));
-	// [<TypeDef 'LoadHints'>] _QLibrary.def("loadHints", &QLibrary::loadHints);
-
-	py::class_<H2Core::H2Exception> _H2Exception(m, "H2Exception");
-	_H2Exception.def(py::init<const QString &>());
-
-	py::class_<std::timed_mutex> _timed_mutex(m, "timed_mutex");
-	_timed_mutex.def(py::init<>());
-	// [banned] _timed_mutex.def("operator=", &std::timed_mutex::operator=,
-	// [banned] 	py::arg(""));
-	_timed_mutex.def("lock", &std::timed_mutex::lock);
-	_timed_mutex.def("try_lock", &std::timed_mutex::try_lock);
-	_timed_mutex.def("unlock", &std::timed_mutex::unlock);
-	// [<TypeDef 'native_handle_type'>] _timed_mutex.def("native_handle", &std::timed_mutex::native_handle);
-
-	py::class_<QMutex> _QMutex(m, "QMutex");
-	_QMutex.def(py::init<>());
-	_QMutex.def(py::init<QMutex::RecursionMode>());
-	_QMutex.def("lock", &QMutex::lock);
-	_QMutex.def("tryLock", &QMutex::tryLock,
-		py::arg("timeout"));
-	_QMutex.def("unlock", &QMutex::unlock);
-	_QMutex.def("try_lock", &QMutex::try_lock);
-	_QMutex.def("isRecursive", &QMutex::isRecursive);
-
-	py::class_<std::thread::id> _id(m, "id");
-	_id.def(py::init<>());
-	_id.def(py::init<std::thread::native_handle_type>());
-
-	// enum Lookup
-	py::enum_<H2Core::Filesystem::Lookup>(_Filesystem, "Lookup")
-		.value("stacked", H2Core::Filesystem::Lookup::stacked)
-		.value("user", H2Core::Filesystem::Lookup::user)
-		.value("system", H2Core::Filesystem::Lookup::system);
+	py::class_<H2Core::Drumkit> _Drumkit(m, "Drumkit");
+	_Drumkit.def(py::init<>());
+	_Drumkit.def(py::init<H2Core::Drumkit *>());
+	_Drumkit.def_static("class_name", &H2Core::Drumkit::class_name);
+	_Drumkit.def_static("load", &H2Core::Drumkit::load,
+		"Load drumkit information from a directory.",
+		py::arg("dk_dir"),
+		py::arg("load_samples"));
+	_Drumkit.def_static("load_by_name", &H2Core::Drumkit::load_by_name,
+		"Simple wrapper for load() used with the drumkit's name instead of its directory.",
+		py::arg("dk_name"),
+		py::arg("load_samples"),
+		py::arg("lookup"));
+	_Drumkit.def_static("load_file", &H2Core::Drumkit::load_file,
+		"Load a Drumkit from a file.",
+		py::arg("dk_path"),
+		py::arg("load_samples"));
+	_Drumkit.def("load_samples", &H2Core::Drumkit::load_samples,
+		"Calls the InstrumentList::load_samples() member function of #__instruments.");
+	_Drumkit.def("unload_samples", &H2Core::Drumkit::unload_samples,
+		"Calls the InstrumentList::unload_samples() member function of #__instruments.");
+	_Drumkit.def_static("upgrade_drumkit", &H2Core::Drumkit::upgrade_drumkit,
+		"Saves the current drumkit to dk_path, but makes a backup. This is used when the drumkit did not comply to our xml schema.",
+		py::arg("pDrumkit"),
+		py::arg("dk_path"));
+	_Drumkit.def_static("user_drumkit_exists", &H2Core::Drumkit::user_drumkit_exists,
+		"check if a user drumkit with the given name already exists",
+		py::arg("dk_path"));
+	_Drumkit.def("save", py::overload_cast<bool>(&H2Core::Drumkit::save),
+		"save a drumkit, xml file and samples",
+		py::arg("overwrite"));
+	_Drumkit.def("save", py::overload_cast<const QString &, bool>(&H2Core::Drumkit::save),
+		"save a drumkit, xml file and samples neither #__path nor #__name are updated",
+		py::arg("dk_dir"),
+		py::arg("overwrite"));
+	_Drumkit.def_static("save_static", py::overload_cast<const QString &, const QString &, const QString &, const QString &, const QString &, const QString &, H2Core::InstrumentList *, std::vector<DrumkitComponent *> *, bool>(&H2Core::Drumkit::save),
+		"save a drumkit using given parameters and an instrument list",
+		py::arg("sName"),
+		py::arg("sAuthor"),
+		py::arg("sInfo"),
+		py::arg("sLicense"),
+		py::arg("sImage"),
+		py::arg("sImageLicense"),
+		py::arg("pInstruments"),
+		py::arg("pComponents"),
+		py::arg("bOverwrite"));
+	_Drumkit.def("save_file", &H2Core::Drumkit::save_file,
+		"save a drumkit into an xml file",
+		py::arg("dk_path"),
+		py::arg("overwrite"),
+		py::arg("component_id"));
+	_Drumkit.def("save_samples", &H2Core::Drumkit::save_samples,
+		"save a drumkit instruments samples into a directory",
+		py::arg("dk_dir"),
+		py::arg("overwrite"));
+	_Drumkit.def("save_image", &H2Core::Drumkit::save_image,
+		"save the drumkit image into the new directory",
+		py::arg("dk_dir"),
+		py::arg("overwrite"));
+	_Drumkit.def_static("install", &H2Core::Drumkit::install,
+		"install a drumkit from a filename",
+		py::arg("path"));
+	_Drumkit.def_static("remove", &H2Core::Drumkit::remove,
+		"remove a drumkit from the disk",
+		py::arg("dk_name"),
+		py::arg("lookup"));
+	_Drumkit.def("set_instruments", &H2Core::Drumkit::set_instruments,
+		"set __instruments, delete existing one",
+		py::arg("instruments"));
+	_Drumkit.def("get_instruments", &H2Core::Drumkit::get_instruments,
+		"returns #__instruments");
+	_Drumkit.def("set_path", &H2Core::Drumkit::set_path,
+		"#__path setter",
+		py::arg("path"));
+	_Drumkit.def("get_path", &H2Core::Drumkit::get_path,
+		"#__path accessor");
+	_Drumkit.def("set_name", &H2Core::Drumkit::set_name,
+		"#__name setter",
+		py::arg("name"));
+	_Drumkit.def("get_name", &H2Core::Drumkit::get_name,
+		"#__name accessor");
+	_Drumkit.def("set_author", &H2Core::Drumkit::set_author,
+		"#__author setter",
+		py::arg("author"));
+	_Drumkit.def("get_author", &H2Core::Drumkit::get_author,
+		"#__author accessor");
+	_Drumkit.def("set_info", &H2Core::Drumkit::set_info,
+		"#__info setter",
+		py::arg("info"));
+	_Drumkit.def("get_info", &H2Core::Drumkit::get_info,
+		"#__info accessor");
+	_Drumkit.def("set_license", &H2Core::Drumkit::set_license,
+		"#__license setter",
+		py::arg("license"));
+	_Drumkit.def("get_license", &H2Core::Drumkit::get_license,
+		"#__license accessor");
+	_Drumkit.def("set_image", &H2Core::Drumkit::set_image,
+		"#__image setter",
+		py::arg("image"));
+	_Drumkit.def("get_image", &H2Core::Drumkit::get_image,
+		"#__image accessor");
+	_Drumkit.def("set_image_license", &H2Core::Drumkit::set_image_license,
+		"#__imageLicense setter",
+		py::arg("imageLicense"));
+	_Drumkit.def("get_image_license", &H2Core::Drumkit::get_image_license,
+		"#__imageLicense accessor");
+	_Drumkit.def("samples_loaded", &H2Core::Drumkit::samples_loaded,
+		"return true if the samples are loaded");
+	_Drumkit.def("dump", &H2Core::Drumkit::dump);
+	_Drumkit.def("isUserDrumkit", &H2Core::Drumkit::isUserDrumkit,
+		"Returns Whether the associated files are located in the user or the systems drumkit folder.");
+	_Drumkit.def("get_components", &H2Core::Drumkit::get_components);
+	_Drumkit.def("set_components", &H2Core::Drumkit::set_components,
+		py::arg("components"));
+	_Drumkit.def("toQString", &H2Core::Drumkit::toQString,
+		"Formatted string version for debugging purposes.",
+		py::arg("sPrefix"),
+		py::arg("bShort"));
+	_Drumkit.def("__repr__",
+	[](const H2Core::Drumkit & drumkit) {
+        return "<Drumkit \"" + drumkit.get_name() + "\">";
+    }
+    );
 
 	py::class_<H2Core::XMLNode> _XMLNode(m, "XMLNode");
 	_XMLNode.def(py::init<>());
@@ -3075,7 +2611,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("inexistent_ok"),
 		py::arg("empty_ok"));
 	_XMLNode.def("read_float", py::overload_cast<const QString &, float, bool, bool>(&H2Core::XMLNode::read_float),
-			"reads a float stored into a child node",
+		"reads a float stored into a child node",
 		py::arg("node"),
 		py::arg("default_value"),
 		py::arg("inexistent_ok"),
@@ -3121,6 +2657,204 @@ PYBIND11_MODULE(h2core, m) {
 		"write a string as an attribute of the node",
 		py::arg("attribute"),
 		py::arg("value"));
+
+	// enum MidiMessageType
+	py::enum_<H2Core::MidiMessage::MidiMessageType>(_MidiMessage, "MidiMessageType")
+		.value("UNKNOWN", H2Core::MidiMessage::MidiMessageType::UNKNOWN)
+		.value("SYSEX", H2Core::MidiMessage::MidiMessageType::SYSEX)
+		.value("NOTE_ON", H2Core::MidiMessage::MidiMessageType::NOTE_ON)
+		.value("NOTE_OFF", H2Core::MidiMessage::MidiMessageType::NOTE_OFF)
+		.value("POLYPHONIC_KEY_PRESSURE", H2Core::MidiMessage::MidiMessageType::POLYPHONIC_KEY_PRESSURE)
+		.value("CONTROL_CHANGE", H2Core::MidiMessage::MidiMessageType::CONTROL_CHANGE)
+		.value("PROGRAM_CHANGE", H2Core::MidiMessage::MidiMessageType::PROGRAM_CHANGE)
+		.value("CHANNEL_PRESSURE", H2Core::MidiMessage::MidiMessageType::CHANNEL_PRESSURE)
+		.value("PITCH_WHEEL", H2Core::MidiMessage::MidiMessageType::PITCH_WHEEL)
+		.value("SYSTEM_EXCLUSIVE", H2Core::MidiMessage::MidiMessageType::SYSTEM_EXCLUSIVE)
+		.value("START", H2Core::MidiMessage::MidiMessageType::START)
+		.value("CONTINUE", H2Core::MidiMessage::MidiMessageType::CONTINUE)
+		.value("STOP", H2Core::MidiMessage::MidiMessageType::STOP)
+		.value("SONG_POS", H2Core::MidiMessage::MidiMessageType::SONG_POS)
+		.value("QUARTER_FRAME", H2Core::MidiMessage::MidiMessageType::QUARTER_FRAME);
+
+	py::class_<H2Core::H2Exception> _H2Exception(m, "H2Exception");
+	_H2Exception.def(py::init<const QString &>());
+
+	py::class_<H2Core::PatternList> _PatternList(m, "PatternList");
+	_PatternList.def(py::init<>());
+	_PatternList.def(py::init<H2Core::PatternList *>());
+	_PatternList.def_static("class_name", &H2Core::PatternList::class_name);
+	_PatternList.def("size", &H2Core::PatternList::size,
+		"returns the numbers of patterns");
+	_PatternList.def("operator<<", &H2Core::PatternList::operator<<,
+		"add a pattern to the list",
+		py::arg("pattern"));
+	_PatternList.def("operator[]", &H2Core::PatternList::operator[],
+		"get a pattern from the list",
+		py::arg("idx"));
+	_PatternList.def("add", &H2Core::PatternList::add,
+		"add a pattern to the list",
+		py::arg("pattern"));
+	_PatternList.def("insert", &H2Core::PatternList::insert,
+		"insert a pattern into the list",
+		py::arg("idx"),
+		py::arg("pattern"));
+	_PatternList.def("get", py::overload_cast<int>(&H2Core::PatternList::get),
+		"get a pattern from the list",
+		py::arg("idx"));
+	_PatternList.def("get", py::overload_cast<int>(&H2Core::PatternList::get),
+		py::arg("idx"));
+	_PatternList.def("del", py::overload_cast<int>(&H2Core::PatternList::del),
+		"remove the pattern at a given index, does not delete it",
+		py::arg("idx"));
+	_PatternList.def("del", py::overload_cast<H2Core::Pattern *>(&H2Core::PatternList::del),
+		"remove a pattern from the list, does not delete it",
+		py::arg("pattern"));
+	_PatternList.def("index", &H2Core::PatternList::index,
+		"get the index of the pattern within the patterns",
+		py::arg("pattern"));
+	_PatternList.def("replace", &H2Core::PatternList::replace,
+		"replace the pattern at a given index with a new one",
+		py::arg("idx"),
+		py::arg("pattern"));
+	_PatternList.def("clear", &H2Core::PatternList::clear,
+		"empty the pattern list");
+	_PatternList.def("set_to_old", &H2Core::PatternList::set_to_old,
+		"mark all patterns as old");
+	_PatternList.def("find", &H2Core::PatternList::find,
+		"find a pattern within the patterns",
+		py::arg("name"));
+	_PatternList.def("swap", &H2Core::PatternList::swap,
+		"swap the patterns of two different indexes",
+		py::arg("idx_a"),
+		py::arg("idx_b"));
+	_PatternList.def("move", &H2Core::PatternList::move,
+		"move a pattern from a position to another",
+		py::arg("idx_a"),
+		py::arg("idx_b"));
+	_PatternList.def("flattened_virtual_patterns_compute", &H2Core::PatternList::flattened_virtual_patterns_compute,
+		"call compute_flattened_virtual_patterns on each pattern");
+	_PatternList.def("virtual_pattern_del", &H2Core::PatternList::virtual_pattern_del,
+		"call del_virtual_pattern on each pattern",
+		py::arg("pattern"));
+	_PatternList.def("check_name", &H2Core::PatternList::check_name,
+		"check if a pattern with name patternName already exists in this list",
+		py::arg("patternName"),
+		py::arg("ignore"));
+	_PatternList.def("find_unused_pattern_name", &H2Core::PatternList::find_unused_pattern_name,
+		"find unused patternName",
+		py::arg("sourceName"),
+		py::arg("ignore"));
+	_PatternList.def("longest_pattern_length", &H2Core::PatternList::longest_pattern_length,
+		"Get the length of the longest pattern in the list");
+	_PatternList.def("toQString", &H2Core::PatternList::toQString,
+		"Formatted string version for debugging purposes.",
+		py::arg("sPrefix"),
+		py::arg("bShort"));
+
+	// enum Spec
+	py::enum_<QColor::Spec>(_QColor, "Spec")
+		.value("Invalid", QColor::Spec::Invalid)
+		.value("Rgb", QColor::Spec::Rgb)
+		.value("Hsv", QColor::Spec::Hsv)
+		.value("Cmyk", QColor::Spec::Cmyk)
+		.value("Hsl", QColor::Spec::Hsl)
+		.value("ExtendedRgb", QColor::Spec::ExtendedRgb);
+
+	// enum Octave
+	py::enum_<H2Core::Note::Octave>(_Note, "Octave")
+		.value("P8Z", H2Core::Note::Octave::P8Z)
+		.value("P8Y", H2Core::Note::Octave::P8Y)
+		.value("P8X", H2Core::Note::Octave::P8X)
+		.value("P8", H2Core::Note::Octave::P8)
+		.value("P8A", H2Core::Note::Octave::P8A)
+		.value("P8B", H2Core::Note::Octave::P8B)
+		.value("P8C", H2Core::Note::Octave::P8C);
+
+	// enum Key
+	py::enum_<H2Core::Note::Key>(_Note, "Key")
+		.value("C", H2Core::Note::Key::C)
+		.value("Cs", H2Core::Note::Key::Cs)
+		.value("D", H2Core::Note::Key::D)
+		.value("Ef", H2Core::Note::Key::Ef)
+		.value("E", H2Core::Note::Key::E)
+		.value("F", H2Core::Note::Key::F)
+		.value("Fs", H2Core::Note::Key::Fs)
+		.value("G", H2Core::Note::Key::G)
+		.value("Af", H2Core::Note::Key::Af)
+		.value("A", H2Core::Note::Key::A)
+		.value("Bf", H2Core::Note::Key::Bf)
+		.value("B", H2Core::Note::Key::B);
+
+	py::class_<H2Core::PortMidiDriver> _PortMidiDriver(m, "PortMidiDriver");
+	_PortMidiDriver.def(py::init<>());
+	_PortMidiDriver.def_static("class_name", &H2Core::PortMidiDriver::class_name);
+	_PortMidiDriver.def("open", &H2Core::PortMidiDriver::open);
+	_PortMidiDriver.def("close", &H2Core::PortMidiDriver::close);
+	_PortMidiDriver.def("getInputPortList", &H2Core::PortMidiDriver::getInputPortList);
+	_PortMidiDriver.def("getOutputPortList", &H2Core::PortMidiDriver::getOutputPortList);
+	_PortMidiDriver.def("handleQueueNote", &H2Core::PortMidiDriver::handleQueueNote,
+		py::arg("pNote"));
+	_PortMidiDriver.def("handleQueueNoteOff", &H2Core::PortMidiDriver::handleQueueNoteOff,
+		py::arg("channel"),
+		py::arg("key"),
+		py::arg("velocity"));
+	_PortMidiDriver.def("handleQueueAllNoteOff", &H2Core::PortMidiDriver::handleQueueAllNoteOff);
+	_PortMidiDriver.def("handleOutgoingControlChange", &H2Core::PortMidiDriver::handleOutgoingControlChange,
+		py::arg("param"),
+		py::arg("value"),
+		py::arg("channel"));
+
+	py::class_<H2Core::JackMidiDriver> _JackMidiDriver(m, "JackMidiDriver");
+	_JackMidiDriver.def(py::init<>());
+	_JackMidiDriver.def_static("class_name", &H2Core::JackMidiDriver::class_name);
+	_JackMidiDriver.def("open", &H2Core::JackMidiDriver::open);
+	_JackMidiDriver.def("close", &H2Core::JackMidiDriver::close);
+	_JackMidiDriver.def("getInputPortList", &H2Core::JackMidiDriver::getInputPortList);
+	_JackMidiDriver.def("getOutputPortList", &H2Core::JackMidiDriver::getOutputPortList);
+	_JackMidiDriver.def("getPortInfo", &H2Core::JackMidiDriver::getPortInfo,
+		py::arg("sPortName"),
+		py::arg("nClient"),
+		py::arg("nPort"));
+	_JackMidiDriver.def("JackMidiWrite", &H2Core::JackMidiDriver::JackMidiWrite,
+		py::arg("nframes"));
+	_JackMidiDriver.def("JackMidiRead", &H2Core::JackMidiDriver::JackMidiRead,
+		py::arg("nframes"));
+	_JackMidiDriver.def("handleQueueNote", &H2Core::JackMidiDriver::handleQueueNote,
+		py::arg("pNote"));
+	_JackMidiDriver.def("handleQueueNoteOff", &H2Core::JackMidiDriver::handleQueueNoteOff,
+		py::arg("channel"),
+		py::arg("key"),
+		py::arg("velocity"));
+	_JackMidiDriver.def("handleQueueAllNoteOff", &H2Core::JackMidiDriver::handleQueueAllNoteOff);
+	_JackMidiDriver.def("handleOutgoingControlChange", &H2Core::JackMidiDriver::handleOutgoingControlChange,
+		py::arg("param"),
+		py::arg("value"),
+		py::arg("channel"));
+
+	py::class_<H2Core::AlsaMidiDriver> _AlsaMidiDriver(m, "AlsaMidiDriver");
+	_AlsaMidiDriver.def(py::init<>());
+	_AlsaMidiDriver.def_static("class_name", &H2Core::AlsaMidiDriver::class_name);
+	_AlsaMidiDriver.def("open", &H2Core::AlsaMidiDriver::open);
+	_AlsaMidiDriver.def("close", &H2Core::AlsaMidiDriver::close);
+	_AlsaMidiDriver.def("getInputPortList", &H2Core::AlsaMidiDriver::getInputPortList);
+	_AlsaMidiDriver.def("getOutputPortList", &H2Core::AlsaMidiDriver::getOutputPortList);
+	// [banned] _AlsaMidiDriver.def("midi_action", &H2Core::AlsaMidiDriver::midi_action,
+	// [banned] 	py::arg("seq_handle"));
+	_AlsaMidiDriver.def("getPortInfo", &H2Core::AlsaMidiDriver::getPortInfo,
+		py::arg("sPortName"),
+		py::arg("nClient"),
+		py::arg("nPort"));
+	_AlsaMidiDriver.def("handleQueueNote", &H2Core::AlsaMidiDriver::handleQueueNote,
+		py::arg("pNote"));
+	_AlsaMidiDriver.def("handleQueueNoteOff", &H2Core::AlsaMidiDriver::handleQueueNoteOff,
+		py::arg("channel"),
+		py::arg("key"),
+		py::arg("velocity"));
+	_AlsaMidiDriver.def("handleQueueAllNoteOff", &H2Core::AlsaMidiDriver::handleQueueAllNoteOff);
+	_AlsaMidiDriver.def("handleOutgoingControlChange", &H2Core::AlsaMidiDriver::handleOutgoingControlChange,
+		py::arg("param"),
+		py::arg("value"),
+		py::arg("channel"));
 
 	py::class_<H2Core::PulseAudioDriver> _PulseAudioDriver(m, "PulseAudioDriver");
 	_PulseAudioDriver.def(py::init<H2Core::audioProcessCallback>());
@@ -3207,17 +2941,17 @@ PYBIND11_MODULE(h2core, m) {
 	_JackAudioDriver.def("getOut_R", &H2Core::JackAudioDriver::getOut_R,
 		"Get content in the right stereo output port.");
 	_JackAudioDriver.def("getTrackOut_L", py::overload_cast<unsigned int>(&H2Core::JackAudioDriver::getTrackOut_L),
-			"Get content of left output port of a specific track.",
+		"Get content of left output port of a specific track.",
 		py::arg("nTrack"));
 	_JackAudioDriver.def("getTrackOut_L", py::overload_cast<std::shared_ptr<Instrument>, std::shared_ptr<InstrumentComponent>>(&H2Core::JackAudioDriver::getTrackOut_L),
-			"Convenience function looking up the track number of a component of an instrument using in #m_trackMap using their IDs Instrument::__id and InstrumentComponent::__related_drumkit_componentID. Using the track number it then calls getTrackOut_L( unsigned ) and returns its result.",
+		"Convenience function looking up the track number of a component of an instrument using in #m_trackMap using their IDs Instrument::__id and InstrumentComponent::__related_drumkit_componentID. Using the track number it then calls getTrackOut_L( unsigned ) and returns its result.",
 		py::arg("instr"),
 		py::arg("pCompo"));
 	_JackAudioDriver.def("getTrackOut_R", py::overload_cast<unsigned int>(&H2Core::JackAudioDriver::getTrackOut_R),
-			"Get content of right output port of a specific track.",
+		"Get content of right output port of a specific track.",
 		py::arg("nTrack"));
 	_JackAudioDriver.def("getTrackOut_R", py::overload_cast<std::shared_ptr<Instrument>, std::shared_ptr<InstrumentComponent>>(&H2Core::JackAudioDriver::getTrackOut_R),
-			"Convenience function looking up the track number of a component of an instrument using in #m_trackMap using their IDs Instrument::__id and InstrumentComponent::__related_drumkit_componentID. Using the track number it then calls getTrackOut_R( unsigned ) and returns its result.",
+		"Convenience function looking up the track number of a component of an instrument using in #m_trackMap using their IDs Instrument::__id and InstrumentComponent::__related_drumkit_componentID. Using the track number it then calls getTrackOut_R( unsigned ) and returns its result.",
 		py::arg("instr"),
 		py::arg("pCompo"));
 	_JackAudioDriver.def("init", &H2Core::JackAudioDriver::init,
@@ -3313,30 +3047,23 @@ PYBIND11_MODULE(h2core, m) {
 	_AlsaAudioDriver.def("setBpm", &H2Core::AlsaAudioDriver::setBpm,
 		py::arg("fBPM"));
 
-	// enum Key
-	py::enum_<H2Core::Note::Key>(_Note, "Key")
-		.value("C", H2Core::Note::Key::C)
-		.value("Cs", H2Core::Note::Key::Cs)
-		.value("D", H2Core::Note::Key::D)
-		.value("Ef", H2Core::Note::Key::Ef)
-		.value("E", H2Core::Note::Key::E)
-		.value("F", H2Core::Note::Key::F)
-		.value("Fs", H2Core::Note::Key::Fs)
-		.value("G", H2Core::Note::Key::G)
-		.value("Af", H2Core::Note::Key::Af)
-		.value("A", H2Core::Note::Key::A)
-		.value("Bf", H2Core::Note::Key::Bf)
-		.value("B", H2Core::Note::Key::B);
+	py::class_<H2Core::Timeline::Tag> _Tag(m, "Tag");
 
-	// enum Octave
-	py::enum_<H2Core::Note::Octave>(_Note, "Octave")
-		.value("P8Z", H2Core::Note::Octave::P8Z)
-		.value("P8Y", H2Core::Note::Octave::P8Y)
-		.value("P8X", H2Core::Note::Octave::P8X)
-		.value("P8", H2Core::Note::Octave::P8)
-		.value("P8A", H2Core::Note::Octave::P8A)
-		.value("P8B", H2Core::Note::Octave::P8B)
-		.value("P8C", H2Core::Note::Octave::P8C);
+	py::class_<H2Core::Timeline::TempoMarker> _TempoMarker(m, "TempoMarker");
+
+	// [private] H2Core::AudioEngine::_locker_struct
+
+	// enum GUIState
+	py::enum_<H2Core::Hydrogen::GUIState>(_Hydrogen, "GUIState")
+		.value("notReady", H2Core::Hydrogen::GUIState::notReady)
+		.value("unavailable", H2Core::Hydrogen::GUIState::unavailable)
+		.value("ready", H2Core::Hydrogen::GUIState::ready);
+
+	// enum Lookup
+	py::enum_<H2Core::Filesystem::Lookup>(_Filesystem, "Lookup")
+		.value("stacked", H2Core::Filesystem::Lookup::stacked)
+		.value("user", H2Core::Filesystem::Lookup::user)
+		.value("system", H2Core::Filesystem::Lookup::system);
 
 	// enum SongMode
 	py::enum_<H2Core::Song::SongMode>(_Song, "SongMode")
@@ -3348,21 +3075,23 @@ PYBIND11_MODULE(h2core, m) {
 		.value("selectMode", H2Core::Song::ActionMode::selectMode)
 		.value("drawMode", H2Core::Song::ActionMode::drawMode);
 
-	// enum SampleSelectionAlgo
-	py::enum_<H2Core::Instrument::SampleSelectionAlgo>(_Instrument, "SampleSelectionAlgo")
-		.value("VELOCITY", H2Core::Instrument::SampleSelectionAlgo::VELOCITY)
-		.value("ROUND_ROBIN", H2Core::Instrument::SampleSelectionAlgo::ROUND_ROBIN)
-		.value("RANDOM", H2Core::Instrument::SampleSelectionAlgo::RANDOM);
+	py::class_<H2Core::Playlist::Entry> _Entry(m, "Entry");
 
-	py::class_<H2Core::Sample::Loops> _Loops(m, "Loops");
-	_Loops.def(py::init<>());
-	_Loops.def(py::init<const H2Core::Sample::Loops *>());
-	_Loops.def("operator==", &H2Core::Sample::Loops::operator==,
-		"equal to operator",
-		py::arg("b"));
-	_Loops.def("toQString", &H2Core::Sample::Loops::toQString,
-		py::arg("sPrefix"),
-		py::arg("bShort"));
+	// enum FontSize
+	py::enum_<H2Core::Preferences::FontSize>(_Preferences, "FontSize")
+		.value("Normal", H2Core::Preferences::FontSize::Normal)
+		.value("Small", H2Core::Preferences::FontSize::Small)
+		.value("Large", H2Core::Preferences::FontSize::Large);
+
+	// enum JackBBTSyncMethod
+	py::enum_<H2Core::Preferences::JackBBTSyncMethod>(_Preferences, "JackBBTSyncMethod")
+		.value("constMeasure", H2Core::Preferences::JackBBTSyncMethod::constMeasure)
+		.value("identicalBars", H2Core::Preferences::JackBBTSyncMethod::identicalBars);
+
+	// enum JackTrackOutputMode
+	py::enum_<H2Core::Preferences::JackTrackOutputMode>(_Preferences, "JackTrackOutputMode")
+		.value("postFader", H2Core::Preferences::JackTrackOutputMode::postFader)
+		.value("preFader", H2Core::Preferences::JackTrackOutputMode::preFader);
 
 	py::class_<H2Core::Sample::Rubberband> _Rubberband(m, "Rubberband");
 	_Rubberband.def(py::init<>());
@@ -3374,98 +3103,21 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("sPrefix"),
 		py::arg("bShort"));
 
-	py::class_<H2Core::PortMidiDriver> _PortMidiDriver(m, "PortMidiDriver");
-	_PortMidiDriver.def(py::init<>());
-	_PortMidiDriver.def_static("class_name", &H2Core::PortMidiDriver::class_name);
-	_PortMidiDriver.def("open", &H2Core::PortMidiDriver::open);
-	_PortMidiDriver.def("close", &H2Core::PortMidiDriver::close);
-	_PortMidiDriver.def("getInputPortList", &H2Core::PortMidiDriver::getInputPortList);
-	_PortMidiDriver.def("getOutputPortList", &H2Core::PortMidiDriver::getOutputPortList);
-	_PortMidiDriver.def("handleQueueNote", &H2Core::PortMidiDriver::handleQueueNote,
-		py::arg("pNote"));
-	_PortMidiDriver.def("handleQueueNoteOff", &H2Core::PortMidiDriver::handleQueueNoteOff,
-		py::arg("channel"),
-		py::arg("key"),
-		py::arg("velocity"));
-	_PortMidiDriver.def("handleQueueAllNoteOff", &H2Core::PortMidiDriver::handleQueueAllNoteOff);
-	_PortMidiDriver.def("handleOutgoingControlChange", &H2Core::PortMidiDriver::handleOutgoingControlChange,
-		py::arg("param"),
-		py::arg("value"),
-		py::arg("channel"));
+	py::class_<H2Core::Sample::Loops> _Loops(m, "Loops");
+	_Loops.def(py::init<>());
+	_Loops.def(py::init<const H2Core::Sample::Loops *>());
+	_Loops.def("operator==", &H2Core::Sample::Loops::operator==,
+		"equal to operator",
+		py::arg("b"));
+	_Loops.def("toQString", &H2Core::Sample::Loops::toQString,
+		py::arg("sPrefix"),
+		py::arg("bShort"));
 
-	py::class_<H2Core::JackMidiDriver> _JackMidiDriver(m, "JackMidiDriver");
-	_JackMidiDriver.def(py::init<>());
-	_JackMidiDriver.def_static("class_name", &H2Core::JackMidiDriver::class_name);
-	_JackMidiDriver.def("open", &H2Core::JackMidiDriver::open);
-	_JackMidiDriver.def("close", &H2Core::JackMidiDriver::close);
-	_JackMidiDriver.def("getInputPortList", &H2Core::JackMidiDriver::getInputPortList);
-	_JackMidiDriver.def("getOutputPortList", &H2Core::JackMidiDriver::getOutputPortList);
-	_JackMidiDriver.def("getPortInfo", &H2Core::JackMidiDriver::getPortInfo,
-		py::arg("sPortName"),
-		py::arg("nClient"),
-		py::arg("nPort"));
-	_JackMidiDriver.def("JackMidiWrite", &H2Core::JackMidiDriver::JackMidiWrite,
-		py::arg("nframes"));
-	_JackMidiDriver.def("JackMidiRead", &H2Core::JackMidiDriver::JackMidiRead,
-		py::arg("nframes"));
-	_JackMidiDriver.def("handleQueueNote", &H2Core::JackMidiDriver::handleQueueNote,
-		py::arg("pNote"));
-	_JackMidiDriver.def("handleQueueNoteOff", &H2Core::JackMidiDriver::handleQueueNoteOff,
-		py::arg("channel"),
-		py::arg("key"),
-		py::arg("velocity"));
-	_JackMidiDriver.def("handleQueueAllNoteOff", &H2Core::JackMidiDriver::handleQueueAllNoteOff);
-	_JackMidiDriver.def("handleOutgoingControlChange", &H2Core::JackMidiDriver::handleOutgoingControlChange,
-		py::arg("param"),
-		py::arg("value"),
-		py::arg("channel"));
-
-	py::class_<H2Core::AlsaMidiDriver> _AlsaMidiDriver(m, "AlsaMidiDriver");
-	_AlsaMidiDriver.def(py::init<>());
-	_AlsaMidiDriver.def_static("class_name", &H2Core::AlsaMidiDriver::class_name);
-	_AlsaMidiDriver.def("open", &H2Core::AlsaMidiDriver::open);
-	_AlsaMidiDriver.def("close", &H2Core::AlsaMidiDriver::close);
-	_AlsaMidiDriver.def("getInputPortList", &H2Core::AlsaMidiDriver::getInputPortList);
-	_AlsaMidiDriver.def("getOutputPortList", &H2Core::AlsaMidiDriver::getOutputPortList);
-	// [banned] _AlsaMidiDriver.def("midi_action", &H2Core::AlsaMidiDriver::midi_action,
-	// [banned] 	py::arg("seq_handle"));
-	_AlsaMidiDriver.def("getPortInfo", &H2Core::AlsaMidiDriver::getPortInfo,
-		py::arg("sPortName"),
-		py::arg("nClient"),
-		py::arg("nPort"));
-	_AlsaMidiDriver.def("handleQueueNote", &H2Core::AlsaMidiDriver::handleQueueNote,
-		py::arg("pNote"));
-	_AlsaMidiDriver.def("handleQueueNoteOff", &H2Core::AlsaMidiDriver::handleQueueNoteOff,
-		py::arg("channel"),
-		py::arg("key"),
-		py::arg("velocity"));
-	_AlsaMidiDriver.def("handleQueueAllNoteOff", &H2Core::AlsaMidiDriver::handleQueueAllNoteOff);
-	_AlsaMidiDriver.def("handleOutgoingControlChange", &H2Core::AlsaMidiDriver::handleOutgoingControlChange,
-		py::arg("param"),
-		py::arg("value"),
-		py::arg("channel"));
-
-	// enum GUIState
-	py::enum_<H2Core::Hydrogen::GUIState>(_Hydrogen, "GUIState")
-		.value("notReady", H2Core::Hydrogen::GUIState::notReady)
-		.value("unavailable", H2Core::Hydrogen::GUIState::unavailable)
-		.value("ready", H2Core::Hydrogen::GUIState::ready);
-
-	// enum JackTrackOutputMode
-	py::enum_<H2Core::Preferences::JackTrackOutputMode>(_Preferences, "JackTrackOutputMode")
-		.value("postFader", H2Core::Preferences::JackTrackOutputMode::postFader)
-		.value("preFader", H2Core::Preferences::JackTrackOutputMode::preFader);
-
-	// enum JackBBTSyncMethod
-	py::enum_<H2Core::Preferences::JackBBTSyncMethod>(_Preferences, "JackBBTSyncMethod")
-		.value("constMeasure", H2Core::Preferences::JackBBTSyncMethod::constMeasure)
-		.value("identicalBars", H2Core::Preferences::JackBBTSyncMethod::identicalBars);
-
-	// enum FontSize
-	py::enum_<H2Core::Preferences::FontSize>(_Preferences, "FontSize")
-		.value("Normal", H2Core::Preferences::FontSize::Normal)
-		.value("Small", H2Core::Preferences::FontSize::Small)
-		.value("Large", H2Core::Preferences::FontSize::Large);
+	// enum SampleSelectionAlgo
+	py::enum_<H2Core::Instrument::SampleSelectionAlgo>(_Instrument, "SampleSelectionAlgo")
+		.value("VELOCITY", H2Core::Instrument::SampleSelectionAlgo::VELOCITY)
+		.value("ROUND_ROBIN", H2Core::Instrument::SampleSelectionAlgo::ROUND_ROBIN)
+		.value("RANDOM", H2Core::Instrument::SampleSelectionAlgo::RANDOM);
 
 	// enum Timebase
 	py::enum_<H2Core::JackAudioDriver::Timebase>(_JackAudioDriver, "Timebase")

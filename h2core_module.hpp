@@ -19,6 +19,7 @@
 #include <core/MidiAction.h>
 #include <core/MidiAction.h>
 #include <core/MidiAction.h>
+#include <core/Timeline.h>
 #include <core/Version.h>
 #include <core/Version.h>
 #include <core/FX/Effects.h>
@@ -48,4 +49,4 @@
 #include <qtreset.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <custom_qt_casters.h>
+#include <qtcasters.h>
