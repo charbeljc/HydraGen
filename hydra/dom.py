@@ -117,11 +117,7 @@ class Context:
             return None
         candidate = self.config._lambdas.get(item.parent.fullname)
         if candidate: 
-            logger.warning("candidate: %s, item: %s", candidate, item.displayname)
-            lbd = candidate.get(item.displayname)
-            if lbd:
-                logger.info("Bingo !! ldb: %s %s", lbd)
-            return lbd
+            return candidate.get(item.displayname)
         return None
 
     def get_addon_methods(self, item: Record) -> list[tuple[str,str]]:
@@ -824,7 +820,7 @@ class ClassTemplatePartialSpecialization(Record):
         return super().allowed(item)
 
 
-class TypeDef(NodeProxy):
+class TypeDef(TypeHolder):
     def allowed(self, item):
         if item.kind in (
             CursorKind.TYPE_REF,
@@ -834,6 +830,11 @@ class TypeDef(NodeProxy):
             return self.check_parent(item)
         return super().allowed(item)
 
+    def _get_clang_type(self) -> Type:
+        return self.node.type.get_canonical()
+
+    def is_builtin(self):
+        return self.type and self.type.is_builtin()
 
 class Enum(Bindable, NodeProxy):
     def __init__(self, name, node, parent=None):

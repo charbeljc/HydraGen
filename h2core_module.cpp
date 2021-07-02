@@ -142,9 +142,9 @@ PYBIND11_MODULE(h2core, m) {
 	_QColor.def("alpha", &QColor::alpha);
 	_QColor.def("setAlpha", &QColor::setAlpha,
 		py::arg("alpha"));
-	// [<TypeDef 'qreal'>] _QColor.def("alphaF", &QColor::alphaF);
-	// [<TypeDef 'qreal'>] _QColor.def("setAlphaF", &QColor::setAlphaF,
-	// [<TypeDef 'qreal'>] 	py::arg("alpha"));
+	_QColor.def("alphaF", &QColor::alphaF);
+	_QColor.def("setAlphaF", &QColor::setAlphaF,
+		py::arg("alpha"));
 	_QColor.def("red", &QColor::red);
 	_QColor.def("green", &QColor::green);
 	_QColor.def("blue", &QColor::blue);
@@ -154,15 +154,15 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("green"));
 	_QColor.def("setBlue", &QColor::setBlue,
 		py::arg("blue"));
-	// [<TypeDef 'qreal'>] _QColor.def("redF", &QColor::redF);
-	// [<TypeDef 'qreal'>] _QColor.def("greenF", &QColor::greenF);
-	// [<TypeDef 'qreal'>] _QColor.def("blueF", &QColor::blueF);
-	// [<TypeDef 'qreal'>] _QColor.def("setRedF", &QColor::setRedF,
-	// [<TypeDef 'qreal'>] 	py::arg("red"));
-	// [<TypeDef 'qreal'>] _QColor.def("setGreenF", &QColor::setGreenF,
-	// [<TypeDef 'qreal'>] 	py::arg("green"));
-	// [<TypeDef 'qreal'>] _QColor.def("setBlueF", &QColor::setBlueF,
-	// [<TypeDef 'qreal'>] 	py::arg("blue"));
+	_QColor.def("redF", &QColor::redF);
+	_QColor.def("greenF", &QColor::greenF);
+	_QColor.def("blueF", &QColor::blueF);
+	_QColor.def("setRedF", &QColor::setRedF,
+		py::arg("red"));
+	_QColor.def("setGreenF", &QColor::setGreenF,
+		py::arg("green"));
+	_QColor.def("setBlueF", &QColor::setBlueF,
+		py::arg("blue"));
 	_QColor.def("getRgb", &QColor::getRgb,
 		py::arg("r"),
 		py::arg("g"),
@@ -173,35 +173,35 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("g"),
 		py::arg("b"),
 		py::arg("a"));
-	// [<TypeDef 'QRgb'>] _QColor.def("setRgb", py::overload_cast<QRgb>(&QColor::setRgb),
-	// [<TypeDef 'QRgb'>] 	py::arg("rgb"));
-	// [<TypeDef 'qreal'>] _QColor.def("getRgbF", &QColor::getRgbF,
-	// [<TypeDef 'qreal'>] 	py::arg("r"),
-	// [<TypeDef 'qreal'>] 	py::arg("g"),
-	// [<TypeDef 'qreal'>] 	py::arg("b"),
-	// [<TypeDef 'qreal'>] 	py::arg("a"));
-	// [<TypeDef 'qreal'>] _QColor.def("setRgbF", &QColor::setRgbF,
-	// [<TypeDef 'qreal'>] 	py::arg("r"),
-	// [<TypeDef 'qreal'>] 	py::arg("g"),
-	// [<TypeDef 'qreal'>] 	py::arg("b"),
-	// [<TypeDef 'qreal'>] 	py::arg("a"));
+	_QColor.def("setRgb", py::overload_cast<QRgb>(&QColor::setRgb),
+		py::arg("rgb"));
+	_QColor.def("getRgbF", &QColor::getRgbF,
+		py::arg("r"),
+		py::arg("g"),
+		py::arg("b"),
+		py::arg("a"));
+	_QColor.def("setRgbF", &QColor::setRgbF,
+		py::arg("r"),
+		py::arg("g"),
+		py::arg("b"),
+		py::arg("a"));
 	_QColor.def("rgba64", &QColor::rgba64);
 	_QColor.def("setRgba64", &QColor::setRgba64,
 		py::arg("rgba"));
-	// [<TypeDef 'QRgb'>] _QColor.def("rgba", &QColor::rgba);
-	// [<TypeDef 'QRgb'>] _QColor.def("setRgba", &QColor::setRgba,
-	// [<TypeDef 'QRgb'>] 	py::arg("rgba"));
-	// [<TypeDef 'QRgb'>] _QColor.def("rgb", &QColor::rgb);
+	_QColor.def("rgba", &QColor::rgba);
+	_QColor.def("setRgba", &QColor::setRgba,
+		py::arg("rgba"));
+	_QColor.def("rgb", &QColor::rgb);
 	_QColor.def("hue", &QColor::hue);
 	_QColor.def("saturation", &QColor::saturation);
 	_QColor.def("hsvHue", &QColor::hsvHue);
 	_QColor.def("hsvSaturation", &QColor::hsvSaturation);
 	_QColor.def("value", &QColor::value);
-	// [<TypeDef 'qreal'>] _QColor.def("hueF", &QColor::hueF);
-	// [<TypeDef 'qreal'>] _QColor.def("saturationF", &QColor::saturationF);
-	// [<TypeDef 'qreal'>] _QColor.def("hsvHueF", &QColor::hsvHueF);
-	// [<TypeDef 'qreal'>] _QColor.def("hsvSaturationF", &QColor::hsvSaturationF);
-	// [<TypeDef 'qreal'>] _QColor.def("valueF", &QColor::valueF);
+	_QColor.def("hueF", &QColor::hueF);
+	_QColor.def("saturationF", &QColor::saturationF);
+	_QColor.def("hsvHueF", &QColor::hsvHueF);
+	_QColor.def("hsvSaturationF", &QColor::hsvSaturationF);
+	_QColor.def("valueF", &QColor::valueF);
 	_QColor.def("getHsv", &QColor::getHsv,
 		py::arg("h"),
 		py::arg("s"),
@@ -212,24 +212,24 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("s"),
 		py::arg("v"),
 		py::arg("a"));
-	// [<TypeDef 'qreal'>] _QColor.def("getHsvF", &QColor::getHsvF,
-	// [<TypeDef 'qreal'>] 	py::arg("h"),
-	// [<TypeDef 'qreal'>] 	py::arg("s"),
-	// [<TypeDef 'qreal'>] 	py::arg("v"),
-	// [<TypeDef 'qreal'>] 	py::arg("a"));
-	// [<TypeDef 'qreal'>] _QColor.def("setHsvF", &QColor::setHsvF,
-	// [<TypeDef 'qreal'>] 	py::arg("h"),
-	// [<TypeDef 'qreal'>] 	py::arg("s"),
-	// [<TypeDef 'qreal'>] 	py::arg("v"),
-	// [<TypeDef 'qreal'>] 	py::arg("a"));
+	_QColor.def("getHsvF", &QColor::getHsvF,
+		py::arg("h"),
+		py::arg("s"),
+		py::arg("v"),
+		py::arg("a"));
+	_QColor.def("setHsvF", &QColor::setHsvF,
+		py::arg("h"),
+		py::arg("s"),
+		py::arg("v"),
+		py::arg("a"));
 	_QColor.def("cyan", &QColor::cyan);
 	_QColor.def("magenta", &QColor::magenta);
 	_QColor.def("yellow", &QColor::yellow);
 	_QColor.def("black", &QColor::black);
-	// [<TypeDef 'qreal'>] _QColor.def("cyanF", &QColor::cyanF);
-	// [<TypeDef 'qreal'>] _QColor.def("magentaF", &QColor::magentaF);
-	// [<TypeDef 'qreal'>] _QColor.def("yellowF", &QColor::yellowF);
-	// [<TypeDef 'qreal'>] _QColor.def("blackF", &QColor::blackF);
+	_QColor.def("cyanF", &QColor::cyanF);
+	_QColor.def("magentaF", &QColor::magentaF);
+	_QColor.def("yellowF", &QColor::yellowF);
+	_QColor.def("blackF", &QColor::blackF);
 	_QColor.def("getCmyk", py::overload_cast<int *, int *, int *, int *, int *>(&QColor::getCmyk),
 		py::arg("c"),
 		py::arg("m"),
@@ -248,30 +248,30 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("y"),
 		py::arg("k"),
 		py::arg("a"));
-	// [<TypeDef 'qreal'>] _QColor.def("getCmykF", py::overload_cast<qreal *, qreal *, qreal *, qreal *, qreal *>(&QColor::getCmykF),
-	// [<TypeDef 'qreal'>] 	py::arg("c"),
-	// [<TypeDef 'qreal'>] 	py::arg("m"),
-	// [<TypeDef 'qreal'>] 	py::arg("y"),
-	// [<TypeDef 'qreal'>] 	py::arg("k"),
-	// [<TypeDef 'qreal'>] 	py::arg("a"));
-	// [<TypeDef 'qreal'>] _QColor.def("getCmykF", py::overload_cast<qreal *, qreal *, qreal *, qreal *, qreal *>(&QColor::getCmykF),
-	// [<TypeDef 'qreal'>] 	py::arg("c"),
-	// [<TypeDef 'qreal'>] 	py::arg("m"),
-	// [<TypeDef 'qreal'>] 	py::arg("y"),
-	// [<TypeDef 'qreal'>] 	py::arg("k"),
-	// [<TypeDef 'qreal'>] 	py::arg("a"));
-	// [<TypeDef 'qreal'>] _QColor.def("setCmykF", &QColor::setCmykF,
-	// [<TypeDef 'qreal'>] 	py::arg("c"),
-	// [<TypeDef 'qreal'>] 	py::arg("m"),
-	// [<TypeDef 'qreal'>] 	py::arg("y"),
-	// [<TypeDef 'qreal'>] 	py::arg("k"),
-	// [<TypeDef 'qreal'>] 	py::arg("a"));
+	_QColor.def("getCmykF", py::overload_cast<qreal *, qreal *, qreal *, qreal *, qreal *>(&QColor::getCmykF),
+		py::arg("c"),
+		py::arg("m"),
+		py::arg("y"),
+		py::arg("k"),
+		py::arg("a"));
+	_QColor.def("getCmykF", py::overload_cast<qreal *, qreal *, qreal *, qreal *, qreal *>(&QColor::getCmykF),
+		py::arg("c"),
+		py::arg("m"),
+		py::arg("y"),
+		py::arg("k"),
+		py::arg("a"));
+	_QColor.def("setCmykF", &QColor::setCmykF,
+		py::arg("c"),
+		py::arg("m"),
+		py::arg("y"),
+		py::arg("k"),
+		py::arg("a"));
 	_QColor.def("hslHue", &QColor::hslHue);
 	_QColor.def("hslSaturation", &QColor::hslSaturation);
 	_QColor.def("lightness", &QColor::lightness);
-	// [<TypeDef 'qreal'>] _QColor.def("hslHueF", &QColor::hslHueF);
-	// [<TypeDef 'qreal'>] _QColor.def("hslSaturationF", &QColor::hslSaturationF);
-	// [<TypeDef 'qreal'>] _QColor.def("lightnessF", &QColor::lightnessF);
+	_QColor.def("hslHueF", &QColor::hslHueF);
+	_QColor.def("hslSaturationF", &QColor::hslSaturationF);
+	_QColor.def("lightnessF", &QColor::lightnessF);
 	_QColor.def("getHsl", &QColor::getHsl,
 		py::arg("h"),
 		py::arg("s"),
@@ -282,16 +282,16 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("s"),
 		py::arg("l"),
 		py::arg("a"));
-	// [<TypeDef 'qreal'>] _QColor.def("getHslF", &QColor::getHslF,
-	// [<TypeDef 'qreal'>] 	py::arg("h"),
-	// [<TypeDef 'qreal'>] 	py::arg("s"),
-	// [<TypeDef 'qreal'>] 	py::arg("l"),
-	// [<TypeDef 'qreal'>] 	py::arg("a"));
-	// [<TypeDef 'qreal'>] _QColor.def("setHslF", &QColor::setHslF,
-	// [<TypeDef 'qreal'>] 	py::arg("h"),
-	// [<TypeDef 'qreal'>] 	py::arg("s"),
-	// [<TypeDef 'qreal'>] 	py::arg("l"),
-	// [<TypeDef 'qreal'>] 	py::arg("a"));
+	_QColor.def("getHslF", &QColor::getHslF,
+		py::arg("h"),
+		py::arg("s"),
+		py::arg("l"),
+		py::arg("a"));
+	_QColor.def("setHslF", &QColor::setHslF,
+		py::arg("h"),
+		py::arg("s"),
+		py::arg("l"),
+		py::arg("a"));
 	_QColor.def("toRgb", &QColor::toRgb);
 	_QColor.def("toHsv", &QColor::toHsv);
 	_QColor.def("toCmyk", &QColor::toCmyk);
@@ -299,25 +299,25 @@ PYBIND11_MODULE(h2core, m) {
 	_QColor.def("toExtendedRgb", &QColor::toExtendedRgb);
 	_QColor.def("convertTo", &QColor::convertTo,
 		py::arg("colorSpec"));
-	// [<TypeDef 'QRgb'>] _QColor.def_static("fromRgb_static", py::overload_cast<QRgb>(&QColor::fromRgb),
-	// [<TypeDef 'QRgb'>] 	py::arg("rgb"));
+	_QColor.def_static("fromRgb_static", py::overload_cast<QRgb>(&QColor::fromRgb),
+		py::arg("rgb"));
 	_QColor.def_static("fromRgb_static", py::overload_cast<int, int, int, int>(&QColor::fromRgb),
 		py::arg("r"),
 		py::arg("g"),
 		py::arg("b"),
 		py::arg("a"));
-	// [<TypeDef 'QRgb'>] _QColor.def_static("fromRgba", &QColor::fromRgba,
-	// [<TypeDef 'QRgb'>] 	py::arg("rgba"));
-	// [<TypeDef 'qreal'>] _QColor.def_static("fromRgbF", &QColor::fromRgbF,
-	// [<TypeDef 'qreal'>] 	py::arg("r"),
-	// [<TypeDef 'qreal'>] 	py::arg("g"),
-	// [<TypeDef 'qreal'>] 	py::arg("b"),
-	// [<TypeDef 'qreal'>] 	py::arg("a"));
-	// [<TypeDef 'ushort'>] _QColor.def_static("fromRgba64_static", py::overload_cast<ushort, ushort, ushort, ushort>(&QColor::fromRgba64),
-	// [<TypeDef 'ushort'>] 	py::arg("r"),
-	// [<TypeDef 'ushort'>] 	py::arg("g"),
-	// [<TypeDef 'ushort'>] 	py::arg("b"),
-	// [<TypeDef 'ushort'>] 	py::arg("a"));
+	_QColor.def_static("fromRgba", &QColor::fromRgba,
+		py::arg("rgba"));
+	_QColor.def_static("fromRgbF", &QColor::fromRgbF,
+		py::arg("r"),
+		py::arg("g"),
+		py::arg("b"),
+		py::arg("a"));
+	_QColor.def_static("fromRgba64_static", py::overload_cast<ushort, ushort, ushort, ushort>(&QColor::fromRgba64),
+		py::arg("r"),
+		py::arg("g"),
+		py::arg("b"),
+		py::arg("a"));
 	_QColor.def_static("fromRgba64_static", py::overload_cast<QRgba64>(&QColor::fromRgba64),
 		py::arg("rgba"));
 	_QColor.def_static("fromHsv", &QColor::fromHsv,
@@ -325,33 +325,33 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("s"),
 		py::arg("v"),
 		py::arg("a"));
-	// [<TypeDef 'qreal'>] _QColor.def_static("fromHsvF", &QColor::fromHsvF,
-	// [<TypeDef 'qreal'>] 	py::arg("h"),
-	// [<TypeDef 'qreal'>] 	py::arg("s"),
-	// [<TypeDef 'qreal'>] 	py::arg("v"),
-	// [<TypeDef 'qreal'>] 	py::arg("a"));
+	_QColor.def_static("fromHsvF", &QColor::fromHsvF,
+		py::arg("h"),
+		py::arg("s"),
+		py::arg("v"),
+		py::arg("a"));
 	_QColor.def_static("fromCmyk", &QColor::fromCmyk,
 		py::arg("c"),
 		py::arg("m"),
 		py::arg("y"),
 		py::arg("k"),
 		py::arg("a"));
-	// [<TypeDef 'qreal'>] _QColor.def_static("fromCmykF", &QColor::fromCmykF,
-	// [<TypeDef 'qreal'>] 	py::arg("c"),
-	// [<TypeDef 'qreal'>] 	py::arg("m"),
-	// [<TypeDef 'qreal'>] 	py::arg("y"),
-	// [<TypeDef 'qreal'>] 	py::arg("k"),
-	// [<TypeDef 'qreal'>] 	py::arg("a"));
+	_QColor.def_static("fromCmykF", &QColor::fromCmykF,
+		py::arg("c"),
+		py::arg("m"),
+		py::arg("y"),
+		py::arg("k"),
+		py::arg("a"));
 	_QColor.def_static("fromHsl", &QColor::fromHsl,
 		py::arg("h"),
 		py::arg("s"),
 		py::arg("l"),
 		py::arg("a"));
-	// [<TypeDef 'qreal'>] _QColor.def_static("fromHslF", &QColor::fromHslF,
-	// [<TypeDef 'qreal'>] 	py::arg("h"),
-	// [<TypeDef 'qreal'>] 	py::arg("s"),
-	// [<TypeDef 'qreal'>] 	py::arg("l"),
-	// [<TypeDef 'qreal'>] 	py::arg("a"));
+	_QColor.def_static("fromHslF", &QColor::fromHslF,
+		py::arg("h"),
+		py::arg("s"),
+		py::arg("l"),
+		py::arg("a"));
 	_QColor.def("light", &QColor::light,
 		py::arg("f"));
 	_QColor.def("dark", &QColor::dark,
@@ -377,44 +377,44 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<QRgba64> _QRgba64(m, "QRgba64");
 	_QRgba64.def(py::init<>());
-	// [<TypeDef 'quint64'>] _QRgba64.def_static("fromRgba64_static", py::overload_cast<quint64>(&QRgba64::fromRgba64),
-	// [<TypeDef 'quint64'>] 	py::arg("c"));
-	// [<TypeDef 'quint16'>] _QRgba64.def_static("fromRgba64_static", py::overload_cast<quint16, quint16, quint16, quint16>(&QRgba64::fromRgba64),
-	// [<TypeDef 'quint16'>] 	py::arg("red"),
-	// [<TypeDef 'quint16'>] 	py::arg("green"),
-	// [<TypeDef 'quint16'>] 	py::arg("blue"),
-	// [<TypeDef 'quint16'>] 	py::arg("alpha"));
-	// [<TypeDef 'quint8'>] _QRgba64.def_static("fromRgba", &QRgba64::fromRgba,
-	// [<TypeDef 'quint8'>] 	py::arg("red"),
-	// [<TypeDef 'quint8'>] 	py::arg("green"),
-	// [<TypeDef 'quint8'>] 	py::arg("blue"),
-	// [<TypeDef 'quint8'>] 	py::arg("alpha"));
-	// [<TypeDef 'uint'>] _QRgba64.def_static("fromArgb32", &QRgba64::fromArgb32,
-	// [<TypeDef 'uint'>] 	py::arg("rgb"));
+	_QRgba64.def_static("fromRgba64_static", py::overload_cast<quint64>(&QRgba64::fromRgba64),
+		py::arg("c"));
+	_QRgba64.def_static("fromRgba64_static", py::overload_cast<quint16, quint16, quint16, quint16>(&QRgba64::fromRgba64),
+		py::arg("red"),
+		py::arg("green"),
+		py::arg("blue"),
+		py::arg("alpha"));
+	_QRgba64.def_static("fromRgba", &QRgba64::fromRgba,
+		py::arg("red"),
+		py::arg("green"),
+		py::arg("blue"),
+		py::arg("alpha"));
+	_QRgba64.def_static("fromArgb32", &QRgba64::fromArgb32,
+		py::arg("rgb"));
 	_QRgba64.def("isOpaque", &QRgba64::isOpaque);
 	_QRgba64.def("isTransparent", &QRgba64::isTransparent);
-	// [<TypeDef 'quint16'>] _QRgba64.def("red", &QRgba64::red);
-	// [<TypeDef 'quint16'>] _QRgba64.def("green", &QRgba64::green);
-	// [<TypeDef 'quint16'>] _QRgba64.def("blue", &QRgba64::blue);
-	// [<TypeDef 'quint16'>] _QRgba64.def("alpha", &QRgba64::alpha);
-	// [<TypeDef 'quint16'>] _QRgba64.def("setRed", &QRgba64::setRed,
-	// [<TypeDef 'quint16'>] 	py::arg("_red"));
-	// [<TypeDef 'quint16'>] _QRgba64.def("setGreen", &QRgba64::setGreen,
-	// [<TypeDef 'quint16'>] 	py::arg("_green"));
-	// [<TypeDef 'quint16'>] _QRgba64.def("setBlue", &QRgba64::setBlue,
-	// [<TypeDef 'quint16'>] 	py::arg("_blue"));
-	// [<TypeDef 'quint16'>] _QRgba64.def("setAlpha", &QRgba64::setAlpha,
-	// [<TypeDef 'quint16'>] 	py::arg("_alpha"));
-	// [<TypeDef 'quint8'>] _QRgba64.def("red8", &QRgba64::red8);
-	// [<TypeDef 'quint8'>] _QRgba64.def("green8", &QRgba64::green8);
-	// [<TypeDef 'quint8'>] _QRgba64.def("blue8", &QRgba64::blue8);
-	// [<TypeDef 'quint8'>] _QRgba64.def("alpha8", &QRgba64::alpha8);
-	// [<TypeDef 'uint'>] _QRgba64.def("toArgb32", &QRgba64::toArgb32);
-	// [<TypeDef 'ushort'>] _QRgba64.def("toRgb16", &QRgba64::toRgb16);
+	_QRgba64.def("red", &QRgba64::red);
+	_QRgba64.def("green", &QRgba64::green);
+	_QRgba64.def("blue", &QRgba64::blue);
+	_QRgba64.def("alpha", &QRgba64::alpha);
+	_QRgba64.def("setRed", &QRgba64::setRed,
+		py::arg("_red"));
+	_QRgba64.def("setGreen", &QRgba64::setGreen,
+		py::arg("_green"));
+	_QRgba64.def("setBlue", &QRgba64::setBlue,
+		py::arg("_blue"));
+	_QRgba64.def("setAlpha", &QRgba64::setAlpha,
+		py::arg("_alpha"));
+	_QRgba64.def("red8", &QRgba64::red8);
+	_QRgba64.def("green8", &QRgba64::green8);
+	_QRgba64.def("blue8", &QRgba64::blue8);
+	_QRgba64.def("alpha8", &QRgba64::alpha8);
+	_QRgba64.def("toArgb32", &QRgba64::toArgb32);
+	_QRgba64.def("toRgb16", &QRgba64::toRgb16);
 	_QRgba64.def("premultiplied", &QRgba64::premultiplied);
 	_QRgba64.def("unpremultiplied", &QRgba64::unpremultiplied);
-	// [<TypeDef 'quint64'>] _QRgba64.def("operator=", &QRgba64::operator=,
-	// [<TypeDef 'quint64'>] 	py::arg("_rgba"));
+	// [banned] _QRgba64.def("operator=", &QRgba64::operator=,
+	// [banned] 	py::arg("_rgba"));
 
 	py::class_<H2Core::Synth, H2Core::Object> _Synth(m, "Synth");
 	_Synth.def(py::init<>());
@@ -425,8 +425,8 @@ PYBIND11_MODULE(h2core, m) {
 	_Synth.def("noteOff", &H2Core::Synth::noteOff,
 		"Stop playing a note.",
 		py::arg("pNote"));
-	// [<TypeDef 'uint32_t'>] _Synth.def("process", &H2Core::Synth::process,
-	// [<TypeDef 'uint32_t'>] 	py::arg("nFrames"));
+	_Synth.def("process", &H2Core::Synth::process,
+		py::arg("nFrames"));
 	_Synth.def("setAudioOutput", &H2Core::Synth::setAudioOutput,
 		py::arg("pAudioOutput"));
 	_Synth.def("getPlayingNotesNumber", &H2Core::Synth::getPlayingNotesNumber);
@@ -622,9 +622,9 @@ PYBIND11_MODULE(h2core, m) {
 		"This function is used to load old version files (v<=1.1). It returns the single pan parameter in [-1,1] from the L,R gains as it was input from the GUI (up to scale and translation, which is arbitrary). Default output is 0 (=central pan) if arguments are invalid. -----Historical Note----- Originally (version <= 1.0) pan_L,pan_R were actually gains for each channel; \"instrument\" and \"note\" pans were multiplied as in a gain CHAIN in each separate channel, so the chain killed the signal if instrument and note pans were hard-sided to opposites sides! In v1.1, pan_L and pan_R were still the members of Note/Instrument representing the pan knob position, still using the ratioStraightPolygonalPanLaw() for the correspondence (up to constant multiplication), but pan_L,pan_R were reconverted to single parameter in the Sampler, and fPan was used in the selected pan law.",
 		py::arg("fPan_L"),
 		py::arg("fPan_R"));
-	// [<TypeDef 'uint32_t'>] _Sampler.def("process", &H2Core::Sampler::process,
-	// [<TypeDef 'uint32_t'>] 	py::arg("nFrames"),
-	// [<TypeDef 'uint32_t'>] 	py::arg("pSong"));
+	_Sampler.def("process", &H2Core::Sampler::process,
+		py::arg("nFrames"),
+		py::arg("pSong"));
 	_Sampler.def("noteOn", &H2Core::Sampler::noteOn,
 		"Start playing a note",
 		py::arg("pNote"));
@@ -839,10 +839,10 @@ PYBIND11_MODULE(h2core, m) {
 		"Does the necessary cleanup of the global objects in the audioEngine.");
 	_AudioEngine.def("noteOn", &H2Core::AudioEngine::noteOn,
 		py::arg("note"));
-	// [<TypeDef 'uint32_t'>] _AudioEngine.def_static("audioEngine_process", &H2Core::AudioEngine::audioEngine_process,
-		// [<TypeDef 'uint32_t'>] "Main audio processing function called by the audio drivers whenever there is work to do.",
-	// [<TypeDef 'uint32_t'>] 	py::arg("nframes"),
-	// [<TypeDef 'uint32_t'>] 	py::arg("arg"));
+	_AudioEngine.def_static("audioEngine_process", &H2Core::AudioEngine::audioEngine_process,
+		"Main audio processing function called by the audio drivers whenever there is work to do.",
+		py::arg("nframes"),
+		py::arg("arg"));
 	_AudioEngine.def("clearNoteQueue", &H2Core::AudioEngine::clearNoteQueue);
 	_AudioEngine.def("processPlayNotes", &H2Core::AudioEngine::processPlayNotes,
 		py::arg("nframes"));
@@ -884,9 +884,9 @@ PYBIND11_MODULE(h2core, m) {
 	_AudioEngine.def("locate", &H2Core::AudioEngine::locate,
 		"Relocate using the audio driver and update the #m_fElapsedTime.",
 		py::arg("nFrame"));
-	// [<TypeDef 'uint32_t'>] _AudioEngine.def("clearAudioBuffers", &H2Core::AudioEngine::clearAudioBuffers,
-		// [<TypeDef 'uint32_t'>] "Clear all audio buffers.",
-	// [<TypeDef 'uint32_t'>] 	py::arg("nFrames"));
+	_AudioEngine.def("clearAudioBuffers", &H2Core::AudioEngine::clearAudioBuffers,
+		"Clear all audio buffers.",
+		py::arg("nFrames"));
 	_AudioEngine.def("createDriver", &H2Core::AudioEngine::createDriver,
 		"Create an audio driver using audioEngine_process() as its argument based on the provided choice and calling their _init()_ function to trigger their initialization.",
 		py::arg("sDriver"));
@@ -950,7 +950,8 @@ PYBIND11_MODULE(h2core, m) {
 	_Hydrogen.def_static("get_instance", &H2Core::Hydrogen::get_instance,
 		"Returns the current Hydrogen instance #__instance.",
 		py::arg("nullok"),
-		py::arg("create"));
+		py::arg("create"),
+		py::return_value_policy::reference);
 	_Hydrogen.def("getAudioEngine", &H2Core::Hydrogen::getAudioEngine);
 	_Hydrogen.def("sequencer_play", &H2Core::Hydrogen::sequencer_play,
 		"Start the internal sequencer");
@@ -2033,6 +2034,11 @@ PYBIND11_MODULE(h2core, m) {
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
 		py::arg("bShort"));
+	_Sample.def("__repr__",
+	[](const H2Core::Sample & sample) {
+        return "<Sample \"" + sample.get_filename() + "\">";
+    }
+    );
 
 	py::class_<H2Core::InstrumentList, H2Core::Object> _InstrumentList(m, "InstrumentList");
 	_InstrumentList.def(py::init<>());
@@ -2380,6 +2386,11 @@ PYBIND11_MODULE(h2core, m) {
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
 		py::arg("bShort"));
+	_Instrument.def("__repr__",
+	[](const H2Core::Instrument & instrument) {
+        return "<Instrument \"" + instrument.get_name() + "\">";
+    }
+    );
 
 	py::class_<H2Core::ADSR, H2Core::Object> _ADSR(m, "ADSR");
 	_ADSR.def(py::init<unsigned int, unsigned int, float, unsigned int>());
@@ -2452,8 +2463,8 @@ PYBIND11_MODULE(h2core, m) {
 	_DrumkitComponent.def("set_peak_r", &H2Core::DrumkitComponent::set_peak_r,
 		py::arg("val"));
 	_DrumkitComponent.def("get_peak_r", &H2Core::DrumkitComponent::get_peak_r);
-	// [<TypeDef 'uint32_t'>] _DrumkitComponent.def("reset_outs", &H2Core::DrumkitComponent::reset_outs,
-	// [<TypeDef 'uint32_t'>] 	py::arg("nFrames"));
+	_DrumkitComponent.def("reset_outs", &H2Core::DrumkitComponent::reset_outs,
+		py::arg("nFrames"));
 	_DrumkitComponent.def("set_outs", &H2Core::DrumkitComponent::set_outs,
 		py::arg("nBufferPos"),
 		py::arg("valL"),
@@ -2466,6 +2477,11 @@ PYBIND11_MODULE(h2core, m) {
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
 		py::arg("bShort"));
+	_DrumkitComponent.def("__repr__",
+	[](const H2Core::DrumkitComponent & dkc) {
+        return "<DrumkitComponent \"" + dkc.get_name() + "\">";
+    }
+    );
 
 	py::class_<H2Core::Drumkit, H2Core::Object> _Drumkit(m, "Drumkit");
 	_Drumkit.def(py::init<>());
@@ -2926,9 +2942,9 @@ PYBIND11_MODULE(h2core, m) {
 		"Returns Global variable #jackServerBufferSize.");
 	_JackAudioDriver.def("getSampleRate", &H2Core::JackAudioDriver::getSampleRate,
 		"Returns Global variable #jackServerSampleRate.");
-	// [<TypeDef 'uint32_t'>] _JackAudioDriver.def("clearPerTrackAudioBuffers", &H2Core::JackAudioDriver::clearPerTrackAudioBuffers,
-		// [<TypeDef 'uint32_t'>] "Resets the buffers contained in #m_pTrackOutputPortsL and #m_pTrackOutputPortsR.",
-	// [<TypeDef 'uint32_t'>] 	py::arg("nFrames"));
+	_JackAudioDriver.def("clearPerTrackAudioBuffers", &H2Core::JackAudioDriver::clearPerTrackAudioBuffers,
+		"Resets the buffers contained in #m_pTrackOutputPortsL and #m_pTrackOutputPortsR.",
+		py::arg("nFrames"));
 	_JackAudioDriver.def("makeTrackOutputs", &H2Core::JackAudioDriver::makeTrackOutputs,
 		"Creates per component output ports for each instrument.",
 		py::arg("pSong"));

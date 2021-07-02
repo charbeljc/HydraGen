@@ -122,6 +122,7 @@ CONFIG = (
     .ban("H2Core::AudioEngine::m_MutexOutputPointer")
     .ban("H2Core::AudioEngine::m_LockingThread")
     .ban("H2Core::AudioEngine::m_currentTickTime")
+    .ban("QRgba64::operator=")
     .ban("QMetaType")
     .ban("QStringRef")
     .ban("QStringView")
@@ -162,6 +163,21 @@ CONFIG = (
     .add_method("H2Core::Drumkit", "__repr__",
     """[](const H2Core::Drumkit & drumkit) {
         return "<Drumkit \\"" + drumkit.get_name() + "\\">";
+    }
+    """)
+    .add_method("H2Core::DrumkitComponent", "__repr__",
+    """[](const H2Core::DrumkitComponent & dkc) {
+        return "<DrumkitComponent \\"" + dkc.get_name() + "\\">";
+    }
+    """)
+    .add_method("H2Core::Instrument", "__repr__",
+    """[](const H2Core::Instrument & instrument) {
+        return "<Instrument \\"" + instrument.get_name() + "\\">";
+    }
+    """)
+    .add_method("H2Core::Sample", "__repr__",
+    """[](const H2Core::Sample & sample) {
+        return "<Sample \\"" + sample.get_filename() + "\\">";
     }
     """)
     

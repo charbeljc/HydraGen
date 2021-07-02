@@ -3,7 +3,7 @@ from functools import singledispatch
 import textwrap
 from typing import OrderedDict
 from logzero import logger
-from .dom import Context, EnumConstant, Method, Record, Enum, Namespace
+from .dom import Context, EnumConstant, Method, Function, Record, Enum, Namespace
 from orderedset import OrderedSet
 import json
 
@@ -105,7 +105,9 @@ def generate_record(context: Context, rec: Record, bindings, code):
 def generate_method(context: Context, rec: Record, m: Method, overloaded: bool, bindings, code):
     skip = ""
     for dep in m.dependencies:
-        if dep not in bindings and dep not in context.casters():
+        if dep.name == 'qreal':
+            breakpoint()
+        if dep not in bindings and dep not in context.casters() and not dep.is_builtin():
             skip = f"// [{dep}] "
             break
     if not m.is_public():
@@ -141,6 +143,47 @@ def generate_method(context: Context, rec: Record, m: Method, overloaded: bool, 
     for param in m.parameters:
         emit(code, f""",\n\t{skip}\tpy::arg("{param.name}")""".strip())
     emit(code, ");")
+    
+def generate_function(context: Context, fun: Function, ovrloaded: bool, bindings: list, code):
+    skip = ""
+    for dep in fun.dependencies:
+        if (dep not in bindings) and (dep not in context.casters()) and not dep.is_builtin():
+            skip = f"// [{dep}] "
+            break
+    if not fun.is_public():
+        return
+
+    if context.is_banned(m):
+        skip = "// [banned] "
+
+    if mcode := context.bind_with_lambda(fun):
+        emit(
+            code,
+            f"""\n\t{skip}m.def("{fun.name}",\n\t{mcode}""",
+        )
+    else:
+        name = fun.name
+        funp = f"&{fun.name}"
+        defun = "def"
+        if overloaded:
+            funp = f"py::overload_cast<{m.cpp_signature}>({funp})"
+        if fun.node.is_static_method():
+            defun = "def_static"
+            if overloaded:
+                name = name + "_static"
+        emit(
+            code,
+            f"""\n\t{skip}m.{defun}("{name}", {fun}""",
+        )
+    if fun.node.brief_comment:
+        emit(
+            code,
+            f""",\n\t\t{skip}"{c_encode(fun.node.brief_comment)}" """.strip(),
+        )
+    for param in m.parameters:
+        emit(code, f""",\n\t{skip}\tpy::arg("{param.name}")""".strip())
+    emit(code, ");")
+
 
 def generate_module(context: Context, name, bindings, include_paths, code):
 
@@ -163,6 +206,8 @@ def generate_module(context: Context, name, bindings, include_paths, code):
                 generate_record(context, binding, bindings, code)
         elif isinstance(binding, Enum):
             generate_enum(context, binding, bindings, code)
+        elif isinstance(binding, Function):
+            generate_function(context, binding, False, bindings, code)
         else:
             logger.warning("don't know howto generate %s", binding)
 
