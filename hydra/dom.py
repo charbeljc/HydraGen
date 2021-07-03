@@ -3,7 +3,6 @@ from __future__ import annotations
 import sys
 from collections import abc
 import typing
-from typing_extensions import TypeAlias
 
 from clang.cindex import (
     AccessSpecifier,
@@ -702,7 +701,8 @@ class Record(NodeProxy):
         self._constructors = None
         self._destructors = None
         self._fields = None
-        self.static_fields = None
+        self._records = None
+        self._enums = None
 
     def allowed(self, item):
         if item.kind in (
@@ -764,7 +764,17 @@ class Record(NodeProxy):
         if self._fields is None:
             self._fields = list(self._filter(Field))
         return self._fields
+    @property
+    def records(self) -> list[Record]:
+        if self._records is None:
+            self._records = list(self._filter(Record))
+        return self._records
 
+    @property
+    def enums(self) -> list[Enum]:
+        if self._enums is None:
+            self._enums = list(self._filter(Enum))
+        return self._enums
     @property
     def dependencies(self) -> set[Record]:
         deps = OrderedSet()

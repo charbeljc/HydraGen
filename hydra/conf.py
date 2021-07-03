@@ -45,7 +45,7 @@ class Config:
         self._bindings = dict()
 
     @staticmethod
-    def parse(path: str | Path) -> Config:
+    def parse(path: str) -> Config:
         with open(path) as src:
             data = yaml.safe_load(src)
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 from logging import log
 import logging
+import os
 from logzero import logger
 from .conf import Config
 from .dom import (
@@ -42,12 +43,13 @@ def generate_enum(context: Context, enum: Enum, bindings, code):
     global anon_count
     anon = False
     name = enum.name
+    if not name:
+        return
     if context.is_banned(enum):
         emit(code, f"\t// [banned] {enum.fullname}\n\n")
         return
     if not enum.is_public():
         return
-    emit(code, f"""\t// enum {name}\n""")
     if enum.parent:
         qname = enum.fullname
         if isinstance(enum.parent, Namespace):
@@ -58,11 +60,12 @@ def generate_enum(context: Context, enum: Enum, bindings, code):
         qname = enum.name
         parent = "m"
 
-    if "@" in qname:
+    if anon:
         qname = "_anenum_%s" % anon_count
         anon_count += 1
         anon = True
         name = qname
+    emit(code, f"""\t// enum {name}\n""")
     emit(code, f"""\tpy::enum_<{qname}>({parent}, "{name}")""")
     for ec in enum._filter(EnumConstant):
         if anon:
@@ -84,6 +87,8 @@ def generate_record(context: Context, rec: Record, bindings, code):
         return
     if rec.is_private():
         emit(code, f"\t// [private] {rec.fullname}\n\n")
+        return
+    if not rec.name:
         return
     mro = rec.fullname
     for base in rec.bases:
@@ -299,12 +304,12 @@ def generate_includes(files, code):
         emit(code, f"""#include <{filename}>\n""")
 
 
-def main(config: Config):
+def generate(config: Config, outdir):
     # modname, bindings, config):
     ctx = Context(FACTORY, config)
     modname = config._module_name
     bindings = config._bindings
-    config.dump()
+    # config.dump()
     # seeding
     # generate initial includes
     header = []
@@ -323,10 +328,12 @@ def main(config: Config):
 
     header = "".join(header)
 
-    with open(f"{modname}_module.hpp", "w") as src:
+    header_path = os.path.join(outdir, f"{modname}_module.hpp")
+
+    with open(header_path, "w") as src:
         src.write(header)
 
-    tx, inc = ctx.parse(f"{modname}_module.hpp")
+    tx, inc = ctx.parse(header_path)
     tx.walk()
     records = []
     for name, path in bindings.items():
@@ -376,21 +383,26 @@ def main(config: Config):
                 deps.add(dep)
 
         if isinstance(ship, Record):
-            for members in (ship.fields, ship.methods, ship.constructors):
+            for members in (ship.fields, ship.methods, ship.constructors, ship.records, ship.enums):
                 for member in members:
                     if veto(member):
                         continue
-                    for dep in member.dependencies:
-                        if veto(dep):
-                            continue
-                        if isinstance(dep, Bindable) and not seen(dep):
-                            logger.info(
-                                "queue %s for member %s::%s",
-                                dep,
-                                ship.fullname,
-                                member.displayname,
-                            )
-                            deps.add(dep)
+                    if member.is_public():
+                        if isinstance(member, (Record, Enum)):
+                            logger.info("queue member: %s:%s", ship.fullname, member.displayname)
+                            deps.add(member)
+                        else:
+                            for dep in member.dependencies:
+                                if veto(dep):
+                                    continue
+                                if isinstance(dep, Bindable) and not seen(dep):
+                                    logger.info(
+                                        "queue %s for member %s::%s",
+                                        dep,
+                                        ship.fullname,
+                                        member.displayname,
+                                    )
+                                    deps.add(dep)
 
     topo = graphlib.TopologicalSorter()
 
@@ -416,19 +428,28 @@ def main(config: Config):
 
     generate_module(ctx, modname, records, ctx.config._include_path, code)
     code = "".join(code)
+    source_path = os.path.join(outdir, f"{modname}_module.cpp")
 
-    with open(f"{modname}_module.cpp", "w") as src:
+    with open(source_path, 'w') as src:
         src.write(code)
     return tx, inc, header, code
 
 
-if __name__ == "__main__":
+def main():
     import sys
     from .dom import logger
     logger.setLevel(logging.INFO)
-    if len(sys.argv) == 2:
+    outdir = '.'
+    if len(sys.argv) == 3:
+        outdir = sys.argv[2]
+    outdir = os.path.abspath(outdir)
+    print("outdir:", outdir)
+    if len(sys.argv) >= 2:
         config = Config.parse(sys.argv[1])
-        main(config)
+        generate(config, outdir)
     else:
-        print("usage: python3 -m hydra.gen you_module_config.yaml", file=sys.stderr)
+        print("usage: python3 -m hydra.gen you_module_config.yaml [outdir]", file=sys.stderr)
         sys.exit(1)
+
+if __name__ == '__main__':
+    main()
