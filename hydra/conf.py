@@ -36,7 +36,7 @@ class Config:
         self._policies = dict()
         self._prolog = OrderedSet()
 
-    def ban(self, cppname: str) -> Config:
+    def ban(self, spec: str | list[str]) -> Config:
         """
         ban a given `cppname` from genarated bindings.
 
@@ -44,16 +44,19 @@ class Config:
 
         >>> config = (Config()
         ...           .ban("QtPrivate")  # ban whole namespace
-        ...           .ban("QColor::QColor(QColor &&)")  # ban this constructor
-        ...           .ban("QColor::name")  # ban whole method, regardless of overloaded signatures
-        ...           .ban("QColor::operator=")
-        ...           .ban("QDomNodePrivate")
+        ...           "QColor::QColor(QColor &&)",  # ban this constructor
+        ...           "QColor::name",  # ban whole method, regardless of overloaded signatures
+        ...           "QColor::operator=",
+        ...           "QDomNodePrivate",
         ... )
         """
-        if cppname.startswith("*::"):
-            self._banned_patterns.add(cppname[3:])
-        else:
-            self._banned.add(cppname)
+        if isinstance(spec, str):
+            spec = [spec]
+        for cppname in spec:
+            if cppname.startswith("*::"):
+                self._banned_patterns.add(cppname[3:])
+            else:
+                self._banned.add(cppname)
         return self
 
     def add_include_path(self, path: str | Path) -> Config:

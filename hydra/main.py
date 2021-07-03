@@ -1,12 +1,10 @@
 import graphlib
 import logging
-import os
-from typing import get_args
 
 from logzero import logger
 from orderedset import OrderedSet
 
-from . import conf, dom, gen
+from . import dom, gen
 from .conf import Config
 from .dom import Bindable, Namespace, NodeProxy, Record
 
@@ -81,68 +79,70 @@ BINDINGS = [
 
 CONFIG = (
     Config()
-    .ban("QColor::QColor(QColor &&)")  # ban this constructor
-    # .ban("QColor::name()")  # ban whole method, regardless of overloaded signatures
     .ban(
-        "QColor::name(QColor::NameFormat)"
-    )  # ban whole method, regardless of overloaded signatures
-    .ban("QColor::operator=")
-    .ban("H2Core::Note::match")
-    .ban("H2Core::Pattern::find_note")
-    .ban("std::thread::thread(const std::thread &)")
-    .ban("std::thread::operator=(const std::thread &)")
-    .ban("std::thread::operator=(std::thread &&)")
-    .ban("std::thread::thread(std::thread &&)")
-    .ban("std::timed_mutex::timed_mutex(const std::timed_mutex &)")
-    .ban("std::timed_mutex::operator=")
-    .ban("std::exception::operator=(std::exception &&)")
-    .ban("std::exception::exception(std::exception &&)")
-    .ban("std::__cow_string")
-    .ban("std::__cow_string::operator=(std::__cow_string &&)")
-    .ban("std::__cow_string::__cow_string(std::__cow_string &&)")
-    .ban("std::runtime_error::operator=(std::runtime_error &&)")
-    .ban("std::runtime_error::runtime_error(std::runtime_error &&)")
-    .ban("targeted_element")
-    .ban("MidiActionManager::targeted_element")
-    .ban("_locker_struct")
-    .ban("QDomNodePrivate")
-    .ban("QStringList")
-    .ban("QFileInfoPrivate")
-    .ban("Entry")
-    # .ban("QObject::disconnect")
-    .ban("QObject")
-    .ban("QFileInfo::QFileInfo(QFileInfoPrivate *)")
-    .ban("QFileInfo::operator=(QFileInfo &&)")
-    .ban("QFileInfo::exists")
-    .ban("H2Core::AlsaAudioDriver::AlsaAudioDriver()")
-    .ban("H2Core::AlsaMidiDriver::midi_action")
-    .ban("H2Core::JackAudioDriver::m_pClient")
-    # std::vector
-    .ban("H2Core::Synth::m_playingNotesQueue")
-    .ban("H2Core::Hydrogen::m_nInstrumentLookupTable")
-    .ban("H2Core::AlsaAudioDriver::m_pPlayback_handle")
-    .ban("H2Core::PortAudioDriver::m_processCallback")
-    .ban("H2Core::DiskWriterDriver::m_processCallback")
-    .ban("H2Core::AlsaAudioDriver::m_processCallback")
-    # Qt Reduction, phase 2
-    .ban("H2Core::LadspaFX::m_pLibrary")
-    .ban("H2Core::AudioEngine::m_EngineMutex")
-    .ban("H2Core::AudioEngine::m_MutexOutputPointer")
-    .ban("H2Core::AudioEngine::m_LockingThread")
-    .ban("H2Core::AudioEngine::m_currentTickTime")
-    .ban("QRgba64::operator=")
-    .ban("QMetaType")
-    .ban("QStringRef")
-    .ban("QStringView")
-    .ban("QByteArray")
-    .ban("QChar")
-    .ban("QDomNode")
-    .ban("QFileInfo")
-    .ban("QLatin1String")
-    .ban("*::metaObject()")
-    .ban("*::metaObject()")
-    .ban("*::qt_metacall(QMetaObject::Call, int, void **)")
-    .ban("*::qt_static_metacall(QObject *, QMetaObject::Call, int, void **)")
+        [
+            "QColor::QColor(QColor &&)",  # ban this constructor
+            # "QColor::name()",  # ban whole method, regardless of overloaded signatures
+            "QColor::name(QColor::NameFormat)",
+            "QColor::operator=",
+            "H2Core::Note::match",
+            "H2Core::Pattern::find_note",
+            "std::thread::thread(const std::thread &)",
+            "std::thread::operator=(const std::thread &)",
+            "std::thread::operator=(std::thread &&)",
+            "std::thread::thread(std::thread &&)",
+            "std::timed_mutex::timed_mutex(const std::timed_mutex &)",
+            "std::timed_mutex::operator=",
+            "std::exception::operator=(std::exception &&)",
+            "std::exception::exception(std::exception &&)",
+            "std::__cow_string",
+            "std::__cow_string::operator=(std::__cow_string &&)",
+            "std::__cow_string::__cow_string(std::__cow_string &&)",
+            "std::runtime_error::operator=(std::runtime_error &&)",
+            "std::runtime_error::runtime_error(std::runtime_error &&)",
+            "targeted_element",
+            "MidiActionManager::targeted_element",
+            "_locker_struct",
+            "QDomNodePrivate",
+            "QStringList",
+            "QFileInfoPrivate",
+            "Entry",
+            # "QObject::disconnect",
+            "QObject",
+            "QFileInfo::QFileInfo(QFileInfoPrivate *)",
+            "QFileInfo::operator=(QFileInfo &&)",
+            "QFileInfo::exists",
+            "H2Core::AlsaAudioDriver::AlsaAudioDriver()",
+            "H2Core::AlsaMidiDriver::midi_action",
+            "H2Core::JackAudioDriver::m_pClient",
+            # std::vector
+            "H2Core::Synth::m_playingNotesQueue",
+            "H2Core::Hydrogen::m_nInstrumentLookupTable",
+            "H2Core::AlsaAudioDriver::m_pPlayback_handle",
+            "H2Core::PortAudioDriver::m_processCallback",
+            "H2Core::DiskWriterDriver::m_processCallback",
+            "H2Core::AlsaAudioDriver::m_processCallback",
+            # Qt Reduction, phase 2
+            "H2Core::LadspaFX::m_pLibrary",
+            "H2Core::AudioEngine::m_EngineMutex",
+            "H2Core::AudioEngine::m_MutexOutputPointer",
+            "H2Core::AudioEngine::m_LockingThread",
+            "H2Core::AudioEngine::m_currentTickTime",
+            "QRgba64::operator=",
+            "QMetaType",
+            "QStringRef",
+            "QStringView",
+            "QByteArray",
+            "QChar",
+            "QDomNode",
+            "QFileInfo",
+            "QLatin1String",
+            "*::metaObject()",
+            "*::metaObject()",
+            "*::qt_metacall(QMetaObject::Call, int, void **)",
+            "*::qt_static_metacall(QObject *, QMetaObject::Call, int, void **)",
+        ]
+    )
     # cflags and include paths
     .add_cflags(FLAGS)
     .add_include_path("/usr/include/python3.9")
@@ -244,7 +244,6 @@ CONFIG = (
         "py::return_value_policy::reference_internal",
     )
     .add_policy("H2Core::Hydrogen::get_instance", "py::return_value_policy::reference")
-
     .add_prolog(
         """
         using namespace H2Core;\n\n
