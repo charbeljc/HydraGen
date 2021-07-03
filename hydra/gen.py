@@ -1,11 +1,25 @@
 from __future__ import annotations
-from functools import singledispatch
-import textwrap
-from typing import OrderedDict
+from logging import log
+import logging
 from logzero import logger
-from .dom import Context, EnumConstant, Method, Function, Record, Field, Enum, Namespace
+from .conf import Config
+from .dom import (
+    FACTORY,
+    Context,
+    NodeProxy,
+    Bindable,
+    EnumConstant,
+    Method,
+    Function,
+    Record,
+    Field,
+    Enum,
+    Namespace,
+)
 from orderedset import OrderedSet
 import json
+
+import graphlib
 
 
 def c_decode(in_str: str) -> str:
@@ -74,10 +88,10 @@ def generate_record(context: Context, rec: Record, bindings, code):
     mro = rec.fullname
     for base in rec.bases:
         if base in bindings and not base.is_abstract():
-            mro +=  ', ' + base.fullname
+            mro += ", " + base.fullname
         else:
             logger.warning("base class not in bindings or abstract: %s %s", rec, base)
-    mro += f', std::shared_ptr<{rec.fullname}>'
+    mro += f", std::shared_ptr<{rec.fullname}>"
 
     emit(code, f"""\tpy::class_<{mro}> _{rec.name}(m, "{rec.name}");""")
 
@@ -99,11 +113,18 @@ def generate_record(context: Context, rec: Record, bindings, code):
             if context.is_banned(fld):
                 continue
             for dep in fld.dependencies:
-                if dep not in bindings and dep not in context.casters() and not dep.is_builtin():
+                if (
+                    dep not in bindings
+                    and dep not in context.casters()
+                    and not dep.is_builtin()
+                ):
                     skip = f"// [{dep}] "
                     break
 
-            emit(code, f"""\n\t{skip}_{rec.name}.def_readwrite("{fld.name}", &{rec.fullname}::{fld.name});""")
+            emit(
+                code,
+                f"""\n\t{skip}_{rec.name}.def_readwrite("{fld.name}", &{rec.fullname}::{fld.name});""",
+            )
 
     if context.config._emit_methods:
 
@@ -120,18 +141,25 @@ def generate_record(context: Context, rec: Record, bindings, code):
     for name, mcode in context.get_addon_methods(rec):
         emit(
             code,
-                f"""\n\t_{rec.name}.def("{name}",\n\t{mcode});""",
-            )
+            f"""\n\t_{rec.name}.def("{name}",\n\t{mcode});""",
+        )
     emit(code, """\n\n""")
 
-def generate_method(context: Context, rec: Record, m: Method, overloaded: bool, bindings, code):
+
+def generate_method(
+    context: Context, rec: Record, m: Method, overloaded: bool, bindings, code
+):
     if not context.config._emit_methods:
         return
     skip = ""
     for dep in m.dependencies:
-        if dep.name == 'qreal':
+        if dep.name == "qreal":
             breakpoint()
-        if dep not in bindings and dep not in context.casters() and not dep.is_builtin():
+        if (
+            dep not in bindings
+            and dep not in context.casters()
+            and not dep.is_builtin()
+        ):
             skip = f"// [{dep}] "
             break
     if not m.is_public():
@@ -170,14 +198,22 @@ def generate_method(context: Context, rec: Record, m: Method, overloaded: bool, 
     if rb:
         emit(code, f",\n\t{rb}")
     emit(code, ");")
-    
+
+
 def generate_field(context: Context, fld: Field, bindings: list, code):
     breakpoint()
 
-def generate_function(context: Context, fun: Function, overloaded: bool, bindings: list, code):
+
+def generate_function(
+    context: Context, fun: Function, overloaded: bool, bindings: list, code
+):
     skip = ""
     for dep in fun.dependencies:
-        if (dep not in bindings) and (dep not in context.casters()) and not dep.is_builtin():
+        if (
+            (dep not in bindings)
+            and (dep not in context.casters())
+            and not dep.is_builtin()
+        ):
             skip = f"// [{dep}] "
             break
     if not fun.is_public():
@@ -196,7 +232,7 @@ def generate_function(context: Context, fun: Function, overloaded: bool, binding
         funp = f"&{fun.name}"
         defun = "def"
         if overloaded:
-            funp = f"py::overload_cast<{m.cpp_signature}>({funp})"
+            funp = f"py::overload_cast<{fun.cpp_signature}>({funp})"
         if fun.node.is_static_method():
             defun = "def_static"
             if overloaded:
@@ -210,7 +246,7 @@ def generate_function(context: Context, fun: Function, overloaded: bool, binding
             code,
             f""",\n\t\t{skip}"{c_encode(fun.node.brief_comment)}" """.strip(),
         )
-    for param in m.parameters:
+    for param in fun.parameters:
         emit(code, f""",\n\t{skip}\tpy::arg("{param.name}")""".strip())
     emit(code, ");")
 
@@ -261,3 +297,138 @@ def generate_imports(records, code, include_paths):
 def generate_includes(files, code):
     for filename in files:
         emit(code, f"""#include <{filename}>\n""")
+
+
+def main(config: Config):
+    # modname, bindings, config):
+    ctx = Context(FACTORY, config)
+    modname = config._module_name
+    bindings = config._bindings
+    config.dump()
+    # seeding
+    # generate initial includes
+    header = []
+    includes = []
+    for name, paths in bindings.items():
+        if isinstance(paths, str):
+            includes.append(paths)
+        elif isinstance(paths, list):
+            includes += paths
+
+    generate_includes(includes, header)
+
+    generate_includes(
+        config.cleaners + ["pybind11/pybind11.h"] + config.plugins, header
+    )
+
+    header = "".join(header)
+
+    with open(f"{modname}_module.hpp", "w") as src:
+        src.write(header)
+
+    tx, inc = ctx.parse(f"{modname}_module.hpp")
+    tx.walk()
+    records = []
+    for name, path in bindings.items():
+        try:
+            binding = tx[name]
+            if isinstance(binding, Namespace):
+                for b in binding._filter(Bindable):
+                    records.append(b)
+            elif isinstance(binding, Bindable):
+                records.append(binding)
+            else:
+                logger.warning("non bindable: %s", binding)
+
+        except KeyError:
+            logger.warning("%s not found", name)
+
+    casters = ctx.casters()
+    for caster in casters:
+        logger.info("caster for: %s", caster)
+
+    def veto(bindable):
+        if bindable in casters:
+            logger.debug("veto caster: %s", bindable)
+            return True
+        if ctx.is_banned(bindable):
+            logger.debug("banned: %s", bindable)
+            return True
+        return False
+
+    deps: set[NodeProxy] = OrderedSet(records)
+    star = OrderedSet()
+
+    def seen(ship):
+        return ship in deps or ship in star
+
+    while deps:
+        ship: NodeProxy = deps.pop()
+        if veto(ship):
+            continue
+        logger.info("add %s", ship)
+        star.add(ship)
+        for dep in ship.dependencies:
+            if veto(dep):
+                continue
+            if isinstance(dep, Bindable) and not seen(dep):
+                logger.info("queue %s for %s", dep, ship.fullname)
+                deps.add(dep)
+
+        if isinstance(ship, Record):
+            for members in (ship.fields, ship.methods, ship.constructors):
+                for member in members:
+                    if veto(member):
+                        continue
+                    for dep in member.dependencies:
+                        if veto(dep):
+                            continue
+                        if isinstance(dep, Bindable) and not seen(dep):
+                            logger.info(
+                                "queue %s for member %s::%s",
+                                dep,
+                                ship.fullname,
+                                member.displayname,
+                            )
+                            deps.add(dep)
+
+    topo = graphlib.TopologicalSorter()
+
+    def filtered_deps(neutron):
+        return [
+            d for d in neutron.dependencies if isinstance(d, Bindable) and not veto(d)
+        ]
+
+    for neutron in star:
+        topo.add(neutron, *filtered_deps(neutron))
+
+    try:
+        records = list(topo.static_order())
+    except graphlib.CycleError as err:
+        logger.error("could not sort: %s", err)
+        breakpoint()
+        print("what' up?")
+
+    for rec in records:
+        logger.info("binding %s", rec)
+
+    code = []
+
+    generate_module(ctx, modname, records, ctx.config._include_path, code)
+    code = "".join(code)
+
+    with open(f"{modname}_module.cpp", "w") as src:
+        src.write(code)
+    return tx, inc, header, code
+
+
+if __name__ == "__main__":
+    import sys
+    from .dom import logger
+    logger.setLevel(logging.INFO)
+    if len(sys.argv) == 2:
+        config = Config.parse(sys.argv[1])
+        main(config)
+    else:
+        print("usage: python3 -m hydra.gen you_module_config.yaml", file=sys.stderr)
+        sys.exit(1)
