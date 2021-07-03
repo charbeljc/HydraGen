@@ -89,11 +89,17 @@ def generate_record(context: Context, rec: Record, bindings, code):
 
 
     for fld in rec.fields:
+        skip = ""
         if not fld.is_public():
             continue
         if context.is_banned(fld):
             continue
-        emit(code, f"""\n\t_{rec.name}.def_readwrite("{fld.name}", &{rec.fullname}::{fld.name});""")
+        for dep in fld.dependencies:
+            if dep not in bindings and dep not in context.casters() and not dep.is_builtin():
+                skip = f"// [{dep}] "
+                break
+
+        emit(code, f"""\n\t{skip}_{rec.name}.def_readwrite("{fld.name}", &{rec.fullname}::{fld.name});""")
 
     overloads = {}
     for m in rec.methods:

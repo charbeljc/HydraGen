@@ -283,7 +283,7 @@ class NodeProxy:
             if obj:
                 ok = self.accept(obj)
                 if not ok:
-                    logger.warning("reject! %s, self: %s", obj, self)
+                    logger.debug("reject! %s, self: %s", obj, self)
                 obj.walk(child)
             else:
                 #logger.warning("abort!! %s %r", child.kind, child.spelling)
@@ -633,7 +633,18 @@ class Param(TypeHolder):
 
 
 class Field(TypeHolder):
-    pass
+
+    def _get_clang_type(self) -> Type:
+        return self.node.get_definition().type
+    @property
+    def dependencies(self):
+        deps = OrderedSet()
+        if self.type:
+            deps.add(self.type)
+            deps |= self.type.dependencies
+        else:
+            logger.warning("No Type for %s", self)
+        return deps
 
 
 class Pop(NodeProxy):

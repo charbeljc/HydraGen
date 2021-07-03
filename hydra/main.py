@@ -82,8 +82,10 @@ BINDINGS = [
 CONFIG = (
     Config()
     .ban("QColor::QColor(QColor &&)")  # ban this constructor
-    #.ban("QColor::name()")  # ban whole method, regardless of overloaded signatures
-    .ban("QColor::name(QColor::NameFormat)")  # ban whole method, regardless of overloaded signatures
+    # .ban("QColor::name()")  # ban whole method, regardless of overloaded signatures
+    .ban(
+        "QColor::name(QColor::NameFormat)"
+    )  # ban whole method, regardless of overloaded signatures
     .ban("QColor::operator=")
     .ban("H2Core::Note::match")
     .ban("H2Core::Pattern::find_note")
@@ -114,9 +116,15 @@ CONFIG = (
     .ban("QFileInfo::exists")
     .ban("H2Core::AlsaAudioDriver::AlsaAudioDriver()")
     .ban("H2Core::AlsaMidiDriver::midi_action")
-    #
+    .ban("H2Core::JackAudioDriver::m_pClient")
+    # std::vector
+    .ban("H2Core::Synth::m_playingNotesQueue")
+    .ban("H2Core::Hydrogen::m_nInstrumentLookupTable")
+    .ban("H2Core::AlsaAudioDriver::m_pPlayback_handle")
+    .ban("H2Core::PortAudioDriver::m_processCallback")
+    .ban("H2Core::DiskWriterDriver::m_processCallback")
+    .ban("H2Core::AlsaAudioDriver::m_processCallback")
     # Qt Reduction, phase 2
-    #
     .ban("H2Core::LadspaFX::m_pLibrary")
     .ban("H2Core::AudioEngine::m_EngineMutex")
     .ban("H2Core::AudioEngine::m_MutexOutputPointer")
@@ -134,7 +142,6 @@ CONFIG = (
     .ban("*::metaObject()")
     .ban("*::metaObject()")
     .ban("*::qt_metacall(QMetaObject::Call, int, void **)")
-
     .ban("*::qt_static_metacall(QObject *, QMetaObject::Call, int, void **)")
     # cflags and include paths
     .add_cflags(FLAGS)
@@ -146,13 +153,17 @@ CONFIG = (
     .add_plugin("pybind11/stl.h")
     .add_plugin("pybind11/numpy.h")
     .add_plugin("qtcasters.h")
-
-    .bind_with_lambda("QColor", "name()",
-    """[](const QColor &color) {
+    .bind_with_lambda(
+        "QColor",
+        "name()",
+        """[](const QColor &color) {
         return color.name();
-    }""")
-    .bind_with_lambda("H2Core::Sample", "get_data_l()",
-    """[](const H2Core::Sample & sample) {
+    }""",
+    )
+    .bind_with_lambda(
+        "H2Core::Sample",
+        "get_data_l()",
+        """[](const H2Core::Sample & sample) {
         size_t nframes = sample.get_frames();
         auto result = py::array_t<float>(nframes);
         py::buffer_info buf = result.request();
@@ -163,9 +174,12 @@ CONFIG = (
         }
         return result;
     }
-    """)
-    .bind_with_lambda("H2Core::Sample", "get_data_r()",
-    """[](const H2Core::Sample & sample) {
+    """,
+    )
+    .bind_with_lambda(
+        "H2Core::Sample",
+        "get_data_r()",
+        """[](const H2Core::Sample & sample) {
         size_t nframes = sample.get_frames();
         auto result = py::array_t<float>(nframes);
         py::buffer_info buf = result.request();
@@ -176,40 +190,60 @@ CONFIG = (
         }
         return result;
     }
-    """)
-    .add_method("QColor", "__repr__",
-    """[](const QColor &color) {
+    """,
+    )
+    .add_method(
+        "QColor",
+        "__repr__",
+        """[](const QColor &color) {
         return "QColor(\\"" + color.name() + "\\")";
-    }""")
-
-    .add_method("H2Core::Song", "__repr__",
-    """[](const H2Core::Song & song) {
+    }""",
+    )
+    .add_method(
+        "H2Core::Song",
+        "__repr__",
+        """[](const H2Core::Song & song) {
         return "<Song \\"" + song.getName() + "\\">";
     }
-    """)
-    .add_method("H2Core::Drumkit", "__repr__",
-    """[](const H2Core::Drumkit & drumkit) {
+    """,
+    )
+    .add_method(
+        "H2Core::Drumkit",
+        "__repr__",
+        """[](const H2Core::Drumkit & drumkit) {
         return "<Drumkit \\"" + drumkit.get_name() + "\\">";
     }
-    """)
-    .add_method("H2Core::DrumkitComponent", "__repr__",
-    """[](const H2Core::DrumkitComponent & dkc) {
+    """,
+    )
+    .add_method(
+        "H2Core::DrumkitComponent",
+        "__repr__",
+        """[](const H2Core::DrumkitComponent & dkc) {
         return "<DrumkitComponent \\"" + dkc.get_name() + "\\">";
     }
-    """)
-    .add_method("H2Core::Instrument", "__repr__",
-    """[](const H2Core::Instrument & instrument) {
+    """,
+    )
+    .add_method(
+        "H2Core::Instrument",
+        "__repr__",
+        """[](const H2Core::Instrument & instrument) {
         return "<Instrument \\"" + instrument.get_name() + "\\">";
     }
-    """)
-    .add_method("H2Core::Sample", "__repr__",
-    """[](const H2Core::Sample & sample) {
+    """,
+    )
+    .add_method(
+        "H2Core::Sample",
+        "__repr__",
+        """[](const H2Core::Sample & sample) {
         return "<Sample \\"" + sample.get_filename() + "\\">";
     }
-    """)
-    .add_policy("H2Core::Drumkit::get_instruments", "py::return_value_policy::reference_internal")
+    """,
+    )
+    .add_policy(
+        "H2Core::Drumkit::get_instruments",
+        "py::return_value_policy::reference_internal",
+    )
     .add_policy("H2Core::Hydrogen::get_instance", "py::return_value_policy::reference")
-    
 )
 
 
