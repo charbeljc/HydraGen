@@ -7,9 +7,9 @@ Object.bootstrap(logger, True)
 Filesystem.bootstrap(logger, "/usr/local/share/hydrogen/data/")
 prefs = Preferences.create_instance()
 hydrogen = Hydrogen.get_instance(False, True)
-dk = Drumkit.load_file(
-     "/home/rebelcat/.hydrogen/data/drumkits/RoRBateria/drumkit.xml", False
-)
+# dk = Drumkit.load_file(
+#      "/home/rebelcat/.hydrogen/data/drumkits/RoRBateria/drumkit.xml", False
+# )
 song = Song.load("/home/rebelcat/envelope_test.h2song")
 hydrogen.setSong(song)
 hydrogen.sequencer_play()
