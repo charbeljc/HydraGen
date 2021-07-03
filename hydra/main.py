@@ -21,64 +21,64 @@ FLAGS = """-x c++ -fPIC -std=c++14 -fexceptions -DUSE_NAMESPACE=1
         -I/home/rebelcat/Hack/hydra
         """
 
-BINDINGS = [
-    ("H2Core::XMLNode", "core/Helpers/Xml.h"),
-    ("H2Core::Drumkit", "core/Basics/Drumkit.h"),
-    ("H2Core::DrumkitComponent", "core/Basics/DrumkitComponent.h"),
-    ("H2Core::Instrument", "core/Basics/Instrument.h"),
-    ("H2Core::InstrumentComponent", "core/Basics/InstrumentComponent.h"),
-    ("H2Core::InstrumentLayer", "core/Basics/InstrumentLayer.h"),
-    ("H2Core::InstrumentList", "core/Basics/InstrumentList.h"),
-    ("H2Core::Sample", "core/Basics/Sample.h"),
-    ("H2Core::Preferences", "core/Preferences.h"),
-    ("H2Core::Playlist", "core/Basics/Playlist.h"),
-    ("H2Core::Pattern", "core/Basics/Pattern.h"),
-    ("H2Core::PatternList", "core/Basics/PatternList.h"),
-    ("H2Core::AutomationPath", "core/Basics/AutomationPath.h"),
-    ("H2Core::Song", "core/Basics/Song.h"),
-    ("H2Core::Hydrogen", "core/Hydrogen.h"),
-    ("H2Core::AudioEngine", "core/AudioEngine.h"),
-    # ("H2Core::CoreActionControler", "core/CoreActionControler.h"),
-    ("H2Core::EventQueue", "core/EventQueue.h"),
-    ("H2Core::H2Exception", "core/H2Exception.h"),
-    ("Action", "core/MidiAction.h"),
-    ("MidiActionManager::targeted_element", "core/MidiAction.h"),
-    ("MidiActionManager", "core/MidiAction.h"),
-    # (":MidiMap", "core/MidiMap.h"),
-    # ("OscServer", "core/OscServer.h"),
-    ("H2Core::Timeline", "core/Timeline.h"),
-    ("H2Core::get_version", "core/Version.h"),
-    ("H2Core::version_older_than", "core/Version.h"),
-    ("H2Core::Effects", "core/FX/Effects.h"),
-    ("H2Core::LadspaFX", "core/FX/LadspaFX.h"),
-    ("H2Core::AlsaAudioDriver", "core/IO/AlsaAudioDriver.h"),
-    ("H2Core::AlsaMidiDriver", "core/IO/AlsaMidiDriver.h"),
-    ("H2Core::AudioOutput", "core/IO/AudioOutput.h"),
-    ("H2Core::CoreAudioDriver", "core/IO/CoreAudioDriver.h"),
-    ("H2Core::CoreMidiDriver", "core/IO/CoreMidiDriver.h"),
-    ("H2Core::DiskWriterDriver", "core/IO/DiskWriterDriver.h"),
-    ("H2Core::FakeDriver", "core/IO/FakeDriver.h"),
-    ("H2Core::JackAudioDriver", "core/IO/JackAudioDriver.h"),
-    ("H2Core::JackMidiDriver", "core/IO/JackMidiDriver.h"),
-    ("H2Core::MidiInput", "core/IO/MidiInput.h"),
-    ("H2Core::MidiMessage", "core/IO/MidiCommon.h"),
-    ("H2Core::MidiOutput", "core/IO/MidiOutput.h"),
-    ("H2Core::MidiPortInfo", "core/IO/MidiCommon.h"),
-    ("H2Core::NullDriver", "core/IO/NullDriver.h"),
-    # ("H2Core::OssDriver", "core/IO/OssDriver.h"),
-    ("H2Core::PortAudioDriver", "core/IO/PortAudioDriver.h"),
-    ("H2Core::PortMidiDriver", "core/IO/PortMidiDriver.h"),
-    ("H2Core::PulseAudioDriver", "core/IO/PulseAudioDriver.h"),
-    # ("Song;IO/JackAudioDriver.h", ""),
-    ("H2Core::TransportInfo", "core/IO/TransportInfo.h"),
-    ("LashClient", "core/Lash/LashClient.h"),
-    ("H2Core::LilyPond", "core/Lilipond/Lilypond.h"),
-    ("H2Core::Sampler", "core/Sampler/Sampler.h"),
-    ("H2Core::Synth", "core/Synth/Synth.h"),
-]
+BINDINGS = {
+    "H2Core::XMLNode": ["core/Helpers/Xml.h"],
+    "H2Core::Drumkit": ["core/Basics/Drumkit.h"],
+    "H2Core::DrumkitComponent": ["core/Basics/DrumkitComponent.h"],
+    "H2Core::Instrument": ["core/Basics/Instrument.h"],
+    "H2Core::InstrumentComponent": ["core/Basics/InstrumentComponent.h"],
+    "H2Core::InstrumentLayer": ["core/Basics/InstrumentLayer.h"],
+    "H2Core::InstrumentList": ["core/Basics/InstrumentList.h"],
+    "H2Core::Sample": ["core/Basics/Sample.h"],
+    "H2Core::Preferences": ["core/Preferences.h"],
+    "H2Core::Playlist": ["core/Basics/Playlist.h"],
+    "H2Core::Pattern": ["core/Basics/Pattern.h"],
+    "H2Core::PatternList": ["core/Basics/PatternList.h"],
+    "H2Core::AutomationPath": ["core/Basics/AutomationPath.h"],
+    "H2Core::Song": ["core/Basics/Song.h"],
+    "H2Core::Hydrogen": ["core/Hydrogen.h"],
+    "H2Core::AudioEngine": ["core/AudioEngine.h"],
+    # "H2Core::CoreActionControler": ["core/CoreActionControler.h"],
+    "H2Core::EventQueue": ["core/EventQueue.h"],
+    "H2Core::H2Exception": ["core/H2Exception.h"],
+    "Action": ["core/MidiAction.h"],
+    "MidiActionManager::targeted_element": ["core/MidiAction.h"],
+    "MidiActionManager": ["core/MidiAction.h"],
+    # ":MidiMap": ["core/MidiMap.h"],
+    # "OscServer": ["core/OscServer.h"],
+    "H2Core::Timeline": ["core/Timeline.h"],
+    "H2Core::get_version": ["core/Version.h"],
+    "H2Core::version_older_than": ["core/Version.h"],
+    "H2Core::Effects": ["core/FX/Effects.h"],
+    "H2Core::LadspaFX": ["core/FX/LadspaFX.h"],
+    "H2Core::AlsaAudioDriver": ["core/IO/AlsaAudioDriver.h"],
+    "H2Core::AlsaMidiDriver": ["core/IO/AlsaMidiDriver.h"],
+    "H2Core::AudioOutput": ["core/IO/AudioOutput.h"],
+    "H2Core::CoreAudioDriver": ["core/IO/CoreAudioDriver.h"],
+    "H2Core::CoreMidiDriver": ["core/IO/CoreMidiDriver.h"],
+    "H2Core::DiskWriterDriver": ["core/IO/DiskWriterDriver.h"],
+    "H2Core::FakeDriver": ["core/IO/FakeDriver.h"],
+    "H2Core::JackAudioDriver": ["core/IO/JackAudioDriver.h"],
+    "H2Core::JackMidiDriver": ["core/IO/JackMidiDriver.h"],
+    "H2Core::MidiInput": ["core/IO/MidiInput.h"],
+    "H2Core::MidiMessage": ["core/IO/MidiCommon.h"],
+    "H2Core::MidiOutput": ["core/IO/MidiOutput.h"],
+    "H2Core::MidiPortInfo": ["core/IO/MidiCommon.h"],
+    "H2Core::NullDriver": ["core/IO/NullDriver.h"],
+    # "H2Core::OssDriver": ["core/IO/OssDriver.h"],
+    "H2Core::PortAudioDriver": ["core/IO/PortAudioDriver.h"],
+    "H2Core::PortMidiDriver": ["core/IO/PortMidiDriver.h"],
+    "H2Core::PulseAudioDriver": ["core/IO/PulseAudioDriver.h"],
+    # "Song;IO/JackAudioDriver.h": [""],
+    "H2Core::TransportInfo": ["core/IO/TransportInfo.h"],
+    "LashClient": ["core/Lash/LashClient.h"],
+    "H2Core::LilyPond": ["core/Lilipond/Lilypond.h"],
+    "H2Core::Sampler": ["core/Sampler/Sampler.h"],
+    "H2Core::Synth": ["core/Synth/Synth.h"],
+}
 
 CONFIG = (
-    Config()
+    Config("h2core")
     .ban(
         [
             "QColor::QColor(QColor &&)",  # ban this constructor
@@ -251,22 +251,23 @@ CONFIG = (
     )
 )
 
+CONFIG._bindings = BINDINGS
 
-def main(config: Config, modname: str, bindings):
+def main(config: Config):
     # modname, bindings, config):
     ctx = dom.Context(dom.FACTORY, config)
-
-    # seeding
+    modname = config._module_name
+    bindings = config._bindings
     config.dump()
+    # seeding
     # generate initial includes
     header = []
     includes = []
-    for name, paths in bindings:
+    for name, paths in bindings.items():
         if isinstance(paths, str):
             includes.append(paths)
         elif isinstance(paths, list):
             includes += paths
-
     gen.generate_includes(includes, header)
 
     gen.generate_includes(
@@ -281,7 +282,7 @@ def main(config: Config, modname: str, bindings):
     tx, inc = ctx.parse(f"{modname}_module.hpp")
     tx.walk()
     records = []
-    for name, path in bindings:
+    for name, path in bindings.items():
         try:
             binding = tx[name]
             if isinstance(binding, Namespace):
@@ -397,4 +398,9 @@ def main(config: Config, modname: str, bindings):
 
 
 if __name__ == "__main__":
-    main(CONFIG, "h2core", BINDINGS)
+    import sys
+    if len(sys.argv) == 2:
+        config = Config.parse(sys.argv[1])
+        main(config)
+    else:
+        main(CONFIG)
