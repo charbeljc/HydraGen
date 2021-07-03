@@ -18,6 +18,11 @@ class Config:
     _lambdas: dict[str, dict[str, str]]
     _addon_methods: dict[str, dict[str, str]]
     _policies: dict[str, str]
+    _emit_fields: bool = True
+    _emit_methods: bool = True
+    _emit_ctors: bool = True
+    _emit_dtors: bool = True
+    _prolog: set[str]
 
     def __init__(self):
         self._banned = OrderedSet()
@@ -29,6 +34,7 @@ class Config:
         self._lambdas = dict()
         self._addon_methods = dict()
         self._policies = dict()
+        self._prolog = OrderedSet()
 
     def ban(self, cppname: str) -> Config:
         """
@@ -75,8 +81,8 @@ class Config:
         if flag:
             if flag.startswith('-I'):
                 logger.warning(
-                    "Config.add_cflag() should not be used with -I<path>, "
-                    "use Config.add_include_path() instead"
+                    "Config.add_cflag() should not be used with %r, "
+                    "use Config.add_include_path() instead", flag
                     )
                 flag = flag[2:].strip()
                 self.add_include_path(flag)
@@ -102,6 +108,15 @@ class Config:
 
     def add_policy(self, signature: str, policy: str) -> Config:
         self._policies[signature] = policy
+        return self
+
+    def add_prolog(self, code) -> Config:
+        self._prolog.add(code)
+        return self 
+
+    def emit(self, what) -> Config:
+        for key in what:
+            setattr(self, f'_emit_{key}', what[key])
         return self
 
     def _check_include(self, include):

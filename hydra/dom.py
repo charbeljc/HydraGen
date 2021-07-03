@@ -185,7 +185,7 @@ class NodeProxy:
 
     def __init__(self, context: Context, node: Cursor, parent: NodeProxy | None = None):
         self.context = context
-        self.name = node.spelling or node.get_usr()
+        self.name = node.spelling # or node.get_usr()
         self.parent = parent
         self.node = node
         self.content = {}
@@ -294,9 +294,12 @@ class NodeProxy:
     def is_builtin(self):
         return False
 
+    def is_abstract(self):
+        return False
+
     @property
     def namespaces(self):
-        return list(self._filter(Namespace))
+        return {n.name: n for n in list(self._filter(Namespace))}
 
     @property
     def displayname(self):

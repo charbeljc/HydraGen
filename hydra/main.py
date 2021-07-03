@@ -164,33 +164,33 @@ CONFIG = (
         "H2Core::Sample",
         "get_data_l()",
         """[](const H2Core::Sample & sample) {
-        size_t nframes = sample.get_frames();
-        auto result = py::array_t<float>(nframes);
-        py::buffer_info buf = result.request();
-        float *ptr = static_cast<float *>(buf.ptr);
-        float *src = sample.get_data_l();
-        for (size_t idx = 0; idx < nframes; idx++) {
-            ptr[idx] = src[idx];
+            size_t nframes = sample.get_frames();
+            auto result = py::array_t<float>(nframes);
+            py::buffer_info buf = result.request();
+            float *ptr = static_cast<float *>(buf.ptr);
+            float *src = sample.get_data_l();
+            for (size_t idx = 0; idx < nframes; idx++) {
+                ptr[idx] = src[idx];
+            }
+            return result;
         }
-        return result;
-    }
-    """,
+        """,
     )
     .bind_with_lambda(
         "H2Core::Sample",
         "get_data_r()",
         """[](const H2Core::Sample & sample) {
-        size_t nframes = sample.get_frames();
-        auto result = py::array_t<float>(nframes);
-        py::buffer_info buf = result.request();
-        float *ptr = static_cast<float *>(buf.ptr);
-        float *src = sample.get_data_r();
-        for (size_t idx = 0; idx < nframes; idx++) {
-            ptr[idx] = src[idx];
+            size_t nframes = sample.get_frames();
+            auto result = py::array_t<float>(nframes);
+            py::buffer_info buf = result.request();
+            float *ptr = static_cast<float *>(buf.ptr);
+            float *src = sample.get_data_r();
+            for (size_t idx = 0; idx < nframes; idx++) {
+                ptr[idx] = src[idx];
+            }
+            return result;
         }
-        return result;
-    }
-    """,
+        """,
     )
     .add_method(
         "QColor",
@@ -244,6 +244,12 @@ CONFIG = (
         "py::return_value_policy::reference_internal",
     )
     .add_policy("H2Core::Hydrogen::get_instance", "py::return_value_policy::reference")
+
+    .add_prolog(
+        """
+        using namespace H2Core;\n\n
+        """
+    )
 )
 
 

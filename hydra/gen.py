@@ -3,7 +3,7 @@ from functools import singledispatch
 import textwrap
 from typing import OrderedDict
 from logzero import logger
-from .dom import Context, EnumConstant, Method, Function, Record, Enum, Namespace
+from .dom import Context, EnumConstant, Method, Function, Record, Field, Enum, Namespace
 from orderedset import OrderedSet
 import json
 
@@ -52,6 +52,7 @@ def generate_enum(context: Context, enum: Enum, bindings, code):
     emit(code, f"""\tpy::enum_<{qname}>({parent}, "{name}")""")
     for ec in enum._filter(EnumConstant):
         if anon:
+            assert enum.parent
             emit(
                 code,
                 f"""\n\t\t.value("{ec.name}", {enum.parent.fullname}::{ec.name})""",
@@ -80,36 +81,41 @@ def generate_record(context: Context, rec: Record, bindings, code):
 
     emit(code, f"""\tpy::class_<{mro}> _{rec.name}(m, "{rec.name}");""")
 
-    for ctor in rec.constructors:
-        if not ctor.is_public():
-            continue
-        if context.is_banned(ctor):
-            continue
-        emit(code, f"""\n\t_{rec.name}.def(py::init<{ctor.cpp_signature}>());""")
+    if context.config._emit_ctors:
 
+        for ctor in rec.constructors:
+            if not ctor.is_public():
+                continue
+            if context.is_banned(ctor):
+                continue
+            emit(code, f"""\n\t_{rec.name}.def(py::init<{ctor.cpp_signature}>());""")
 
-    for fld in rec.fields:
-        skip = ""
-        if not fld.is_public():
-            continue
-        if context.is_banned(fld):
-            continue
-        for dep in fld.dependencies:
-            if dep not in bindings and dep not in context.casters() and not dep.is_builtin():
-                skip = f"// [{dep}] "
-                break
+    if context.config._emit_fields:
 
-        emit(code, f"""\n\t{skip}_{rec.name}.def_readwrite("{fld.name}", &{rec.fullname}::{fld.name});""")
+        for fld in rec.fields:
+            skip = ""
+            if not fld.is_public():
+                continue
+            if context.is_banned(fld):
+                continue
+            for dep in fld.dependencies:
+                if dep not in bindings and dep not in context.casters() and not dep.is_builtin():
+                    skip = f"// [{dep}] "
+                    break
 
-    overloads = {}
-    for m in rec.methods:
-        overloads.setdefault(m.name, []).append(m)
+            emit(code, f"""\n\t{skip}_{rec.name}.def_readwrite("{fld.name}", &{rec.fullname}::{fld.name});""")
 
-    for name in overloads:
-        signatures = overloads[name]
-        overloaded = len(signatures) > 1
-        for m in signatures:
-            generate_method(context, rec, m, overloaded, bindings, code)
+    if context.config._emit_methods:
+
+        overloads = {}
+        for m in rec.methods:
+            overloads.setdefault(m.name, []).append(m)
+
+        for name in overloads:
+            signatures = overloads[name]
+            overloaded = len(signatures) > 1
+            for m in signatures:
+                generate_method(context, rec, m, overloaded, bindings, code)
 
     for name, mcode in context.get_addon_methods(rec):
         emit(
@@ -119,6 +125,8 @@ def generate_record(context: Context, rec: Record, bindings, code):
     emit(code, """\n\n""")
 
 def generate_method(context: Context, rec: Record, m: Method, overloaded: bool, bindings, code):
+    if not context.config._emit_methods:
+        return
     skip = ""
     for dep in m.dependencies:
         if dep.name == 'qreal':
@@ -166,7 +174,7 @@ def generate_method(context: Context, rec: Record, m: Method, overloaded: bool, 
 def generate_field(context: Context, fld: Field, bindings: list, code):
     breakpoint()
 
-def generate_function(context: Context, fun: Function, ovrloaded: bool, bindings: list, code):
+def generate_function(context: Context, fun: Function, overloaded: bool, bindings: list, code):
     skip = ""
     for dep in fun.dependencies:
         if (dep not in bindings) and (dep not in context.casters()) and not dep.is_builtin():
@@ -175,7 +183,7 @@ def generate_function(context: Context, fun: Function, ovrloaded: bool, bindings
     if not fun.is_public():
         return
 
-    if context.is_banned(m):
+    if context.is_banned(fun):
         skip = "// [banned] "
 
     if mcode := context.bind_with_lambda(fun):
@@ -218,7 +226,9 @@ def generate_module(context: Context, name, bindings, include_paths, code):
     generate_includes([f"{name}_module.hpp"], code)
 
     emit(code, "namespace py = pybind11;\n\n")
-    emit(code, "using namespace H2Core;\n\n")
+
+    for fragment in context.config._prolog:
+        emit(code, fragment)
     emit(code, f"PYBIND11_MODULE({name}, m) {{\n\n")
     for binding in bindings:
         if isinstance(binding, Record):
