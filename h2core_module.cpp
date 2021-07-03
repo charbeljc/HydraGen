@@ -109,15 +109,15 @@ PYBIND11_MODULE(h2core, m) {
 	_Event.def_readwrite("type", &H2Core::Event::type);
 	_Event.def_readwrite("value", &H2Core::Event::value);
 
-	py::class_<timeval, std::shared_ptr<timeval>> _timeval(m, "timeval");
-	_timeval.def_readwrite("tv_sec", &timeval::tv_sec);
-	_timeval.def_readwrite("tv_usec", &timeval::tv_usec);
-
 	py::class_<H2Core::AudioEngineLocking, std::shared_ptr<H2Core::AudioEngineLocking>> _AudioEngineLocking(m, "AudioEngineLocking");
 	_AudioEngineLocking.def(py::init<>());
 	_AudioEngineLocking.def("setNeedsLock", &H2Core::AudioEngineLocking::setNeedsLock,
 		"The audio processing thread can modify some PatternLists. For these structures, the audio engine lock must be held for any thread to access them.",
 		py::arg("bNeedsLock"));
+
+	py::class_<timeval, std::shared_ptr<timeval>> _timeval(m, "timeval");
+	_timeval.def_readwrite("tv_sec", &timeval::tv_sec);
+	_timeval.def_readwrite("tv_usec", &timeval::tv_usec);
 
 	py::class_<QColor, std::shared_ptr<QColor>> _QColor(m, "QColor");
 	_QColor.def(py::init<>());
@@ -983,7 +983,6 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::Hydrogen, H2Core::Object, std::shared_ptr<H2Core::Hydrogen>> _Hydrogen(m, "Hydrogen");
 	_Hydrogen.def_readwrite("lastMidiEvent", &H2Core::Hydrogen::lastMidiEvent);
 	_Hydrogen.def_readwrite("lastMidiEventParameter", &H2Core::Hydrogen::lastMidiEventParameter);
-	// _Hydrogen.def_readwrite("m_nInstrumentLookupTable", &H2Core::Hydrogen::m_nInstrumentLookupTable);
 	_Hydrogen.def_readwrite("m_nMaxTimeHumanize", &H2Core::Hydrogen::m_nMaxTimeHumanize);
 	_Hydrogen.def_static("class_name", &H2Core::Hydrogen::class_name);
 	_Hydrogen.def_static("create_instance", &H2Core::Hydrogen::create_instance,
@@ -3033,7 +3032,6 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::PortAudioDriver, std::shared_ptr<H2Core::PortAudioDriver>> _PortAudioDriver(m, "PortAudioDriver");
 	_PortAudioDriver.def(py::init<H2Core::audioProcessCallback>());
-	// _PortAudioDriver.def_readwrite("m_processCallback", &H2Core::PortAudioDriver::m_processCallback);
 	_PortAudioDriver.def_readwrite("m_pOut_L", &H2Core::PortAudioDriver::m_pOut_L);
 	_PortAudioDriver.def_readwrite("m_pOut_R", &H2Core::PortAudioDriver::m_pOut_R);
 	_PortAudioDriver.def_readwrite("m_nBufferSize", &H2Core::PortAudioDriver::m_nBufferSize);
@@ -3075,7 +3073,6 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::JackAudioDriver, std::shared_ptr<H2Core::JackAudioDriver>> _JackAudioDriver(m, "JackAudioDriver");
 	_JackAudioDriver.def(py::init<JackProcessCallback>());
-	// _JackAudioDriver.def_readwrite("m_pClient", &H2Core::JackAudioDriver::m_pClient);
 	_JackAudioDriver.def_readwrite("m_currentPos", &H2Core::JackAudioDriver::m_currentPos);
 	_JackAudioDriver.def_static("class_name", &H2Core::JackAudioDriver::class_name);
 	_JackAudioDriver.def("connect", &H2Core::JackAudioDriver::connect,
@@ -3174,7 +3171,6 @@ PYBIND11_MODULE(h2core, m) {
 	_DiskWriterDriver.def_readwrite("m_sFilename", &H2Core::DiskWriterDriver::m_sFilename);
 	_DiskWriterDriver.def_readwrite("m_nBufferSize", &H2Core::DiskWriterDriver::m_nBufferSize);
 	_DiskWriterDriver.def_readwrite("m_nSampleDepth", &H2Core::DiskWriterDriver::m_nSampleDepth);
-	//_DiskWriterDriver.def_readwrite("m_processCallback", &H2Core::DiskWriterDriver::m_processCallback);
 	_DiskWriterDriver.def_readwrite("m_pOut_L", &H2Core::DiskWriterDriver::m_pOut_L);
 	_DiskWriterDriver.def_readwrite("m_pOut_R", &H2Core::DiskWriterDriver::m_pOut_R);
 	_DiskWriterDriver.def_static("class_name", &H2Core::DiskWriterDriver::class_name);
@@ -3199,14 +3195,12 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::AlsaAudioDriver, std::shared_ptr<H2Core::AlsaAudioDriver>> _AlsaAudioDriver(m, "AlsaAudioDriver");
 	_AlsaAudioDriver.def(py::init<H2Core::audioProcessCallback>());
-	// _AlsaAudioDriver.def_readwrite("m_pPlayback_handle", &H2Core::AlsaAudioDriver::m_pPlayback_handle);
 	_AlsaAudioDriver.def_readwrite("m_bIsRunning", &H2Core::AlsaAudioDriver::m_bIsRunning);
 	_AlsaAudioDriver.def_readwrite("m_nBufferSize", &H2Core::AlsaAudioDriver::m_nBufferSize);
 	_AlsaAudioDriver.def_readwrite("m_pOut_L", &H2Core::AlsaAudioDriver::m_pOut_L);
 	_AlsaAudioDriver.def_readwrite("m_pOut_R", &H2Core::AlsaAudioDriver::m_pOut_R);
 	_AlsaAudioDriver.def_readwrite("m_nXRuns", &H2Core::AlsaAudioDriver::m_nXRuns);
 	_AlsaAudioDriver.def_readwrite("m_sAlsaAudioDevice", &H2Core::AlsaAudioDriver::m_sAlsaAudioDevice);
-	// _AlsaAudioDriver.def_readwrite("m_processCallback", &H2Core::AlsaAudioDriver::m_processCallback);
 	_AlsaAudioDriver.def_static("class_name", &H2Core::AlsaAudioDriver::class_name);
 	_AlsaAudioDriver.def("init", &H2Core::AlsaAudioDriver::init,
 		py::arg("nBufferSize"));
