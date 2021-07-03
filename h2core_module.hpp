@@ -14,6 +14,7 @@
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
+#include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/H2Exception.h>
 #include <core/MidiAction.h>
@@ -41,6 +42,7 @@
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/PortMidiDriver.h>
 #include <core/IO/PulseAudioDriver.h>
+#include <core/IO/JackAudioDriver.h>
 #include <core/IO/TransportInfo.h>
 #include <core/Lash/LashClient.h>
 #include <core/Lilipond/Lilypond.h>

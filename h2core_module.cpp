@@ -1,11 +1,8 @@
 #include <h2core_module.hpp>
 namespace py = pybind11;
 
-
-        using namespace H2Core;
-
-
-        PYBIND11_MODULE(h2core, m) {
+using namespace H2Core;
+PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::Object, std::shared_ptr<H2Core::Object>> _Object(m, "Object");
 	_Object.def(py::init<>());
@@ -143,8 +140,9 @@ namespace py = pybind11;
 	_QColor.def("isValid", &QColor::isValid);
 	_QColor.def("name",
 	[](const QColor &color) {
-        return color.name();
-    });
+  return color.name();
+}
+);
 	// [banned] _QColor.def("name", py::overload_cast<QColor::NameFormat>(&QColor::name),
 	// [banned] 	py::arg("format"));
 	_QColor.def("setNamedColor", py::overload_cast<const QString &>(&QColor::setNamedColor),
@@ -388,8 +386,9 @@ namespace py = pybind11;
 	// [<Class 'QLatin1String'>] 	py::arg(""));
 	_QColor.def("__repr__",
 	[](const QColor &color) {
-        return "QColor(\"" + color.name() + "\")";
-    });
+  return "QColor(\"" + color.name() + "\")";
+}
+);
 
 	py::class_<QRgba64, std::shared_ptr<QRgba64>> _QRgba64(m, "QRgba64");
 	_QRgba64.def(py::init<>());
@@ -839,6 +838,90 @@ namespace py = pybind11;
 		py::arg("nValue"));
 	_EventQueue.def("pop_event", &H2Core::EventQueue::pop_event,
 		"Reads out the next event of the EventQueue.");
+
+	py::class_<H2Core::CoreActionController, H2Core::Object, std::shared_ptr<H2Core::CoreActionController>> _CoreActionController(m, "CoreActionController");
+	_CoreActionController.def(py::init<>());
+	_CoreActionController.def_static("class_name", &H2Core::CoreActionController::class_name);
+	_CoreActionController.def("setMasterVolume", &H2Core::CoreActionController::setMasterVolume,
+		py::arg("masterVolumeValue"));
+	_CoreActionController.def("setStripVolume", &H2Core::CoreActionController::setStripVolume,
+		py::arg("nStrip"),
+		py::arg("fVolumeValue"),
+		py::arg("bSelectStrip"));
+	_CoreActionController.def("setStripPan", &H2Core::CoreActionController::setStripPan,
+		py::arg("nStrip"),
+		py::arg("fValue"),
+		py::arg("bSelectStrip"));
+	_CoreActionController.def("setStripPanSym", &H2Core::CoreActionController::setStripPanSym,
+		py::arg("nStrip"),
+		py::arg("fValue"),
+		py::arg("bSelectStrip"));
+	_CoreActionController.def("setMetronomeIsActive", &H2Core::CoreActionController::setMetronomeIsActive,
+		py::arg("isActive"));
+	_CoreActionController.def("setMasterIsMuted", &H2Core::CoreActionController::setMasterIsMuted,
+		py::arg("isMuted"));
+	_CoreActionController.def("setStripIsMuted", &H2Core::CoreActionController::setStripIsMuted,
+		py::arg("nStrip"),
+		py::arg("isMuted"));
+	_CoreActionController.def("toggleStripIsMuted", &H2Core::CoreActionController::toggleStripIsMuted,
+		py::arg("nStrip"));
+	_CoreActionController.def("setStripIsSoloed", &H2Core::CoreActionController::setStripIsSoloed,
+		py::arg("nStrip"),
+		py::arg("isSoloed"));
+	_CoreActionController.def("toggleStripIsSoloed", &H2Core::CoreActionController::toggleStripIsSoloed,
+		py::arg("nStrip"));
+	_CoreActionController.def("initExternalControlInterfaces", &H2Core::CoreActionController::initExternalControlInterfaces);
+	_CoreActionController.def("handleOutgoingControlChange", &H2Core::CoreActionController::handleOutgoingControlChange,
+		py::arg("param"),
+		py::arg("value"));
+	_CoreActionController.def("newSong", &H2Core::CoreActionController::newSong,
+		"Create an empty #Song, which will be stored in songPath.",
+		py::arg("songPath"));
+	_CoreActionController.def("openSong", py::overload_cast<const QString &>(&H2Core::CoreActionController::openSong),
+		"Opens the #Song specified in songPath.",
+		py::arg("songPath"));
+	_CoreActionController.def("openSong", py::overload_cast<H2Core::Song *>(&H2Core::CoreActionController::openSong),
+		"Opens the #Song specified in songPath.",
+		py::arg("pSong"));
+	_CoreActionController.def("saveSong", &H2Core::CoreActionController::saveSong,
+		"Saves the current #Song.");
+	_CoreActionController.def("saveSongAs", &H2Core::CoreActionController::saveSongAs,
+		"Saves the current #Song to the path provided in songPath.",
+		py::arg("songPath"));
+	_CoreActionController.def("savePreferences", &H2Core::CoreActionController::savePreferences,
+		"Saves the current state of the #Preferences.");
+	_CoreActionController.def("quit", &H2Core::CoreActionController::quit,
+		"Triggers the shutdown of Hydrogen.");
+	_CoreActionController.def("activateTimeline", &H2Core::CoreActionController::activateTimeline,
+		"(De)activates the usage of the Timeline.",
+		py::arg("bActivate"));
+	_CoreActionController.def("addTempoMarker", &H2Core::CoreActionController::addTempoMarker,
+		"Adds a tempo marker to the Timeline.",
+		py::arg("nPosition"),
+		py::arg("fBpm"));
+	_CoreActionController.def("deleteTempoMarker", &H2Core::CoreActionController::deleteTempoMarker,
+		"Delete a tempo marker from the Timeline.",
+		py::arg("nPosition"));
+	_CoreActionController.def("activateJackTransport", &H2Core::CoreActionController::activateJackTransport,
+		"(De)activates the usage of Jack transport.",
+		py::arg("bActivate"));
+	_CoreActionController.def("activateJackTimebaseMaster", &H2Core::CoreActionController::activateJackTimebaseMaster,
+		"(De)activates the usage of Jack timebase master.",
+		py::arg("bActivate"));
+	_CoreActionController.def("activateSongMode", &H2Core::CoreActionController::activateSongMode,
+		"Switches between Song and Pattern mode of playback.",
+		py::arg("bActivate"),
+		py::arg("bTriggerEvent"));
+	_CoreActionController.def("activateLoopMode", &H2Core::CoreActionController::activateLoopMode,
+		"Toggle loop mode of playback.",
+		py::arg("bActivate"),
+		py::arg("bTriggerEvent"));
+	_CoreActionController.def("relocate", &H2Core::CoreActionController::relocate,
+		"Relocates transport to the beginning of a particular Pattern.",
+		py::arg("nPatternGroup"));
+	_CoreActionController.def("isSongPathValid", &H2Core::CoreActionController::isSongPathValid,
+		"Checks the path of the .h2song provided via OSC.",
+		py::arg("songPath"));
 
 	py::class_<H2Core::AudioEngine, H2Core::Object, std::shared_ptr<H2Core::AudioEngine>> _AudioEngine(m, "AudioEngine");
 	_AudioEngine.def(py::init<>());
@@ -1362,90 +1445,6 @@ namespace py = pybind11;
 	_Filesystem.def_static("setPreferencesOverwritePath", &H2Core::Filesystem::setPreferencesOverwritePath,
 		py::arg("sPath"));
 
-	py::class_<H2Core::CoreActionController, H2Core::Object, std::shared_ptr<H2Core::CoreActionController>> _CoreActionController(m, "CoreActionController");
-	_CoreActionController.def(py::init<>());
-	_CoreActionController.def_static("class_name", &H2Core::CoreActionController::class_name);
-	_CoreActionController.def("setMasterVolume", &H2Core::CoreActionController::setMasterVolume,
-		py::arg("masterVolumeValue"));
-	_CoreActionController.def("setStripVolume", &H2Core::CoreActionController::setStripVolume,
-		py::arg("nStrip"),
-		py::arg("fVolumeValue"),
-		py::arg("bSelectStrip"));
-	_CoreActionController.def("setStripPan", &H2Core::CoreActionController::setStripPan,
-		py::arg("nStrip"),
-		py::arg("fValue"),
-		py::arg("bSelectStrip"));
-	_CoreActionController.def("setStripPanSym", &H2Core::CoreActionController::setStripPanSym,
-		py::arg("nStrip"),
-		py::arg("fValue"),
-		py::arg("bSelectStrip"));
-	_CoreActionController.def("setMetronomeIsActive", &H2Core::CoreActionController::setMetronomeIsActive,
-		py::arg("isActive"));
-	_CoreActionController.def("setMasterIsMuted", &H2Core::CoreActionController::setMasterIsMuted,
-		py::arg("isMuted"));
-	_CoreActionController.def("setStripIsMuted", &H2Core::CoreActionController::setStripIsMuted,
-		py::arg("nStrip"),
-		py::arg("isMuted"));
-	_CoreActionController.def("toggleStripIsMuted", &H2Core::CoreActionController::toggleStripIsMuted,
-		py::arg("nStrip"));
-	_CoreActionController.def("setStripIsSoloed", &H2Core::CoreActionController::setStripIsSoloed,
-		py::arg("nStrip"),
-		py::arg("isSoloed"));
-	_CoreActionController.def("toggleStripIsSoloed", &H2Core::CoreActionController::toggleStripIsSoloed,
-		py::arg("nStrip"));
-	_CoreActionController.def("initExternalControlInterfaces", &H2Core::CoreActionController::initExternalControlInterfaces);
-	_CoreActionController.def("handleOutgoingControlChange", &H2Core::CoreActionController::handleOutgoingControlChange,
-		py::arg("param"),
-		py::arg("value"));
-	_CoreActionController.def("newSong", &H2Core::CoreActionController::newSong,
-		"Create an empty #Song, which will be stored in songPath.",
-		py::arg("songPath"));
-	_CoreActionController.def("openSong", py::overload_cast<const QString &>(&H2Core::CoreActionController::openSong),
-		"Opens the #Song specified in songPath.",
-		py::arg("songPath"));
-	_CoreActionController.def("openSong", py::overload_cast<H2Core::Song *>(&H2Core::CoreActionController::openSong),
-		"Opens the #Song specified in songPath.",
-		py::arg("pSong"));
-	_CoreActionController.def("saveSong", &H2Core::CoreActionController::saveSong,
-		"Saves the current #Song.");
-	_CoreActionController.def("saveSongAs", &H2Core::CoreActionController::saveSongAs,
-		"Saves the current #Song to the path provided in songPath.",
-		py::arg("songPath"));
-	_CoreActionController.def("savePreferences", &H2Core::CoreActionController::savePreferences,
-		"Saves the current state of the #Preferences.");
-	_CoreActionController.def("quit", &H2Core::CoreActionController::quit,
-		"Triggers the shutdown of Hydrogen.");
-	_CoreActionController.def("activateTimeline", &H2Core::CoreActionController::activateTimeline,
-		"(De)activates the usage of the Timeline.",
-		py::arg("bActivate"));
-	_CoreActionController.def("addTempoMarker", &H2Core::CoreActionController::addTempoMarker,
-		"Adds a tempo marker to the Timeline.",
-		py::arg("nPosition"),
-		py::arg("fBpm"));
-	_CoreActionController.def("deleteTempoMarker", &H2Core::CoreActionController::deleteTempoMarker,
-		"Delete a tempo marker from the Timeline.",
-		py::arg("nPosition"));
-	_CoreActionController.def("activateJackTransport", &H2Core::CoreActionController::activateJackTransport,
-		"(De)activates the usage of Jack transport.",
-		py::arg("bActivate"));
-	_CoreActionController.def("activateJackTimebaseMaster", &H2Core::CoreActionController::activateJackTimebaseMaster,
-		"(De)activates the usage of Jack timebase master.",
-		py::arg("bActivate"));
-	_CoreActionController.def("activateSongMode", &H2Core::CoreActionController::activateSongMode,
-		"Switches between Song and Pattern mode of playback.",
-		py::arg("bActivate"),
-		py::arg("bTriggerEvent"));
-	_CoreActionController.def("activateLoopMode", &H2Core::CoreActionController::activateLoopMode,
-		"Toggle loop mode of playback.",
-		py::arg("bActivate"),
-		py::arg("bTriggerEvent"));
-	_CoreActionController.def("relocate", &H2Core::CoreActionController::relocate,
-		"Relocates transport to the beginning of a particular Pattern.",
-		py::arg("nPatternGroup"));
-	_CoreActionController.def("isSongPathValid", &H2Core::CoreActionController::isSongPathValid,
-		"Checks the path of the .h2song provided via OSC.",
-		py::arg("songPath"));
-
 	py::class_<H2Core::Song, H2Core::Object, std::shared_ptr<H2Core::Song>> _Song(m, "Song");
 	_Song.def(py::init<const QString &, const QString &, float, float>());
 	_Song.def_static("class_name", &H2Core::Song::class_name);
@@ -1573,9 +1572,9 @@ namespace py = pybind11;
 		py::arg("bShort"));
 	_Song.def("__repr__",
 	[](const H2Core::Song & song) {
-        return "<Song \"" + song.getName() + "\">";
-    }
-    );
+  return "<Song \"" + song.getName() + "\">";
+}
+);
 
 	py::class_<H2Core::AutomationPath, H2Core::Object, std::shared_ptr<H2Core::AutomationPath>> _AutomationPath(m, "AutomationPath");
 	_AutomationPath.def(py::init<float, float, float>());
@@ -2123,31 +2122,33 @@ namespace py = pybind11;
 		"Returns data size, which is calculated by #__frames time sizeof( float ) * 2");
 	_Sample.def("get_data_l",
 	[](const H2Core::Sample & sample) {
-            size_t nframes = sample.get_frames();
-            auto result = py::array_t<float>(nframes);
-            py::buffer_info buf = result.request();
-            float *ptr = static_cast<float *>(buf.ptr);
-            float *src = sample.get_data_l();
-            for (size_t idx = 0; idx < nframes; idx++) {
-                ptr[idx] = src[idx];
-            }
-            return result;
-        }
-        ,
+
+    size_t nframes = sample.get_frames();
+    auto result = py::array_t<float>(nframes);
+    py::buffer_info buf = result.request();
+    float *ptr = static_cast<float *>(buf.ptr);
+    float *src = sample.get_data_l();
+    for (size_t idx = 0; idx < nframes; idx++) {
+        ptr[idx] = src[idx];
+    }
+    return result;
+}
+,
 		"Returns #__data_l");
 	_Sample.def("get_data_r",
 	[](const H2Core::Sample & sample) {
-            size_t nframes = sample.get_frames();
-            auto result = py::array_t<float>(nframes);
-            py::buffer_info buf = result.request();
-            float *ptr = static_cast<float *>(buf.ptr);
-            float *src = sample.get_data_r();
-            for (size_t idx = 0; idx < nframes; idx++) {
-                ptr[idx] = src[idx];
-            }
-            return result;
-        }
-        ,
+
+    size_t nframes = sample.get_frames();
+    auto result = py::array_t<float>(nframes);
+    py::buffer_info buf = result.request();
+    float *ptr = static_cast<float *>(buf.ptr);
+    float *src = sample.get_data_r();
+    for (size_t idx = 0; idx < nframes; idx++) {
+        ptr[idx] = src[idx];
+    }
+    return result;
+}
+,
 		"Returns #__data_r");
 	_Sample.def("set_is_modified", &H2Core::Sample::set_is_modified,
 		"#__is_modified setter",
@@ -2173,9 +2174,9 @@ namespace py = pybind11;
 		py::arg("bShort"));
 	_Sample.def("__repr__",
 	[](const H2Core::Sample & sample) {
-        return "<Sample \"" + sample.get_filename() + "\">";
-    }
-    );
+  return "<Sample \"" + sample.get_filename() + "\">";
+}
+);
 
 	py::class_<H2Core::InstrumentList, H2Core::Object, std::shared_ptr<H2Core::InstrumentList>> _InstrumentList(m, "InstrumentList");
 	_InstrumentList.def(py::init<>());
@@ -2525,9 +2526,9 @@ namespace py = pybind11;
 		py::arg("bShort"));
 	_Instrument.def("__repr__",
 	[](const H2Core::Instrument & instrument) {
-        return "<Instrument \"" + instrument.get_name() + "\">";
-    }
-    );
+  return "<Instrument \"" + instrument.get_name() + "\">";
+}
+);
 
 	py::class_<H2Core::ADSR, H2Core::Object, std::shared_ptr<H2Core::ADSR>> _ADSR(m, "ADSR");
 	_ADSR.def(py::init<unsigned int, unsigned int, float, unsigned int>());
@@ -2616,9 +2617,9 @@ namespace py = pybind11;
 		py::arg("bShort"));
 	_DrumkitComponent.def("__repr__",
 	[](const H2Core::DrumkitComponent & dkc) {
-        return "<DrumkitComponent \"" + dkc.get_name() + "\">";
-    }
-    );
+  return "<DrumkitComponent \"" + dkc.get_name() + "\">";
+}
+);
 
 	py::class_<H2Core::Drumkit, H2Core::Object, std::shared_ptr<H2Core::Drumkit>> _Drumkit(m, "Drumkit");
 	_Drumkit.def(py::init<>());
@@ -2741,9 +2742,9 @@ namespace py = pybind11;
 		py::arg("bShort"));
 	_Drumkit.def("__repr__",
 	[](const H2Core::Drumkit & drumkit) {
-        return "<Drumkit \"" + drumkit.get_name() + "\">";
-    }
-    );
+  return "<Drumkit \"" + drumkit.get_name() + "\">";
+}
+);
 
 	py::class_<H2Core::XMLNode, H2Core::Object, std::shared_ptr<H2Core::XMLNode>> _XMLNode(m, "XMLNode");
 	_XMLNode.def(py::init<>());
