@@ -1,9 +1,11 @@
 #include <h2core_module.hpp>
 namespace py = pybind11;
 
-using namespace H2Core;
 
-PYBIND11_MODULE(h2core, m) {
+        using namespace H2Core;
+
+
+        PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::Object, std::shared_ptr<H2Core::Object>> _Object(m, "Object");
 	_Object.def(py::init<>());
@@ -2121,31 +2123,31 @@ PYBIND11_MODULE(h2core, m) {
 		"Returns data size, which is calculated by #__frames time sizeof( float ) * 2");
 	_Sample.def("get_data_l",
 	[](const H2Core::Sample & sample) {
-        size_t nframes = sample.get_frames();
-        auto result = py::array_t<float>(nframes);
-        py::buffer_info buf = result.request();
-        float *ptr = static_cast<float *>(buf.ptr);
-        float *src = sample.get_data_l();
-        for (size_t idx = 0; idx < nframes; idx++) {
-            ptr[idx] = src[idx];
+            size_t nframes = sample.get_frames();
+            auto result = py::array_t<float>(nframes);
+            py::buffer_info buf = result.request();
+            float *ptr = static_cast<float *>(buf.ptr);
+            float *src = sample.get_data_l();
+            for (size_t idx = 0; idx < nframes; idx++) {
+                ptr[idx] = src[idx];
+            }
+            return result;
         }
-        return result;
-    }
-    ,
+        ,
 		"Returns #__data_l");
 	_Sample.def("get_data_r",
 	[](const H2Core::Sample & sample) {
-        size_t nframes = sample.get_frames();
-        auto result = py::array_t<float>(nframes);
-        py::buffer_info buf = result.request();
-        float *ptr = static_cast<float *>(buf.ptr);
-        float *src = sample.get_data_r();
-        for (size_t idx = 0; idx < nframes; idx++) {
-            ptr[idx] = src[idx];
+            size_t nframes = sample.get_frames();
+            auto result = py::array_t<float>(nframes);
+            py::buffer_info buf = result.request();
+            float *ptr = static_cast<float *>(buf.ptr);
+            float *src = sample.get_data_r();
+            for (size_t idx = 0; idx < nframes; idx++) {
+                ptr[idx] = src[idx];
+            }
+            return result;
         }
-        return result;
-    }
-    ,
+        ,
 		"Returns #__data_r");
 	_Sample.def("set_is_modified", &H2Core::Sample::set_is_modified,
 		"#__is_modified setter",
