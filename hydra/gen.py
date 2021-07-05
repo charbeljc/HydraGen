@@ -3,6 +3,7 @@ from logging import log
 import logging
 import os
 from logzero import logger
+from camel_snake_kebab import camelCase, snake_case
 from .conf import Config
 from .dom import (
     FACTORY,
@@ -40,16 +41,7 @@ anon_count = 0
 
 
 def generate_enum(context: Context, enum: Enum, bindings, code):
-    global anon_count
-    anon = False
     name = enum.name
-    if not name:
-        return
-    if context.is_banned(enum):
-        emit(code, f"\t// [banned] {enum.fullname}\n\n")
-        return
-    if not enum.is_public():
-        return
     if enum.parent:
         qname = enum.fullname
         if isinstance(enum.parent, Namespace):
@@ -60,25 +52,66 @@ def generate_enum(context: Context, enum: Enum, bindings, code):
         qname = enum.name
         parent = "m"
 
-    if anon:
-        qname = "_anenum_%s" % anon_count
-        anon_count += 1
-        anon = True
-        name = qname
+    if not name:
+        # anonymous enum
+        # if isinstance(enum.parent, Record):
+        #     emit(code, f"""\n\t// anonymous enum\n""")
+        #     emit(code, f"""\t// {enum.location}\n""")
+        #     for ec in enum._filter(EnumConstant):
+        #         emit(code,
+        #         f"""\t{parent}.attr("{ec.name}") = py::cast(int({enum.parent.fullname}::{ec.name}));\n""")
+        #     emit(code, "\n")
+        return
+
+    if context.is_banned(enum):
+        emit(code, f"\t// [banned] {enum.fullname}\n")
+        emit(code, f"""\t// {enum.location}\n""")
+        return
+    if not enum.is_public():
+        return
     emit(code, f"""\t// enum {name}\n""")
+    emit(code, f"""\t// {enum.location}\n""")
     emit(code, f"""\tpy::enum_<{qname}>({parent}, "{name}")""")
     for ec in enum._filter(EnumConstant):
-        if anon:
-            assert enum.parent
-            emit(
-                code,
-                f"""\n\t\t.value("{ec.name}", {enum.parent.fullname}::{ec.name})""",
-            )
-        else:
-            emit(code, f"""\n\t\t.value("{ec.name}", {ec.fullname})""")
-    if anon:
+        emit(code, f"""\n\t\t.value("{ec.name}", {ec.fullname})""")
+    if context.export_enum_values(enum):
         emit(code, f"""\n\t\t.export_values()""")
     emit(code, ";\n\n")
+
+
+def is_getter(method: Method):
+    name = method.name
+    if camelCase(name) == name:
+        name = snake_case(name)
+    logger.warning("CHECK-GETTER %s %s, %s", method, name, method.parameters)
+    if name.startswith('get_') and len(method.parameters) == 0:
+        logger.warning("CHECK: %s BINGO", method)
+        return True
+    return False
+
+def getter_prop_name(method):
+    if is_getter(method):
+        name = method.name
+        if camelCase(name) == name:
+            name = snake_case(name)
+        return name[len('get_'):]
+
+
+def is_setter(method: Method):
+    name = method.name
+    if camelCase(name) == name:
+        name = snake_case(name)
+    logger.warning("CHECK-SETTER %s %s", method, name)
+    if name.startswith('set_') and len(method.parameters) == 1:
+        return True
+    return False
+
+def setter_prop_name(method):
+    if is_setter(method):
+        name = method.name
+        if camelCase(name) == name:
+            name = snake_case(name)
+        return name[len('set_'):]
 
 
 def generate_record(context: Context, rec: Record, bindings, code):
@@ -136,6 +169,83 @@ def generate_record(context: Context, rec: Record, bindings, code):
         overloads = {}
         for m in rec.methods:
             overloads.setdefault(m.name, []).append(m)
+
+        # properties
+        props = {}
+        for method_name in list(overloads):
+            methods = overloads.get(method_name)
+            if not methods:
+                continue
+            logger.warning("CHECK: %s %s", method_name, methods)
+            if len(methods) != 1:
+                logger.warning("SKIP: %s: %s", method_name, methods)
+                continue
+            method = methods[0]
+            if context.is_banned(method):
+                continue
+            if is_getter(method):
+                logger.warning("CHECK! GETTER! BINGO: %s", method)
+                prop_name = getter_prop_name(method)
+
+                props.setdefault(prop_name, {})['getter'] = method
+                del overloads[method_name]
+                if prop_name in overloads:
+                    del overloads[prop_name]
+
+            elif is_setter(method):
+                logger.warning("CHECK! SETTER! BINGO: %s", method)
+
+                if context.is_banned(method):
+                    continue
+                prop_name = setter_prop_name(method)
+
+                props.setdefault(prop_name, {})['setter'] = method
+                del overloads[method_name]
+                # if prop_name in overloads:
+                #     del overloads[prop_name]
+            else:
+                logger.warning("CHECK ... NOT GETTER/SETTER: %s", method)
+
+        for name in props:
+            prop_info = props[name]
+            getter: Method | None = prop_info.get('getter')
+            setter = prop_info.get('setter')
+            logger.info("PROP: %s: %s %s", name, getter, setter)
+            if getter and setter:
+                rbg= context.return_policy(getter)
+                rbs= context.return_policy(setter)
+                emit(code,
+                f"""\n\t_{rec.name}.def_property("{name}", &{getter.fullname}, &{setter.fullname}""")
+                if rbg:
+                    emit(code, f", {rbg}")
+                if rbs:
+                    emit(code, f", {rbs}")
+                emit(code, """);""")
+            elif getter:
+                rbg = context.return_policy(getter)
+                defun = 'def_property_readonly'
+                if getter.is_static():
+                    defun = 'def_property_readonly_static'
+                    gcode = f"[](py::object) {{ return {getter.fullname}(); }}"
+                    if mcode := context.bind_with_lambda(getter):
+                        logger.info("BINGO! %s %s", getter, mcode)
+                        gcode = mcode
+                    emit(code, f"""\n\t_{rec.name}.{defun}("{name}", {gcode}""")
+                    if rbg:
+                        emit(code, f", {rbg}")
+                else:
+                    gcode = context.bind_with_lambda(getter)
+                    if gcode:
+                        logger.info("BINGO! %s %s", getter, gcode)
+                        emit(code, f"""\n\t_{rec.name}.{defun}("{name}", {gcode}""")
+                        if rbg:
+                            emit(code, f", {rbg}")
+                    else:
+                        emit(code,
+                        f"""\n\t_{rec.name}.{defun}("{name}", &{getter.fullname}""")
+                        if rbg:
+                            emit(code, f", {rbg}")
+                emit(code, """);""")
 
         for name in overloads:
             signatures = overloads[name]
@@ -309,7 +419,7 @@ def generate(config: Config, outdir):
     ctx = Context(FACTORY, config)
     modname = config._module_name
     bindings = config._bindings
-    # config.dump()
+    config.dump()
     # seeding
     # generate initial includes
     header = []
@@ -337,18 +447,22 @@ def generate(config: Config, outdir):
     tx.walk()
     records = []
     for name, path in bindings.items():
-        try:
-            binding = tx[name]
-            if isinstance(binding, Namespace):
-                for b in binding._filter(Bindable):
-                    records.append(b)
-            elif isinstance(binding, Bindable):
-                records.append(binding)
-            else:
-                logger.warning("non bindable: %s", binding)
+        if name == '*':
+            records += list(tx._filter(Bindable))
+            logger.warning("todo wildcard")
+        else:
+            try:
+                binding = tx[name]
+                if isinstance(binding, Namespace):
+                    for b in binding._filter(Bindable):
+                        records.append(b)
+                elif isinstance(binding, Bindable):
+                    records.append(binding)
+                else:
+                    logger.warning("non bindable: %s", binding)
 
-        except KeyError:
-            logger.warning("%s not found", name)
+            except KeyError:
+                logger.warning("%s not found", name)
 
     casters = ctx.casters()
     for caster in casters:

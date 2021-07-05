@@ -29,11 +29,14 @@ class Config:
     _prolog: set[str]
     _module_name: str
     _bindings: dict[str, list[str | Path]]
+    _exported_enum_values: set[str]
 
     def __init__(self, modname: str):
         self._module_name = modname
         self._banned = OrderedSet()
         self._banned_patterns = OrderedSet()
+        self._banned_prefixes = OrderedSet()
+        self._banned_suffixes = OrderedSet()
         self._cleaners = OrderedSet()
         self._plugins = OrderedSet()
         self._cflags = OrderedSet()
@@ -43,43 +46,56 @@ class Config:
         self._policies = dict()
         self._prolog = OrderedSet()
         self._bindings = dict()
+        self._exported_enum_values = OrderedSet()
 
     @staticmethod
     def parse(path: str) -> Config:
         with open(path) as src:
             data = yaml.safe_load(src)
+        module_data = data['module']
 
-        conf = Config(data["module"]["name"])
-        conf.add_cflags(data["module"]["flags"])
-        for path in data["module"]["include_path"]:
+        conf = Config(module_data["name"])
+        conf.add_cflags(module_data["flags"])
+        for path in module_data["include_path"]:
             conf.add_include_path(path)
-        conf._bindings = data["module"]["bindings"]
-        conf.ban(data["module"]["ban"])
-        for cleaner in data["module"]["cleaners"]:
-            conf.add_cleaner(cleaner)
-        for plugin in data["module"]["plugins"]:
-            conf.add_plugin(plugin)
-        for policy in data["module"]["policies"]:
-            conf.add_policy(policy["name"], policy["policy"])
-        conf.add_prolog(data["module"]["prolog"])
+        conf._bindings = module_data["bindings"]
 
-        for item in data["module"]["bind_with_lambda"]:
-            qname, *sig = item["name"].split("(", 1)
-            *parent, name = qname.split("::")
-            assert parent
-            parent = "::".join(parent)
-            assert sig
-            fun = name + "(" + sig[0]
-            conf.bind_with_lambda(parent, fun, item["code"])
+        if 'ban' in module_data:
+            conf.ban(module_data["ban"])
 
-        for item in data["module"]["add_method"]:
-            qname, *sig = item["name"].split("(", 1)
-            *parent, name = qname.split("::")
-            assert parent
-            parent = "::".join(parent)
-            assert not sig
-            # fun = name + '(' + sig[0]
-            conf.add_method(parent, name, item["code"])
+        if 'cleaners' in module_data:
+            for cleaner in module_data["cleaners"]:
+                conf.add_cleaner(cleaner)
+
+        if 'plugins' in module_data:
+            for plugin in module_data["plugins"]:
+                conf.add_plugin(plugin)
+
+        if 'policies' in module_data:
+            for policy in module_data["policies"]:
+                conf.add_policy(policy["name"], policy["policy"])
+
+        if 'prolog' in module_data:
+            conf.add_prolog(module_data["prolog"])
+
+        if 'bind_with_lambda' in module_data:
+            for item in module_data["bind_with_lambda"]:
+                qname, *sig = item["name"].split("(", 1)
+                *parent, name = qname.split("::")
+                assert parent
+                parent = "::".join(parent)
+                assert sig
+                fun = name + "(" + sig[0]
+                conf.bind_with_lambda(parent, fun, item["code"])
+        if 'add_method' in module_data:
+            for item in module_data["add_method"]:
+                qname, *sig = item["name"].split("(", 1)
+                *parent, name = qname.split("::")
+                assert parent
+                parent = "::".join(parent)
+                assert not sig
+                # fun = name + '(' + sig[0]
+                conf.add_method(parent, name, item["code"])
 
         return conf
 
@@ -102,6 +118,10 @@ class Config:
         for cppname in spec:
             if cppname.startswith("*::"):
                 self._banned_patterns.add(cppname[3:])
+            elif cppname.startswith("*"):
+                self._banned_suffixes.add(cppname[1:])
+            elif cppname.endswith("*") and not cppname.endswith('operator*'):
+                self._banned_prefixes.add(cppname[:-1])
             else:
                 self._banned.add(cppname)
         return self
@@ -163,6 +183,17 @@ class Config:
     def add_prolog(self, code) -> Config:
         self._prolog.add(code)
         return self
+    
+    def export_enum_values(self, spec: str | list[str]) -> Config:
+        if isinstance(spec, str):
+            spec = list(spec)
+        for name in spec:
+            self._exported_enum_values.add(name)
+        return self
+
+    def are_enum_values_exported(self, name) -> bool:
+        return name in self._exported_enum_values
+
 
     def emit(self, what) -> Config:
         for key in what:
@@ -179,17 +210,38 @@ class Config:
         """check if a given cppname is banned from bindings generation"""
         banned = False
         if cppname in self._banned:
-            banned = True
-        elif "::" in cppname:
-            if "(" in cppname:
-                localname, signature = cppname.split("(", 1)
-                signature = "(" + signature
-            else:
-                localname, signature = cppname, ""
-            last = localname.split("::")[-1]
+            return True
+
+        if '(' in cppname:
+            fullname, signature = cppname.split("(", 1)
+            signature = "(" + signature
+        else:
+            fullname, signature = cppname, ""
+
+        if '&&' in signature:  # pybind11 always barks on this
+            return True
+
+        if "::" in fullname:
+            last = fullname.split("::")[-1]
             localname = last + signature
             if localname in self._banned_patterns:
                 banned = True
+        else:
+            localname = last = fullname
+
+        for sfx in self._banned_suffixes:
+            if fullname.endswith(sfx):
+                banned = True
+                break
+
+        for pfx in self._banned_prefixes:
+            if fullname.startswith(pfx):
+                banned = True
+                break
+            if localname.startwith(pfx):
+                banned = True
+                break
+
         return banned
 
     def dump(self, file=None):

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from logging import StreamHandler
 
 import sys
 from collections import abc
@@ -107,6 +108,9 @@ class Context:
         else:
             return list(candidate.items())
 
+    def export_enum_values(self, item: Enum) -> bool:
+        return self.config.are_enum_values_exported(item.fullname)
+
     def lambda_code(self, item: NodeProxy) -> str:
         breakpoint()
         return ''
@@ -200,13 +204,6 @@ class NodeProxy:
         return f"<{self.__class__.__name__} {self.displayname!r}>"  # {self.usr!r}>"
 
     def accept(self, item):
-        if not self.allowed(item):
-            logger.debug("reject %s item %s", self, item)
-            return False
-        if item == self:
-            logger.debug("ACCEPT SELF: %s", item)
-            return True
-        ### FIXME: move to allowed
         if (
             item.node.semantic_parent
             and item.kind
@@ -217,20 +214,47 @@ class NodeProxy:
             # and item.node.semantic_parent.kind != CursorKind.TRANSLATION_UNIT
             and item.node.semantic_parent.get_usr() != self.node.get_usr()
         ):
-            logger.debug(
-                "reject (not parent) %s, item: %s, parent: %s",
-                self,
-                item,
-                kind(item.node.semantic_parent),
-            )
+            real_parent = self.context.elements.get(item.node.semantic_parent.get_usr())
+        else:
+            real_parent = self
+        if not real_parent:
+            logger.warning("XXX rpnf: %s, %s %s:\n%s",
+            item, item.node.semantic_parent.kind, item.node.semantic_parent.spelling, item.location) 
             return False
-        logger.debug("ACCEPT: %s, item %s, loc: %s", self, item, item.location)
-        if self.name == "is_array" and item.name == "__not_":
-            breakpoint()
-        if not isinstance(item, Pop):
+        if real_parent is self or isinstance(real_parent, ClassTemplate):
+            logger.debug("ACCEPT: %s, item %s, loc: %s", real_parent, item, item.location)
+            real_parent.content.setdefault(item.name, OrderedSet()).add(item)
+            if not isinstance(real_parent, TxUnit):
+                item.parent = real_parent
+        elif isinstance(item, TypeAliasTemplateDecl) and isinstance(real_parent, (Namespace, Record)):
+            logger.debug("ACCEPT: %s, item %s, loc: %s", real_parent, item, item.location)
+            real_parent.content.setdefault(item.name, OrderedSet()).add(item)
+            if not isinstance(real_parent, TxUnit):
+                item.parent = real_parent
+        elif isinstance(item, (Constructor, Destructor, Method)) and isinstance(real_parent, Record):
+            logger.debug("ACCEPT: %s, item %s, loc: %s", real_parent, item, item.location)
+            real_parent.content.setdefault(item.name, OrderedSet()).add(item)
+            if not isinstance(real_parent, TxUnit):
+                item.parent = real_parent
+        elif (isinstance(item, (Enum, Struct)) and isinstance(self, TypeDef)
+            or isinstance(item, (Enum, Struct)) and isinstance(self, Field) and isinstance(real_parent, Record)):
+            # small deviation
+            logger.warning("TypeDef/Field Enum/Struct: %s, %s, %s: %s", item, self, real_parent, item.location)
+            logger.debug("ACCEPT(*): %s, item %s, loc: %s", self, item, item.location)
             self.content.setdefault(item.name, OrderedSet()).add(item)
-            if not isinstance(self, TxUnit):
-                item.parent = self
+            real_parent.content.setdefault(item.name, OrderedSet()).add(item)
+            if not isinstance(real_parent, TxUnit):
+                item.parent = real_parent
+        elif isinstance(self, (TxUnit, Namespace)) and isinstance(real_parent, (Namespace, Record)):
+            logger.debug("ACCEPT: %s, item %s, loc: %s", real_parent, item, item.location)
+            real_parent.content.setdefault(item.name, OrderedSet()).add(item)
+            if not isinstance(real_parent, TxUnit):
+                item.parent = real_parent
+
+        else:
+            logger.warning("reject: self: %s item: %s, real_parent: %s\nloc: %s", 
+                self, item, real_parent, item.location)
+            return False
         return True
 
     def accept_occurence(self, node: Cursor):
@@ -337,7 +361,7 @@ class NodeProxy:
             self._usr = self.node.get_usr()
         return self._usr or None
 
-    def __getitem__(self, name_or_path):
+    def __getitem__(self, name_or_path) -> NodeProxy:
         if isinstance(name_or_path, str):
             name_or_path = name_or_path.split("::")
         head, tail = name_or_path[0], name_or_path[1:]
