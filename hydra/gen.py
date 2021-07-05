@@ -176,15 +176,12 @@ def generate_record(context: Context, rec: Record, bindings, code):
             methods = overloads.get(method_name)
             if not methods:
                 continue
-            logger.warning("CHECK: %s %s", method_name, methods)
             if len(methods) != 1:
-                logger.warning("SKIP: %s: %s", method_name, methods)
                 continue
             method = methods[0]
             if context.is_banned(method):
                 continue
             if is_getter(method):
-                logger.warning("CHECK! GETTER! BINGO: %s", method)
                 prop_name = getter_prop_name(method)
 
                 props.setdefault(prop_name, {})['getter'] = method
@@ -193,7 +190,6 @@ def generate_record(context: Context, rec: Record, bindings, code):
                     del overloads[prop_name]
 
             elif is_setter(method):
-                logger.warning("CHECK! SETTER! BINGO: %s", method)
 
                 if context.is_banned(method):
                     continue
@@ -203,14 +199,11 @@ def generate_record(context: Context, rec: Record, bindings, code):
                 del overloads[method_name]
                 # if prop_name in overloads:
                 #     del overloads[prop_name]
-            else:
-                logger.warning("CHECK ... NOT GETTER/SETTER: %s", method)
 
         for name in props:
             prop_info = props[name]
             getter: Method | None = prop_info.get('getter')
             setter = prop_info.get('setter')
-            logger.info("PROP: %s: %s %s", name, getter, setter)
             if getter and setter:
                 rbg= context.return_policy(getter)
                 rbs= context.return_policy(setter)
@@ -236,7 +229,6 @@ def generate_record(context: Context, rec: Record, bindings, code):
                 else:
                     gcode = context.bind_with_lambda(getter)
                     if gcode:
-                        logger.info("BINGO! %s %s", getter, gcode)
                         emit(code, f"""\n\t_{rec.name}.{defun}("{name}", {gcode}""")
                         if rbg:
                             emit(code, f", {rbg}")
