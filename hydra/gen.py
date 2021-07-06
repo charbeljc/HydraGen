@@ -71,7 +71,7 @@ def generate_enum(context: Context, enum: Enum, bindings, code):
         return
     emit(code, f"""\t// enum {name}\n""")
     emit(code, f"""\t// {enum.location}\n""")
-    emit(code, f"""\tpy::enum_<{qname}>({parent}, "{name}")""")
+    emit(code, f"""\tpy::enum_<{qname}>({parent}, "{name}", py::arithmetic())""")
     for ec in enum._filter(EnumConstant):
         emit(code, f"""\n\t\t.value("{ec.name}", {ec.fullname})""")
     if context.export_enum_values(enum):
@@ -124,11 +124,14 @@ def generate_record(context: Context, rec: Record, bindings, code):
     if not rec.name:
         return
     mro = rec.fullname
+    mro = OrderedSet()
+    mro.add(rec.fullname)
     for base in rec.bases:
         if base in bindings and not base.is_abstract():
-            mro += ", " + base.fullname
+            mro.add(base.fullname)
         else:
             logger.warning("base class not in bindings or abstract: %s %s", rec, base)
+    mro = ', '.join(mro)
     mro += f", std::shared_ptr<{rec.fullname}>"
 
     emit(code, f"""\tpy::class_<{mro}> _{rec.name}(m, "{rec.name}");""")
