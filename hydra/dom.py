@@ -122,6 +122,14 @@ class Context:
             candidate = self.config._policies.get(key)
         return candidate
 
+    def get_handler_policy(self, item: Record) ->str | None:
+        return "std::shared_ptr"
+
+    def get_arith_enum(self, enum: Enum) -> bool:
+        if enum.name == 'log_levels' and enum.parent.name == 'Logger':
+            return True
+        return False
+
     @property
     def top(self) -> NodeProxy | None:
         if self.stack:

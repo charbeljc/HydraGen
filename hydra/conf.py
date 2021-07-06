@@ -96,6 +96,9 @@ class Config:
                 assert not sig
                 # fun = name + '(' + sig[0]
                 conf.add_method(parent, name, item["code"])
+        if 'export_enum_values' in module_data:
+            conf.export_enum_values(module_data['export_enum_values'])
+
 
         return conf
 

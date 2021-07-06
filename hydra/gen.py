@@ -132,7 +132,9 @@ def generate_record(context: Context, rec: Record, bindings, code):
         else:
             logger.warning("base class not in bindings or abstract: %s %s", rec, base)
     mro = ', '.join(mro)
-    mro += f", std::shared_ptr<{rec.fullname}>"
+    handler_policy = context.get_handler_policy(rec)
+    if handler_policy:
+        mro += f", {handler_policy}<{rec.fullname}>"
 
     emit(code, f"""\tpy::class_<{mro}> _{rec.name}(m, "{rec.name}");""")
 
