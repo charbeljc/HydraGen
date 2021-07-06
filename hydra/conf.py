@@ -30,6 +30,7 @@ class Config:
     _module_name: str
     _bindings: dict[str, list[str | Path]]
     _exported_enum_values: set[str]
+    _arith_enums: set[str]
 
     def __init__(self, modname: str):
         self._module_name = modname
@@ -47,6 +48,7 @@ class Config:
         self._prolog = OrderedSet()
         self._bindings = dict()
         self._exported_enum_values = OrderedSet()
+        self._arith_enums = OrderedSet()
 
     @staticmethod
     def parse(path: str) -> Config:
@@ -98,7 +100,8 @@ class Config:
                 conf.add_method(parent, name, item["code"])
         if 'export_enum_values' in module_data:
             conf.export_enum_values(module_data['export_enum_values'])
-
+        if 'arith_enum' in module_data:
+            conf.add_arith_enum(module_data['arith_enum'])
 
         return conf
 
@@ -197,6 +200,15 @@ class Config:
     def are_enum_values_exported(self, name) -> bool:
         return name in self._exported_enum_values
 
+    def add_arith_enum(self, spec: str | list[str]) -> Config:
+        if isinstance(spec, str):
+            spec = list(spec)
+        for name in spec:
+            self._arith_enums.add(name)
+        return self
+
+    def arith_enum(self, name) -> bool:
+        return name in self._arith_enums
 
     def emit(self, what) -> Config:
         for key in what:
