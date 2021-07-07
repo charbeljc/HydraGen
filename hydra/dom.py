@@ -125,10 +125,25 @@ class Context:
     def get_handler_policy(self, item: Record) ->str | None:
         return "std::shared_ptr"
 
-    def get_arith_enum(self, enum: Enum) -> bool:
+    def arith_enum(self, enum: Enum) -> bool:
         if enum.name == 'log_levels' and enum.parent.name == 'Logger':
             return True
         return False
+
+    def needs_trampoline(self, item: Record | Enum | Function) -> bool:
+        if isinstance(item, (Enum, Function)):
+            return False
+        if item.is_abstract():
+            return True
+        for m in item.methods:
+            if m.is_virtual():
+                return True
+        return False
+
+    def get_default_value(self, param: Param) -> str | None:
+        if param.name == 'bShort' and param.parent.name == 'toQString':
+            return "true"
+        return None
 
     @property
     def top(self) -> NodeProxy | None:
@@ -609,6 +624,8 @@ class Method(Callable):
     def is_pure_virtual(self):
         return self.node.is_pure_virtual_method()
 
+    def is_const(self):
+        return self.node.is_const_method()
 
 class TypeRef(TypeHolder):
     pass

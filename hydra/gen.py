@@ -71,8 +71,14 @@ def generate_enum(context: Context, enum: Enum, bindings, code):
         return
     emit(code, f"""\t// enum {name}\n""")
     emit(code, f"""\t// {enum.location}\n""")
-    emit(code, f"""\tpy::enum_<{qname}>({parent}, "{name}", py::arithmetic())""")
+    emit(code, f"""\tpy::enum_<{qname}>({parent}, "{name}\"""")
+    if context.arith_enum(enum):
+        emit(code, ", py::arithmetic())")
+    else:
+        emit(code, ")")
     for ec in enum._filter(EnumConstant):
+        if context.is_banned(ec):
+            emit(code, f"""\n\t// [banned] .value("{ec.name}", {ec.fullname})""")
         emit(code, f"""\n\t\t.value("{ec.name}", {ec.fullname})""")
     if context.export_enum_values(enum):
         emit(code, f"""\n\t\t.export_values()""")
@@ -113,6 +119,68 @@ def setter_prop_name(method):
             name = snake_case(name)
         return name[len('set_'):]
 
+def generate_trampoline(context: Context, code: list[str], rec: Record, bindings):
+    if context.is_banned(rec):
+        emit(code, f"\t// [banned trampoline] {rec.fullname}\n\n")
+        return
+    if rec.is_private():
+        emit(code, f"\t// [private trampoline] {rec.fullname}\n\n")
+        return
+    emit(code,
+    f"""
+class PyB11_{rec.name}: public {rec.fullname} {{
+    public:
+        // Inherit the constructors
+        using {rec.fullname}::{rec.name};
+""")
+    for m in rec.methods:
+        if not m.is_public():
+            continue
+        if m.is_virtual():
+            override = 'PYBIND11_OVERRIDE'
+            if m.is_pure_virtual():
+                override = 'PYBIND11_OVERRIDE_PURE'
+            ## FIXME
+            #
+            # return_type = m.type.node.spelling # approximation
+            mtype = m.node.type.spelling.split('(')[0].strip()
+            return_type = mtype
+            if not return_type:
+                logger.warning("empty return type: %s", m)
+                continue
+            signature = m.cpp_signature
+            if '<' in signature:
+                logger.warning("can't parse signature: %s", m)
+                continue
+            param_types = signature.split(', ')
+            param_names = [p.name for p in m.parameters]
+            default_values = [context.get_default_value(p) for p in m.parameters]
+            params =  [ n if not dv else f'{n} = {dv}' for (n, dv) in zip(param_names, default_values)]
+            params = [' '.join([t, n]) for (t, n) in zip(param_types, params)]
+            signature = ', '.join(params)
+            constness = ""
+            if m.is_const():
+                constness = "const "
+                if m.name == "what" and m.parent.name == "runtime_error":
+                    constness += "noexcept "
+            emit(code,
+            f"""
+        {return_type} {m.name}({signature}) {constness}override {{
+            {override}(
+                {return_type},
+                {rec.fullname},
+                {m.name}""")
+            for p in m.parameters:
+                emit(code,
+                f""",\n\t\t\t{p.name}"""
+                    )
+            emit(code,"""
+                );
+            }
+""")
+    emit(code, """
+    };
+""")
 
 def generate_record(context: Context, rec: Record, bindings, code):
     if context.is_banned(rec):
@@ -123,11 +191,12 @@ def generate_record(context: Context, rec: Record, bindings, code):
         return
     if not rec.name:
         return
-    mro = rec.fullname
     mro = OrderedSet()
     mro.add(rec.fullname)
+    if context.needs_trampoline(rec):
+        mro.add(f'PyB11_{rec.name}')
     for base in rec.bases:
-        if base in bindings and not base.is_abstract():
+        if base in bindings: # and not base.is_abstract():
             mro.add(base.fullname)
         else:
             logger.warning("base class not in bindings or abstract: %s %s", rec, base)
@@ -375,15 +444,16 @@ def generate_module(context: Context, name, bindings, include_paths, code):
 
     emit(code, "namespace py = pybind11;\n\n")
 
+    for binding in bindings:
+        if context.needs_trampoline(binding):
+            generate_trampoline(context, code, binding, bindings)
+
     for fragment in context.config._prolog:
         emit(code, fragment)
     emit(code, f"PYBIND11_MODULE({name}, m) {{\n\n")
     for binding in bindings:
         if isinstance(binding, Record):
-            if binding.is_abstract():
-                emit(code, f"// abstract class {binding.name}\n\n")
-            else:
-                generate_record(context, binding, bindings, code)
+            generate_record(context, binding, bindings, code)
         elif isinstance(binding, Enum):
             generate_enum(context, binding, bindings, code)
         elif isinstance(binding, Function):
